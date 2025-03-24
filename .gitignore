@@ -1,0 +1,5 @@
+/target
+.history
+.env
+db.*
+template.json
