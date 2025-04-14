@@ -66,4 +66,8 @@ impl Reg for Reg0150 {
                 .join("|")
         )
     }
+
+    fn to_db(&self, reg: &Reg0150, conn: &sqlx::SqlitePool) -> Result<(), Error> {
+        todo!()
+    }
 }

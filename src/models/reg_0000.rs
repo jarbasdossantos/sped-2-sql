@@ -1,10 +1,6 @@
-use sqlx::FromRow;
+use crate::models::reg_trait::Reg;
 
-use super::reg_trait::Reg;
-use super::utils::{get_date, get_field};
-
-#[derive(Debug, Clone, FromRow)]
-#[allow(dead_code)]
+#[derive(Debug)]
 pub struct Reg0000 {
     pub reg: Option<String>,
     pub cod_ver: Option<String>,

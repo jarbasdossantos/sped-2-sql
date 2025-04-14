@@ -12,32 +12,34 @@ lazy_static! {
     static ref REG_FACTORIES: HashMap<&'static str, RegFactory> = {
         let mut map = HashMap::<&'static str, RegFactory>::new();
 
-        map.insert("0000", |fields| {
-            Box::new(Reg0000::new(fields)) as Box<dyn Reg>
-        });
-
-        map.insert("0035", |fields| {
-            Box::new(Reg0035::new(fields)) as Box<dyn Reg>
-        });
-
-        map.insert("0150", |fields| {
-            Box::new(Reg0150::new(fields)) as Box<dyn Reg>
-        });
-
-        map
+        // map.insert("0000", |fields| {
+        //     Box::new(Reg0000::new(fields)) as Box<dyn Reg>
+        // });
+        // 
+        // map.insert("0035", |fields| {
+        //     Box::new(Reg0035::new(fields)) as Box<dyn Reg>
+        // });
+        // 
+        // map.insert("0150", |fields| {
+        //     Box::new(Reg0150::new(fields)) as Box<dyn Reg>
+        // });
+        // 
+        // map
     };
 }
 
 // Handle each line of the file
-pub fn handle_line(line: &str) {
+pub fn handle_line(line: &str, conn: &sqlx::SqlitePool) {
     let data = line.split("|").collect::<Vec<&str>>();
 
     if let Some(factory) = REG_FACTORIES.get(data.get(1).expect("No register code found")) {
-        let _reg: Box<dyn Reg> = factory(data);
+        let reg: Box<dyn Reg> = factory(data);
+
+        reg.to_db(&reg, conn).unwrap();
     } else {
-        println!(
-            "Register not found in map: {}",
-            data.get(1).expect("No register code found")
-        );
+        // println!(
+        //     "Register not found in map: {}",
+        //     data.get(1).expect("No register code found")
+        // );
     }
 }

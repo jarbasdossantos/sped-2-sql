@@ -23,13 +23,6 @@ impl Reg for Reg0035 {
     }
 
     fn to_line(&self) -> String {
-        let fields = [
-            self.reg.as_deref(),
-            self.cod_scp.as_deref(),
-            self.nome_scp.as_deref(),
-            self.inf_comp.as_deref(),
-        ];
-
         format!(
             "|{}|",
             fields
