@@ -1,6 +1,6 @@
 use std::future::Future;
 use std::pin::Pin;
-use sqlx::{Error, FromRow, SqlitePool};
+use sqlx::{FromRow, SqlitePool};
 
 use super::reg_trait::Reg;
 use super::utils::get_field;
