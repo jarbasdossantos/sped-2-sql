@@ -2,6 +2,8 @@ use crate::models::reg_0000::Reg0000;
 use crate::models::reg_0001::Reg0001;
 use crate::models::reg_0035::Reg0035;
 use crate::models::reg_0150::Reg0150;
+use crate::models::reg_0200::Reg0200;
+use crate::models::reg_c100::Regc100;
 use crate::models::reg_trait::Reg;
 
 pub fn factories(reg: &str, parent_id: Option<i64>, fields: Vec<&str>) -> Option<Box<dyn Reg>> {
@@ -10,6 +12,8 @@ pub fn factories(reg: &str, parent_id: Option<i64>, fields: Vec<&str>) -> Option
         "0001" => Some(Box::new(Reg0001::new(fields, parent_id))),
         "0035" => Some(Box::new(Reg0035::new(fields, parent_id))),
         "0150" => Some(Box::new(Reg0150::new(fields, parent_id))),
+        "0200" => Some(Box::new(Reg0200::new(fields, parent_id))),
+        "C100" => Some(Box::new(Regc100::new(fields, parent_id))),
         _ => None,
     }
 }
@@ -34,7 +38,7 @@ pub async fn handle_line(
 
         return Some(insert);
     } else {
-        eprintln!("No register factory found");
+        // eprintln!("No register factory found");
     }
 
     None
