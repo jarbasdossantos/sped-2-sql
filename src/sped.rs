@@ -5,6 +5,7 @@ use crate::models::reg_0150::Reg0150;
 use crate::models::reg_0200::Reg0200;
 use crate::models::reg_c100::Regc100;
 use crate::models::reg_trait::Reg;
+use anyhow::{Result};
 
 pub fn factories(reg: &str, parent_id: Option<i64>, fields: Vec<&str>) -> Option<Box<dyn Reg>> {
     match reg {
@@ -22,24 +23,18 @@ pub async fn handle_line(
     line: &str,
     parent_id: Option<i64>,
     conn: &sqlx::SqlitePool,
-) -> Option<Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> {
+) -> Result<Option<sqlx::sqlite::SqliteQueryResult>, sqlx::Error> {
     let data = line.split("|").collect::<Vec<&str>>();
     let reg_code = data.get(1).unwrap_or(&"");
 
     if let Some(factory) = factories(reg_code, parent_id, data) {
         let reg: Box<dyn Reg> = factory;
 
-        let insert = reg.to_db(conn).await;
-
-        if let Err(error) = &insert {
-            eprintln!("{}", reg.to_line());
-            eprintln!("Error: {}\n", error);
+        match reg.to_db(conn).await {
+            Ok(result) => Ok(Some(result)),
+            Err(error) => { Err(error) }
         }
-
-        return Some(insert);
     } else {
-        // eprintln!("No register factory found");
+        Ok(None)
     }
-
-    None
 }

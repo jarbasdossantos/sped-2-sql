@@ -9,22 +9,20 @@ use tokio::fs::{self, File};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::task;
 use futures::future::join_all;
+use anyhow::Result;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     let db = database::setup_database(false).await;
 
     // let files = vec!["/Users/jarbassantos/Downloads/12.2021-SPEDCONTRIBUICEES.txt"];
-    let mut files = fs::read_dir("/home/jarbassantos/Downloads/Caio/ORIGINAIS")
+    let mut files = fs::read_dir("/Users/jarbassantos/Downloads/Caio/2021")
         .await
         .unwrap();
 
-    let mut file_index = 0;
     let mut tasks = vec![];
 
-    while let Ok(Some(entry)) = files.next_entry().await {
-        file_index += 1;
-
+    while let Some(entry) = files.next_entry().await? {
         let file_path = entry.path();
 
         if file_path.extension() != Some("txt".as_ref()) {
@@ -37,7 +35,6 @@ async fn main() {
             let file = File::open(file_path).await.expect("Failed to open file");
             let mut reader = BufReader::new(file);
             let mut buffer = Vec::new();
-
             let mut parent_id: Option<i64> = None;
             let mut parent_level: Option<u8> = None;
 
@@ -46,8 +43,7 @@ async fn main() {
 
                 let bytes_read = reader
                     .read_until(b'\n', &mut buffer)
-                    .await
-                    .expect("Failed to read line");
+                    .await?;
 
                 if bytes_read == 0 {
                     break;
@@ -68,10 +64,10 @@ async fn main() {
                 }
 
                 let inserted_line = handle_line(&line, parent_id, &db).await;
-                let last_insert_id = if let Some(Ok(result)) = inserted_line {
-                    result.last_insert_rowid()
-                } else {
-                    parent_id.unwrap_or(0)
+                let insert_id = match inserted_line {
+                    Ok(Some(result)) => Some(result.last_insert_rowid()),
+                    Ok(None) => None,
+                    Err(error) => return Err(error)
                 };
 
                 let reg_code = line[1..5].to_string();
@@ -81,17 +77,36 @@ async fn main() {
                     false => 1,
                 };
 
-                if level > parent_level.unwrap_or(0) {
-                    parent_id = Some(last_insert_id);
+                if insert_id.is_some() && level > parent_level.unwrap_or(0) {
+                    parent_id = insert_id;
                     parent_level = Some(level);
                 }
             }
 
-            println!("File {} finished", file_index)
+            Ok(())
         });
 
         tasks.push(task);
     }
 
-    let _ = join_all(tasks).await;
+    let mut errors = vec![];
+    for result in join_all(tasks).await {
+        match result {
+            Ok(Ok(_)) => {}
+            Ok(Err(e)) => {
+                errors.push(format!("Task error: {}", e));
+            }
+            Err(join_err) => {
+                errors.push(format!("Task panicked: {}", join_err));
+            }
+        }
+    }
+
+    if !errors.is_empty() {
+        for err in &errors {
+            eprintln!("{}", err);
+        }
+    }
+
+    Ok(())
 }
