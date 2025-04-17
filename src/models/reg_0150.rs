@@ -1,4 +1,6 @@
-use sqlx::FromRow;
+use std::future::Future;
+use std::pin::Pin;
+use sqlx::{Error, FromRow, SqlitePool};
 
 use super::reg_trait::Reg;
 use super::utils::get_field;
@@ -6,6 +8,7 @@ use super::utils::get_field;
 #[derive(Debug, Clone, FromRow)]
 #[allow(dead_code)]
 pub struct Reg0150 {
+    pub parent_id: Option<i64>,
     pub reg: Option<String>,
     pub cod_part: Option<String>,
     pub nome: Option<String>,
@@ -21,9 +24,10 @@ pub struct Reg0150 {
     pub bairro: Option<String>,
 }
 
-impl Reg for Reg0150 {
-    fn new(fields: Vec<&str>) -> Self {
+impl Reg0150 {
+    pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
         Reg0150 {
+            parent_id,
             reg: get_field(&fields, 1),
             cod_part: get_field(&fields, 2),
             nome: get_field(&fields, 3),
@@ -39,7 +43,9 @@ impl Reg for Reg0150 {
             bairro: get_field(&fields, 13),
         }
     }
+}
 
+impl Reg for Reg0150 {
     fn to_line(&self) -> String {
         let fields = [
             self.reg.as_deref(),
@@ -67,7 +73,24 @@ impl Reg for Reg0150 {
         )
     }
 
-    fn to_db(&self, reg: &Reg0150, conn: &sqlx::SqlitePool) -> Result<(), Error> {
-        todo!()
+    fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>> {
+        Box::pin(async move {
+            sqlx::query("INSERT INTO reg_0150 (parent_id, reg, cod_part, nome, cod_pais, cnpj, cpf, ie, cod_mun, suframa, end, num, compl, bairro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .bind(&self.parent_id)
+                .bind(&self.reg)
+                .bind(&self.cod_part)
+                .bind(&self.nome)
+                .bind(&self.cod_pais)
+                .bind(&self.cnpj)
+                .bind(&self.cpf)
+                .bind(&self.ie)
+                .bind(&self.cod_mun)
+                .bind(&self.suframa)
+                .bind(&self.end)
+                .bind(&self.num)
+                .bind(&self.compl)
+                .bind(&self.bairro)
+                .execute(conn).await
+        })
     }
 }

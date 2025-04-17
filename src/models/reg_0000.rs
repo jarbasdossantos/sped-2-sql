@@ -1,7 +1,12 @@
+use std::future::Future;
+use std::pin::Pin;
+use sqlx::SqlitePool;
 use crate::models::reg_trait::Reg;
+use crate::models::utils::{get_date, get_field};
 
 #[derive(Debug)]
 pub struct Reg0000 {
+    pub parent_id: Option<i64>,
     pub reg: Option<String>,
     pub cod_ver: Option<String>,
     pub tipo_escrit: Option<String>,
@@ -18,9 +23,10 @@ pub struct Reg0000 {
     pub ind_ativ: Option<String>,
 }
 
-impl Reg for Reg0000 {
-    fn new(fields: Vec<&str>) -> Self {
+impl Reg0000 {
+    pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
         Reg0000 {
+            parent_id,
             reg: get_field(&fields, 1),
             cod_ver: get_field(&fields, 2),
             tipo_escrit: get_field(&fields, 3),
@@ -37,7 +43,9 @@ impl Reg for Reg0000 {
             ind_ativ: get_field(&fields, 14),
         }
     }
+}
 
+impl Reg for Reg0000 {
     fn to_line(&self) -> String {
         let dt_ini = self.dt_ini.map(|d| d.format("%d%m%Y").to_string());
         let dt_fin = self.dt_fin.map(|d| d.format("%d%m%Y").to_string());
@@ -67,5 +75,27 @@ impl Reg for Reg0000 {
                 .collect::<Vec<&str>>()
                 .join("|")
         )
+    }
+
+    fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>> {
+        Box::pin(async move {
+            sqlx::query("INSERT INTO reg_0000 (parent_id, reg, cod_ver, tipo_escrit, ind_sit_esp, num_rec_anterior, dt_ini, dt_fin, nome, cnpj, uf, cod_mun, suframa, ind_nat_pj, ind_ativ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .bind(&self.parent_id)
+                .bind(&self.reg)
+                .bind(&self.cod_ver)
+                .bind(&self.tipo_escrit)
+                .bind(&self.ind_sit_esp)
+                .bind(&self.num_rec_anterior)
+                .bind(&self.dt_ini)
+                .bind(&self.dt_fin)
+                .bind(&self.nome)
+                .bind(&self.cnpj)
+                .bind(&self.uf)
+                .bind(&self.cod_mun)
+                .bind(&self.suframa)
+                .bind(&self.ind_nat_pj)
+                .bind(&self.ind_ativ)
+                .execute(conn).await
+        })
     }
 }

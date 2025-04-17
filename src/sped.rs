@@ -1,45 +1,41 @@
 use crate::models::reg_0000::Reg0000;
+use crate::models::reg_0001::Reg0001;
 use crate::models::reg_0035::Reg0035;
 use crate::models::reg_0150::Reg0150;
 use crate::models::reg_trait::Reg;
-use lazy_static::lazy_static;
-use std::collections::HashMap;
 
-type RegFactory = fn(Vec<&str>) -> Box<dyn Reg>;
-
-// Create a static map of registers and their corresponding factory functions
-lazy_static! {
-    static ref REG_FACTORIES: HashMap<&'static str, RegFactory> = {
-        let mut map = HashMap::<&'static str, RegFactory>::new();
-
-        // map.insert("0000", |fields| {
-        //     Box::new(Reg0000::new(fields)) as Box<dyn Reg>
-        // });
-        // 
-        // map.insert("0035", |fields| {
-        //     Box::new(Reg0035::new(fields)) as Box<dyn Reg>
-        // });
-        // 
-        // map.insert("0150", |fields| {
-        //     Box::new(Reg0150::new(fields)) as Box<dyn Reg>
-        // });
-        // 
-        // map
-    };
+pub fn factories(reg: &str, parent_id: Option<i64>, fields: Vec<&str>) -> Option<Box<dyn Reg>> {
+    match reg {
+        "0000" => Some(Box::new(Reg0000::new(fields, parent_id))),
+        "0001" => Some(Box::new(Reg0001::new(fields, parent_id))),
+        "0035" => Some(Box::new(Reg0035::new(fields, parent_id))),
+        "0150" => Some(Box::new(Reg0150::new(fields, parent_id))),
+        _ => None,
+    }
 }
 
-// Handle each line of the file
-pub fn handle_line(line: &str, conn: &sqlx::SqlitePool) {
+pub async fn handle_line(
+    line: &str,
+    parent_id: Option<i64>,
+    conn: &sqlx::SqlitePool,
+) -> Option<Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> {
     let data = line.split("|").collect::<Vec<&str>>();
+    let reg_code = data.get(1).unwrap_or(&"");
 
-    if let Some(factory) = REG_FACTORIES.get(data.get(1).expect("No register code found")) {
-        let reg: Box<dyn Reg> = factory(data);
+    if let Some(factory) = factories(reg_code, parent_id, data) {
+        let reg: Box<dyn Reg> = factory;
 
-        reg.to_db(&reg, conn).unwrap();
+        let insert = reg.to_db(conn).await;
+
+        if let Err(error) = &insert {
+            eprintln!("{}", reg.to_line());
+            eprintln!("Error: {}\n", error);
+        }
+
+        return Some(insert);
     } else {
-        // println!(
-        //     "Register not found in map: {}",
-        //     data.get(1).expect("No register code found")
-        // );
+        eprintln!("No register factory found");
     }
+
+    None
 }

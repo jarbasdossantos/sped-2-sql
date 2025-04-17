@@ -3,3 +3,4 @@
 .env
 db.*
 template.json
+.DS_Store

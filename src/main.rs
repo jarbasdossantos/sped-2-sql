@@ -1,6 +1,7 @@
 mod database;
 mod models;
 mod sped;
+mod utils;
 
 use encoding_rs::UTF_8;
 use sped::handle_line;
@@ -11,10 +12,13 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 async fn main() {
     let db = database::setup_database(false).await;
 
-    let file_path = "/home/jarbassantos/Downloads/PISCOFINS_20200301_20200331_12662352000191_Original_20200511170225_B3F563D22F2B80545475CB9D5497EEBA47902FC9.txt";
+    let file_path = "/Users/jarbassantos/Downloads/12.2021-SPEDCONTRIBUICEES.txt";
     let file = File::open(file_path).await.expect("Failed to open file");
     let mut reader = BufReader::new(file);
     let mut buffer = Vec::new();
+
+    let mut parent_id: Option<i64> = None;
+    let mut parent_level: Option<u8> = None;
 
     loop {
         buffer.clear();
@@ -38,6 +42,23 @@ async fn main() {
 
         let (line, _, _) = UTF_8.decode(&buffer);
 
-        handle_line(&line, &db);
+        let inserted_line = handle_line(&line, parent_id, &db).await;
+        let last_insert_id = if let Some(Ok(result)) = inserted_line {
+            result.last_insert_rowid()
+        } else {
+            parent_id.unwrap_or(0)
+        };
+
+        let reg_code = line[1..5].to_string();
+        let hierarchy = utils::reg_hierarchy::HIERARCHY.get(&reg_code.as_str());
+        let level = match hierarchy.is_some() {
+            true => hierarchy.unwrap().level,
+            false => 1,
+        };
+
+        if level > parent_level.unwrap_or(0) {
+            parent_id = Some(last_insert_id);
+            parent_level = Some(level);
+        }
     }
 }
