@@ -10,40 +10,82 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::task;
 use futures::future::join_all;
 use anyhow::Result;
+use tokio::sync::mpsc;
+
+struct ProgressMessage {
+    message: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let (tx, mut rx) = mpsc::channel::<ProgressMessage>(100);
+
+    let processing = task::spawn(async move {
+        process_files(vec![
+            "/Users/jarbassantos/Downloads/Caio/Espelhador/est/30408862000119-119421304116-20190901-20190930-0-738705006D7A6026DD42B54846911A6F7CC6E455-SPED-EFD.txt".to_string(),
+            // "/Users/jarbassantos/Downloads/Caio/Espelhador/FED/PISCOFINS_20240601_20240630_30408862000119_Original_20240723083807_E49E4835A419E8C70DC8EC9130C8301FCDEFCEB4.txt".to_string(),
+            // "/Users/jarbassantos/Downloads/Caio/Espelhador/FED/PISCOFINS_20240501_20240531_30408862000119_Original_20240625110827_3726424191B5281A533E0F4B478A33F3207AFDF1.txt".to_string(),
+        ], tx).await
+    });
+
+    while let Some(msg) = rx.recv().await {
+        println!("{}", msg.message);
+    }
+
+    processing.await??;
+
+    Ok(())
+}
+
+async fn process_files(files: Vec<String>, tx: mpsc::Sender<ProgressMessage>) -> Result<(), anyhow::Error> {
     let db = database::setup_database(false).await;
-
-    // let files = vec!["/Users/jarbassantos/Downloads/12.2021-SPEDCONTRIBUICEES.txt"];
-    let mut files = fs::read_dir("/Users/jarbassantos/Downloads/Caio/2021")
-        .await
-        .unwrap();
-
     let mut tasks = vec![];
 
-    while let Some(entry) = files.next_entry().await? {
-        let file_path = entry.path();
+    for file in files {
+        let extension = file
+            .split('.')
+            .last()
+            .map(|s| s.to_string())
+            .unwrap();
 
-        if file_path.extension() != Some("txt".as_ref()) {
+        let file_name = file
+            .split(std::path::MAIN_SEPARATOR_STR)
+            .last()
+            .unwrap_or("")
+            .to_string();
+
+
+        if extension != "txt" {
             continue;
         }
 
-        let db = db.clone();
+        let tx_clone = tx.clone();
+        let db_clone = db.clone();
+        let file_clone = file.clone();
 
         let task = task::spawn(async move {
-            let file = File::open(file_path).await.expect("Failed to open file");
+            tx_clone.send(ProgressMessage { message: format!("Processing file: {}", file_name) }).await.unwrap();
+
+            let file = match File::open(file_clone).await {
+                Ok(file) => file,
+                Err(err) => {
+                    let message = format!("Failed to open file: {}", err);
+                    tx_clone.send(ProgressMessage { message }).await.unwrap();
+                    return;
+                }
+            };
+
             let mut reader = BufReader::new(file);
             let mut buffer = Vec::new();
-            let mut parent_id: Option<i64> = None;
-            let mut parent_level: Option<u8> = None;
+            let mut parent_id = 0i64;
+            let mut parent_level = 0u8;
 
             loop {
                 buffer.clear();
 
                 let bytes_read = reader
                     .read_until(b'\n', &mut buffer)
-                    .await?;
+                    .await.unwrap();
 
                 if bytes_read == 0 {
                     break;
@@ -63,13 +105,6 @@ async fn main() -> Result<()> {
                     continue;
                 }
 
-                let inserted_line = handle_line(&line, parent_id, &db).await;
-                let insert_id = match inserted_line {
-                    Ok(Some(result)) => Some(result.last_insert_rowid()),
-                    Ok(None) => None,
-                    Err(error) => return Err(error)
-                };
-
                 let reg_code = line[1..5].to_string();
                 let hierarchy = utils::reg_hierarchy::HIERARCHY.get(&reg_code.as_str());
                 let level = match hierarchy.is_some() {
@@ -77,36 +112,35 @@ async fn main() -> Result<()> {
                     false => 1,
                 };
 
-                if insert_id.is_some() && level > parent_level.unwrap_or(0) {
-                    parent_id = insert_id;
-                    parent_level = Some(level);
+                if level > parent_level {
+                    parent_level = level;
+                } else if level < parent_level {
+                    parent_id = 0;
                 }
+
+                let inserted_line = handle_line(&line, parent_id, &db_clone).await;
+
+                match inserted_line {
+                    Ok(Some(result)) => {
+                        parent_id = result.last_insert_rowid();
+                    }
+                    Err(error) => {
+                        let message = format!("Failed to insert line: {}", error);
+                        tx_clone.send(ProgressMessage { message }).await.unwrap();
+                    }
+                    _ => {}
+                };
             }
 
-            Ok(())
+            tx_clone.send(ProgressMessage { message: format!("Finished file: {}", file_name) }).await.unwrap();
         });
 
         tasks.push(task);
     }
 
-    let mut errors = vec![];
-    for result in join_all(tasks).await {
-        match result {
-            Ok(Ok(_)) => {}
-            Ok(Err(e)) => {
-                errors.push(format!("Task error: {}", e));
-            }
-            Err(join_err) => {
-                errors.push(format!("Task panicked: {}", join_err));
-            }
-        }
-    }
+    join_all(tasks).await;
 
-    if !errors.is_empty() {
-        for err in &errors {
-            eprintln!("{}", err);
-        }
-    }
+    tx.send(ProgressMessage { message: "Finished processing files".to_string() }).await?;
 
     Ok(())
 }

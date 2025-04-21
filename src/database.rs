@@ -9,9 +9,9 @@ pub async fn setup_database(use_memory: bool) -> sqlx::SqlitePool {
         let result = open_options.create_new(true).write(true).open("db.sqlite").await;
 
         match result {
-            Ok(_) => println!("database file created"),
+            Ok(_) => println!("Database file created"),
             Err(err) => match err.kind() {
-                std::io::ErrorKind::AlreadyExists => println!("database file already exists"),
+                std::io::ErrorKind::AlreadyExists => println!("Database file already exists"),
                 _ => {
                     panic!("Error creating database file {}", err);
                 }

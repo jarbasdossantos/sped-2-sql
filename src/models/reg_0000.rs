@@ -81,8 +81,8 @@ impl Reg for Reg0000 {
         Box::pin(async move {
             sqlx::query("\
             INSERT INTO reg_0000\
-                (parent_id, reg, cod_ver, tipo_escrit, ind_sit_esp, num_rec_anterior, dt_ini, dt_fin, nome, cnpj, uf, cod_mun, suframa, ind_nat_pj, ind_ativ)\
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                (PARENT_ID, REG, COD_VER, TIPO_ESCRIT, IND_SIT_ESP, NUM_REC_ANTERIOR, DT_INI, DT_FIN, NOME, CNPJ, UF, COD_MUN, SUFRAMA, IND_NAT_PJ, IND_ATIV)\
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
                 .bind(&self.reg)
                 .bind(&self.cod_ver)

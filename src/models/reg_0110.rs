@@ -1,31 +1,40 @@
 use std::future::Future;
 use std::pin::Pin;
-use sqlx::{SqlitePool};
+use sqlx::SqlitePool;
 use crate::models::reg_trait::Reg;
 use crate::models::utils::{get_field};
 
 #[derive(Debug)]
-pub struct Reg0001 {
+pub struct Reg0110 {
     pub parent_id: Option<i64>,
     pub reg: Option<String>,
-    pub ind_mov: Option<String>,
+    pub cod_inc_trib: Option<String>,
+    pub ind_apro_cred: Option<String>,
+    pub cod_tipo_cont: Option<String>,
+    pub ind_reg_cum: Option<String>,
 }
 
-impl Reg0001 {
+impl Reg0110 {
     pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
-        Reg0001 {
+        Reg0110 {
             parent_id,
             reg: get_field(&fields, 1),
-            ind_mov: get_field(&fields, 2),
+            cod_inc_trib: get_field(&fields, 2),
+            ind_apro_cred: get_field(&fields, 3),
+            cod_tipo_cont: get_field(&fields, 4),
+            ind_reg_cum: get_field(&fields, 5),
         }
     }
 }
 
-impl Reg for Reg0001 {
+impl Reg for Reg0110 {
     fn to_line(&self) -> String {
         let fields = [
             self.reg.as_deref(),
-            self.ind_mov.as_deref(),
+            self.cod_inc_trib.as_deref(),
+            self.ind_apro_cred.as_deref(),
+            self.cod_tipo_cont.as_deref(),
+            self.ind_reg_cum.as_deref(),
         ];
 
         format!(
@@ -40,10 +49,13 @@ impl Reg for Reg0001 {
 
     fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>> {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0001 (PARENT_ID, REG, IND_MOV) VALUES (?, ?, ?)")
+            sqlx::query("INSERT INTO reg_0110 (PARENT_ID, REG, COD_INC_TRIB, IND_APRO_CRED, COD_TIPO_CONT, IND_REG_CUM) VALUES (?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
                 .bind(&self.reg)
-                .bind(&self.ind_mov)
+                .bind(&self.cod_inc_trib)
+                .bind(&self.ind_apro_cred)
+                .bind(&self.cod_tipo_cont)
+                .bind(&self.ind_reg_cum)
                 .execute(conn).await
         })
     }

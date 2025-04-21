@@ -6,3 +6,5 @@ pub mod reg_0200;
 pub mod reg_c100;
 pub mod reg_trait;
 pub mod utils;
+pub mod reg_0100;
+pub mod reg_0110;

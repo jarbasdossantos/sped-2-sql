@@ -75,7 +75,7 @@ impl Reg for Reg0150 {
 
     fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>> {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0150 (parent_id, reg, cod_part, nome, cod_pais, cnpj, cpf, ie, cod_mun, suframa, end, num, compl, bairro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            sqlx::query("INSERT INTO reg_0150 (PARENT_ID, REG, COD_PART, NOME, COD_PAIS, CNPJ, CPF, IE, COD_MUN, SUFRAMA, END, NUM, COMPL, BAIRRO) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
                 .bind(&self.reg)
                 .bind(&self.cod_part)
