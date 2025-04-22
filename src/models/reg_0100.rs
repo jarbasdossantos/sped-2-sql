@@ -8,6 +8,7 @@ use crate::models::utils::get_field;
 #[derive(Debug)]
 pub struct Reg0100 {
     pub parent_id: Option<i64>,
+    pub file_id: i64,
     pub reg: Option<String>,
     pub nome: Option<String>,
     pub cpf: Option<String>,
@@ -25,9 +26,10 @@ pub struct Reg0100 {
 }
 
 impl Reg0100 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
+    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0100 {
             parent_id,
+            file_id,
             reg: get_field(&fields, 1),
             nome: get_field(&fields, 2),
             cpf: get_field(&fields, 3),
@@ -77,8 +79,9 @@ impl Reg for Reg0100 {
 
     fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<SqliteQueryResult, Error>> + Send + 'a>> {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0100 (PARENT_ID, REG, NOME, CPF, CRC, CNPJ, CEP, END, NUM, COMPL, BAIRRO, FONE, FAX, EMAIL, COD_MUN) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            sqlx::query("INSERT INTO reg_0100 (PARENT_ID, FILE_ID, REG, NOME, CPF, CRC, CNPJ, CEP, END, NUM, COMPL, BAIRRO, FONE, FAX, EMAIL, COD_MUN) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
+                .bind(&self.file_id)
                 .bind(&self.reg)
                 .bind(&self.nome)
                 .bind(&self.cpf)

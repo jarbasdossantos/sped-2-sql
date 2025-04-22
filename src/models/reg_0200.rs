@@ -7,6 +7,7 @@ use std::pin::Pin;
 #[derive(Debug)]
 pub struct Reg0200 {
     pub parent_id: Option<i64>,
+    pub file_id: i64,
     pub reg: Option<String>,
     pub cod_item: Option<String>,
     pub descr_item: Option<String>,
@@ -22,9 +23,10 @@ pub struct Reg0200 {
 }
 
 impl Reg0200 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
+    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0200 {
             parent_id,
+            file_id,
             reg: get_field(&fields, 1),
             cod_item: get_field(&fields, 2),
             descr_item: get_field(&fields, 3),
@@ -75,8 +77,9 @@ impl Reg for Reg0200 {
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0200 (PARENT_ID, REG, COD_ITEM, DESCR_ITEM, COD_BARRA, COD_ANT_ITEM, UNID_INV, TIPO_ITEM, COD_NCM, EX_IPI, COD_GEN, COD_LST, ALIQ_ICMS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            sqlx::query("INSERT INTO reg_0200 (PARENT_ID, FILE_ID, REG, COD_ITEM, DESCR_ITEM, COD_BARRA, COD_ANT_ITEM, UNID_INV, TIPO_ITEM, COD_NCM, EX_IPI, COD_GEN, COD_LST, ALIQ_ICMS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
+                .bind(&self.file_id)
                 .bind(&self.reg)
                 .bind(&self.cod_item)
                 .bind(&self.descr_item)

@@ -7,6 +7,7 @@ use crate::models::utils::{get_date, get_field};
 #[derive(Debug)]
 pub struct Reg0000 {
     pub parent_id: Option<i64>,
+    pub file_id: i64,
     pub reg: Option<String>,
     pub cod_ver: Option<String>,
     pub tipo_escrit: Option<String>,
@@ -24,9 +25,10 @@ pub struct Reg0000 {
 }
 
 impl Reg0000 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
+    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0000 {
             parent_id,
+            file_id,
             reg: get_field(&fields, 1),
             cod_ver: get_field(&fields, 2),
             tipo_escrit: get_field(&fields, 3),
@@ -81,9 +83,10 @@ impl Reg for Reg0000 {
         Box::pin(async move {
             sqlx::query("\
             INSERT INTO reg_0000\
-                (PARENT_ID, REG, COD_VER, TIPO_ESCRIT, IND_SIT_ESP, NUM_REC_ANTERIOR, DT_INI, DT_FIN, NOME, CNPJ, UF, COD_MUN, SUFRAMA, IND_NAT_PJ, IND_ATIV)\
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                (PARENT_ID, FILE_ID, REG, COD_VER, TIPO_ESCRIT, IND_SIT_ESP, NUM_REC_ANTERIOR, DT_INI, DT_FIN, NOME, CNPJ, UF, COD_MUN, SUFRAMA, IND_NAT_PJ, IND_ATIV)\
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
+                .bind(&self.file_id)
                 .bind(&self.reg)
                 .bind(&self.cod_ver)
                 .bind(&self.tipo_escrit)

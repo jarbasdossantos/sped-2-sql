@@ -9,6 +9,7 @@ use super::utils::get_field;
 #[allow(dead_code)]
 pub struct Reg0150 {
     pub parent_id: Option<i64>,
+    pub file_id: i64,
     pub reg: Option<String>,
     pub cod_part: Option<String>,
     pub nome: Option<String>,
@@ -25,9 +26,10 @@ pub struct Reg0150 {
 }
 
 impl Reg0150 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
+    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0150 {
             parent_id,
+            file_id,
             reg: get_field(&fields, 1),
             cod_part: get_field(&fields, 2),
             nome: get_field(&fields, 3),
@@ -75,8 +77,9 @@ impl Reg for Reg0150 {
 
     fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>> {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0150 (PARENT_ID, REG, COD_PART, NOME, COD_PAIS, CNPJ, CPF, IE, COD_MUN, SUFRAMA, END, NUM, COMPL, BAIRRO) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            sqlx::query("INSERT INTO reg_0150 (PARENT_ID, FILE_ID, REG, COD_PART, NOME, COD_PAIS, CNPJ, CPF, IE, COD_MUN, SUFRAMA, END, NUM, COMPL, BAIRRO) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
+                .bind(&self.file_id)
                 .bind(&self.reg)
                 .bind(&self.cod_part)
                 .bind(&self.nome)

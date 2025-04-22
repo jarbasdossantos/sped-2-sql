@@ -7,8 +7,9 @@ use super::utils::get_field;
 
 #[derive(Debug, Clone, FromRow)]
 #[allow(dead_code)]
-pub struct Regc100 {
+pub struct RegC100 {
     pub parent_id: Option<i64>,
+    pub file_id: i64,
     pub reg: Option<String>,
     pub ind_oper: Option<String>,
     pub ind_emit: Option<String>,
@@ -40,10 +41,11 @@ pub struct Regc100 {
     pub vl_cofins_st: Option<String>,
 }
 
-impl Regc100 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>) -> Self {
-        Regc100 {
+impl RegC100 {
+    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+        RegC100 {
             parent_id,
+            file_id,
             reg: get_field(&fields, 1),
             ind_oper: get_field(&fields, 2),
             ind_emit: get_field(&fields, 3),
@@ -77,7 +79,7 @@ impl Regc100 {
     }
 }
 
-impl Reg for Regc100 {
+impl Reg for RegC100 {
     fn to_line(&self) -> String {
         let fields = [
             self.reg.as_deref(),
@@ -128,8 +130,10 @@ impl Reg for Regc100 {
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_c100 (parent_id, reg, ind_oper, ind_emit, cod_part, cod_mod, cod_sit, ser, num_doc, chv_nfe, dt_doc, dt_e_s, vl_doc, ind_pgto, vl_desc, vl_abat_nt, vl_merc, ind_frt, vl_frt, vl_seg, vl_out_da, vl_bc_icms, vl_icms, vl_bc_icms_st, vl_icms_st, vl_ipi, vl_pis, vl_cofins, vl_pis_st, vl_cofins_st) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            sqlx::query("INSERT INTO reg_c100 (PARENT_ID, FILE_ID, REG, IND_OPER, IND_EMIT, COD_PART, COD_MOD, COD_SIT, SER, NUM_DOC, CHV_NFE, DT_DOC, DT_E_S, VL_DOC, IND_PGTO, VL_DESC, VL_ABAT_NT, VL_MERC, IND_FRT, VL_FRT, VL_SEG, VL_OUT_DA, VL_BC_ICMS, VL_ICMS, VL_BC_ICMS_ST, VL_ICMS_ST, VL_IPI, VL_PIS, VL_COFINS, VL_PIS_ST, VL_COFINS_ST) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
+                .bind(&self.file_id)
+                .bind(&self.file_id)
                 .bind(&self.reg)
                 .bind(&self.ind_oper)
                 .bind(&self.ind_emit)
