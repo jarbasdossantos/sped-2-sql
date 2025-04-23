@@ -6,7 +6,6 @@ use std::pin::Pin;
 
 #[derive(Debug)]
 pub struct RegC110 {
-    pub id: Option<i64>,
     pub file_id: i64,
     pub parent_id: Option<i64>,
     pub cod_inf: Option<String>,
@@ -16,7 +15,6 @@ pub struct RegC110 {
 impl RegC110 {
     pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
         RegC110 {
-            id: None,
             file_id,
             parent_id,
             cod_inf: get_field(&fields, 2),

@@ -8,7 +8,6 @@ use encoding_rs::UTF_8;
 use futures::future::join_all;
 use sped::handle_line;
 use sqlx::{Pool, Sqlite};
-use std::fmt::Debug;
 use std::time::SystemTime;
 use time::{format_description, OffsetDateTime};
 use tokio::fs::File;
@@ -25,15 +24,15 @@ async fn main() -> Result<()> {
     let (tx, mut rx) = mpsc::channel::<ProgressMessage>(100);
 
     let processing = task::spawn(async move {
-        process_files(
+        handle_files(
             vec![
-                "/home/jarbassantos/Downloads/Caio/ORIGINAIS/19(12).txt".to_string(),
-                "/home/jarbassantos/Downloads/Caio/ORIGINAIS/20(1).txt".to_string(),
-                "/home/jarbassantos/Downloads/Caio/ORIGINAIS/20(2).txt".to_string(),
+                "/Users/jarbassantos/Downloads/Caio/ORIGINAIS/19(12).txt".to_string(),
+                // "/Users/jarbassantos/Downloads/Caio/ORIGINAIS/20(1).txt".to_string(),
+                // "/Users/jarbassantos/Downloads/Caio/ORIGINAIS/20(2).txt".to_string(),
             ],
             tx,
         )
-        .await
+            .await
     });
 
     while let Some(msg) = rx.recv().await {
@@ -45,7 +44,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn process_files(
+async fn handle_files(
     files: Vec<String>,
     tx: mpsc::Sender<ProgressMessage>,
 ) -> Result<(), anyhow::Error> {
@@ -56,8 +55,8 @@ async fn process_files(
         tx.send(ProgressMessage {
             message: "No files to process".to_string(),
         })
-        .await
-        .unwrap();
+            .await?;
+
         return Ok(());
     }
 
@@ -74,7 +73,7 @@ async fn process_files(
             Ok(result) => result.last_insert_rowid(),
             Err(err) => {
                 let message = format!("Failed to create file entry: {}", err);
-                tx.send(ProgressMessage { message }).await.unwrap();
+                tx.send(ProgressMessage { message }).await?;
                 continue;
             }
         };
@@ -87,79 +86,12 @@ async fn process_files(
         let db_clone = db.clone();
         let file_clone = file.clone();
 
+        // Run each file in an async separate task
         let task = task::spawn(async move {
-            let time: OffsetDateTime = SystemTime::now().into();
-
-            tx_clone
-                .send(ProgressMessage {
-                    message: format!("{}: Processing file: {}", get_time(), file_name),
-                })
-                .await
-                .unwrap();
-
-            let file = match File::open(file_clone).await {
-                Ok(file) => file,
-                Err(err) => {
-                    let message = format!("Failed to open file: {}", err);
-                    tx_clone.send(ProgressMessage { message }).await.unwrap();
-                    return;
-                }
-            };
-
-            let mut reader = BufReader::new(file);
-            let mut buffer = Vec::new();
-            let mut parent_id = 0i64;
-            let mut parent_level = 0u8;
-
-            loop {
-                buffer.clear();
-
-                let bytes_read = reader.read_until(b'\n', &mut buffer).await.unwrap();
-
-                if bytes_read == 0 {
-                    break;
-                }
-
-                if let Some(&b'\n') = buffer.last() {
-                    buffer.pop();
-                }
-
-                if let Some(&b'\r') = buffer.last() {
-                    buffer.pop();
-                }
-
-                let (line, _, _) = UTF_8.decode(&buffer);
-
-                if !line.ends_with("|") {
-                    continue;
-                }
-
-                let reg_code = line[1..5].to_string();
-
-                if level < parent_level {
-                    parent_id = 0;
-                }
-
-                let inserted_line = handle_line(&line, parent_id, file_id, &db_clone).await;
-
-                match inserted_line {
-                    Ok(Some(result)) => {
-                        parent_id = result.last_insert_rowid();
-                    }
-                    Err(error) => {
-                        let message = format!("Failed to insert line ({}): {}", reg_code, error);
-                        tx_clone.send(ProgressMessage { message }).await.unwrap();
-                    }
-                    _ => {}
-                };
+            if let Err(err) = run_file(file_clone, file_name, file_id, db_clone, tx_clone).await {
+                let message = format!("Failed to process file: {}", err);
+                eprintln!("{message}");
             }
-
-            tx_clone
-                .send(ProgressMessage {
-                    message: format!("{}: Finished file: {}", get_time(), file_name),
-                })
-                .await
-                .unwrap();
         });
 
         tasks.push(task);
@@ -170,7 +102,95 @@ async fn process_files(
     tx.send(ProgressMessage {
         message: "Finished processing files".to_string(),
     })
-    .await?;
+        .await?;
+
+    Ok(())
+}
+
+async fn run_file(
+    file_path: String,
+    file_name: String,
+    file_id: i64,
+    db: Pool<Sqlite>,
+    tx: mpsc::Sender<ProgressMessage>,
+) -> Result<(), anyhow::Error> {
+    tx
+        .send(ProgressMessage {
+            message: format!("{}: Processing file: {}", get_time(), file_name),
+        })
+        .await?;
+
+    let file = File::open(file_path).await?;
+
+    let mut reader = BufReader::new(file);
+    let mut buffer = Vec::new();
+
+    // Stack of (level, parent_id)
+    let mut parent_stack: Vec<(u8, i64)> = Vec::new();
+
+    loop {
+        buffer.clear();
+
+        let bytes_read = reader
+            .read_until(b'\n', &mut buffer)
+            .await
+            .expect("Failed to read from file");
+
+        if bytes_read == 0 {
+            break;
+        }
+
+        if let Some(&b'\n') = buffer.last() {
+            buffer.pop();
+        }
+
+        if let Some(&b'\r') = buffer.last() {
+            buffer.pop();
+        }
+
+        let (line, _, _) = UTF_8.decode(&buffer);
+
+        if !line.ends_with("|") {
+            continue;
+        }
+
+        let reg_code = line[1..5].to_string();
+        let hierarchy = utils::reg_hierarchy::HIERARCHY.get(&reg_code.as_str());
+        let level = match hierarchy.is_some() {
+            true => hierarchy.unwrap().level,
+            false => 1,
+        };
+
+        // Get the correct parent_id using the stack
+        while let Some(&(stack_level, _)) = parent_stack.last() {
+            if stack_level >= level {
+                parent_stack.pop();
+            } else {
+                break;
+            }
+        }
+        let parent_id = parent_stack.last().map(|&(_, id)| id).unwrap_or(0);
+
+        let inserted_line = handle_line(&line, parent_id, file_id, &db).await;
+
+        match inserted_line {
+            Ok(Some(result)) => {
+                // Add inserted id in the stack to be used for a potential child
+                parent_stack.push((level, result.last_insert_rowid()));
+            }
+            Err(error) => {
+                let message = format!("Failed to insert line ({}): {}", reg_code, error);
+                tx.send(ProgressMessage { message }).await?;
+            }
+            _ => {}
+        };
+    }
+
+    tx
+        .send(ProgressMessage {
+            message: format!("{}: Finished file: {}", get_time(), file_name),
+        })
+        .await?;
 
     Ok(())
 }
@@ -183,38 +203,6 @@ async fn create_file_entry(
         .bind(&file_name)
         .execute(&db)
         .await
-}
-
-async fn get_parent_id(
-    db: Pool<Sqlite>,
-    reg_code: String,
-    parent_id: &mut i64,
-    parent_level: &mut u8,
-) -> Result<i64, sqlx::Error> {
-    let hierarchy = utils::reg_hierarchy::HIERARCHY.get(&reg_code.as_str());
-
-    let level = match hierarchy.is_some() {
-        true => hierarchy.unwrap().level,
-        false => 1,
-    };
-
-    if level >= *parent_level {
-        return Ok(*parent_id);
-    }
-
-    if level < *parent_level {
-        sqlx::query("SELECT id FROM reg WHERE reg = ?")
-            .bind(reg_code)
-            .fetch_one(&db)
-            .await
-            .map(|row| {
-                *parent_id = row.get(0);
-                *parent_level = level;
-                row.get(0)
-            })
-    }
-
-    Ok(0)
 }
 
 fn get_time() -> String {
