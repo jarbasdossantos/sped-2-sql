@@ -1,3 +1,4 @@
+use super::traits::Model;
 use crate::database::DB_POOL;
 use crate::models::traits::Reg;
 use crate::models::utils::get_field;
@@ -6,8 +7,6 @@ use indexmap::IndexMap;
 use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
-
-use super::traits::Model;
 
 static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "IND_MOV"];
 static TABLE: &str = "reg_0001";

@@ -4,7 +4,15 @@ use indexmap::IndexMap;
 use once_cell::sync::Lazy;
 
 use crate::models::{
-    reg_0000::Reg0000, reg_0001::Reg0001, reg_0140::Reg0140, reg_0150::Reg0150, reg_0190::Reg0190, reg_0200::Reg0200, reg_0500::Reg0500, traits::{Model, Reg}
+    reg_0000::Reg0000,
+    reg_0001::Reg0001,
+    reg_0035::Reg0035,
+    reg_0140::Reg0140,
+    reg_0150::Reg0150,
+    reg_0190::Reg0190,
+    reg_0200::Reg0200,
+    reg_0500::Reg0500,
+    traits::{Model, Reg},
 };
 
 #[derive(Debug)]
@@ -53,7 +61,12 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             "0035",
             Struct {
                 level: 2,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Ok(Reg0035::load(file_id, parent_id)?
+                        .into_iter()
+                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
+                        .collect())
+                }),
             },
         ),
         (
