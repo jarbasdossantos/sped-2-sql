@@ -1,1 +1,1 @@
-pub mod reg_hierarchy;
+pub mod file_structure;

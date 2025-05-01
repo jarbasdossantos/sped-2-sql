@@ -1,9 +1,10 @@
+use super::traits::Reg;
+use super::utils::get_field;
+use crate::database::DB_POOL;
+use indexmap::IndexMap;
+use sqlx::FromRow;
 use std::future::Future;
 use std::pin::Pin;
-use sqlx::{FromRow, SqlitePool};
-
-use super::reg_trait::Reg;
-use super::utils::get_field;
 
 #[derive(Debug, Clone, FromRow)]
 #[allow(dead_code)]
@@ -31,7 +32,12 @@ impl Reg0035 {
 
 impl Reg for Reg0035 {
     fn to_line(&self) -> String {
-        let fields = [self.reg.as_deref(), self.cod_scp.as_deref(), self.nome_scp.as_deref(), self.inf_comp.as_deref()];
+        let fields = [
+            self.reg.as_deref(),
+            self.cod_scp.as_deref(),
+            self.nome_scp.as_deref(),
+            self.inf_comp.as_deref(),
+        ];
 
         format!(
             "|{}|",
@@ -43,7 +49,11 @@ impl Reg for Reg0035 {
         )
     }
 
-    fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>> {
+    fn save<'a>(
+        &'a self,
+    ) -> Pin<
+        Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
+    > {
         Box::pin(async move {
             sqlx::query("INSERT INTO reg_0035 (PARENT_ID, FILE_ID, REG, COD_SCP, NOME_SCP, INF_COMP) VALUES (?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
@@ -52,7 +62,11 @@ impl Reg for Reg0035 {
                 .bind(&self.cod_scp)
                 .bind(&self.nome_scp)
                 .bind(&self.inf_comp)
-                .execute(conn).await
+                .execute(&*DB_POOL).await
         })
+    }
+
+    fn values(&self) -> IndexMap<&'static str, Option<String>> {
+        todo!()
     }
 }

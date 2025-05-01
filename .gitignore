@@ -4,3 +4,4 @@
 db.*
 template.json
 .DS_Store
+nohup.out

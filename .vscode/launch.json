@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'efd-to-database'",
+            "name": "Debug executable 'sped-to-database'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=efd-to-database",
-                    "--package=efd-to-database"
+                    "--bin=sped-to-database",
+                    "--package=sped-to-database"
                 ],
                 "filter": {
-                    "name": "efd-to-database",
+                    "name": "sped-to-database",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'efd-to-database'",
+            "name": "Debug unit tests in executable 'sped-to-database'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=efd-to-database",
-                    "--package=efd-to-database"
+                    "--bin=sped-to-database",
+                    "--package=sped-to-database"
                 ],
                 "filter": {
-                    "name": "efd-to-database",
+                    "name": "sped-to-database",
                     "kind": "bin"
                 }
             },

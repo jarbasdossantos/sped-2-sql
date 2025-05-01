@@ -1,13 +1,19 @@
-use sqlx::{FromRow, SqlitePool};
+use super::traits::{Model, Reg};
+use super::utils::get_field;
+use crate::database::DB_POOL;
+use futures::executor::block_on;
+use indexmap::IndexMap;
+use sqlx::{FromRow, Row};
 use std::future::Future;
 use std::pin::Pin;
 
-use super::reg_trait::Reg;
-use super::utils::get_field;
+static DB_FIELDS: &'static [&'static str] = &["ID", "PARENT_ID", "FILE_ID", "REG", "UNID", "DESCR"];
+static TABLE: &str = "reg_0190";
 
 #[derive(Debug, Clone, FromRow)]
 #[allow(dead_code)]
 pub struct Reg0190 {
+    pub id: Option<i64>,
     pub parent_id: Option<i64>,
     pub file_id: i64,
     pub reg: Option<String>,
@@ -15,9 +21,10 @@ pub struct Reg0190 {
     pub descr: Option<String>,
 }
 
-impl Reg0190 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+impl Model for Reg0190 {
+    fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0190 {
+            id: fields.get(0).and_then(|v| v.parse().ok()),
             parent_id,
             file_id,
             reg: get_field(&fields, 1),
@@ -25,40 +32,88 @@ impl Reg0190 {
             descr: get_field(&fields, 3),
         }
     }
+
+    fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
+        let parent_id = parent_id.unwrap_or(0);
+
+        block_on(async move {
+            let data_vec = sqlx::query(
+                format!(
+                    "SELECT {} FROM {TABLE} WHERE FILE_ID = {file_id} AND PARENT_ID = {parent_id}",
+                    DB_FIELDS.join(", ")
+                )
+                .as_str(),
+            )
+            .fetch_all(&*DB_POOL)
+            .await?;
+
+            let mut result = Vec::new();
+
+            for data in data_vec {
+                let parent_id: Option<i64> =
+                    data.try_get::<i64, _>("PARENT_ID").unwrap_or(0).into();
+
+                let _fields: Vec<String> = DB_FIELDS
+                    .iter()
+                    .map(|field| {
+                        if vec!["ID", "FILE_ID"].contains(field) {
+                            data.try_get::<i64, _>(*field).unwrap_or(0).to_string()
+                        } else {
+                            data.try_get::<String, _>(*field).unwrap_or("".to_string())
+                        }
+                    })
+                    .collect();
+
+                let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
+
+                result.push(Self::new(fields, parent_id, file_id));
+            }
+
+            Ok(result)
+        })
+    }
 }
 
 impl Reg for Reg0190 {
     fn to_line(&self) -> String {
-        let fields = [
-            self.reg.as_deref(),
-            self.unid.as_deref(),
-            self.descr.as_deref(),
-        ];
-
         format!(
             "|{}|",
-            fields
+            self.values()
                 .iter()
-                .map(|f| f.unwrap_or(""))
-                .collect::<Vec<&str>>()
+                .skip(2)
+                .map(|(_, v)| v.clone().unwrap_or_default())
+                .collect::<Vec<_>>()
                 .join("|")
         )
     }
 
-    fn to_db<'a>(
+    fn save<'a>(
         &'a self,
-        conn: &'a SqlitePool,
     ) -> Pin<
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0190 (PARENT_ID, FILE_ID, REG, UNID, DESCR) VALUES (?, ?, ?, ?, ?)")
+            sqlx::query("INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?)")
                 .bind(self.parent_id)
                 .bind(self.file_id)
                 .bind(self.reg.as_deref())
                 .bind(self.unid.as_deref())
                 .bind(self.descr.as_deref())
-                .execute(conn).await
+                .execute(&*DB_POOL)
+                .await
         })
+    }
+
+    fn values(&self) -> IndexMap<&'static str, Option<String>> {
+        let id: Option<String> = self.id.clone().map(|id| id.to_string());
+        let parent_id: Option<String> = self.parent_id.map(|id| id.to_string());
+
+        IndexMap::from([
+            ("id", id),
+            ("parent_id", parent_id),
+            ("reg", self.reg.clone()),
+            ("unid", self.unid.clone()),
+            ("descr", self.descr.clone()),
+        ])
     }
 }

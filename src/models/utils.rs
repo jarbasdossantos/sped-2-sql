@@ -1,17 +1,17 @@
 /*
  * Get a field from a vector of strings
- * 
+ *
  * @param fields: &Vec<&str> - The vector of strings
  * @param field: usize - The index of the field to get
  * @return Option<String> - The field as a string, or None if the index is out of bounds
  */
 pub(crate) fn get_field(fields: &Vec<&str>, field: usize) -> Option<String> {
-    fields.get(field).map(|s| s.to_string())
+    fields.get(field + 2).map(|s| s.to_string())
 }
 
 /*
  * Get a date from a vector of strings
- * 
+ *
  * @param fields: &Vec<&str> - The vector of strings
  * @param field: usize - The index of the field to get
  * @return Option<chrono::NaiveDate> - The date as a chrono::NaiveDate, or None if the index is out of bounds

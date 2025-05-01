@@ -1,70 +1,60 @@
-use futures::executor::block_on;
-use indexmap::IndexMap;
+use super::traits::Model;
 use crate::database::DB_POOL;
 use crate::models::traits::Reg;
 use crate::models::utils::get_field;
+use futures::executor::block_on;
+use indexmap::IndexMap;
 use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
-
-use super::traits::Model;
 
 static DB_FIELDS: &'static [&'static str] = &[
     "ID",
     "FILE_ID",
     "PARENT_ID",
     "REG",
-    "COD_ITEM",
-    "DESCR_ITEM",
-    "COD_BARRA",
-    "COD_ANT_ITEM",
-    "UNID_INV",
-    "TIPO_ITEM",
-    "COD_NCM",
-    "EX_IPI",
-    "COD_GEN",
-    "COD_LST",
-    "ALIQ_ICMS",
+    "DT_ALT",
+    "COD_NAT_CC",
+    "IND_CTA",
+    "NIVEL",
+    "COD_CTA",
+    "NOME_CTA",
+    "COD_CTA_REF",
+    "CNPJ_EST",
 ];
-static TABLE: &str = "reg_0200";
+static TABLE: &str = "reg_0500";
 
 #[derive(Debug)]
-pub struct Reg0200 {
+pub struct Reg0500 {
     pub id: Option<i64>,
     pub parent_id: Option<i64>,
     pub file_id: i64,
     pub reg: Option<String>,
-    pub cod_item: Option<String>,
-    pub descr_item: Option<String>,
-    pub cod_barra: Option<String>,
-    pub cod_ant_item: Option<String>,
-    pub unid_inv: Option<String>,
-    pub tipo_item: Option<String>,
-    pub cod_ncm: Option<String>,
-    pub ex_ipi: Option<String>,
-    pub cod_gen: Option<String>,
-    pub cod_lst: Option<String>,
-    pub aliq_icms: Option<String>,
+    pub dt_alt: Option<String>,
+    pub cod_nat_cc: Option<String>,
+    pub ind_cta: Option<String>,
+    pub nivel: Option<String>,
+    pub cod_cta: Option<String>,
+    pub nome_cta: Option<String>,
+    pub cod_cta_ref: Option<String>,
+    pub cnpj_est: Option<String>,
 }
 
-impl Model for Reg0200 {
+impl Model for Reg0500 {
     fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg0200 {
+        Reg0500 {
             id: fields.get(0).and_then(|v| v.parse().ok()),
             parent_id,
             file_id,
             reg: get_field(&fields, 1),
-            cod_item: get_field(&fields, 2),
-            descr_item: get_field(&fields, 3),
-            cod_barra: get_field(&fields, 4),
-            cod_ant_item: get_field(&fields, 5),
-            unid_inv: get_field(&fields, 6),
-            tipo_item: get_field(&fields, 7),
-            cod_ncm: get_field(&fields, 8),
-            ex_ipi: get_field(&fields, 9),
-            cod_gen: get_field(&fields, 10),
-            cod_lst: get_field(&fields, 11),
-            aliq_icms: get_field(&fields, 12),
+            dt_alt: get_field(&fields, 2),
+            cod_nat_cc: get_field(&fields, 3),
+            ind_cta: get_field(&fields, 4),
+            nivel: get_field(&fields, 5),
+            cod_cta: get_field(&fields, 6),
+            nome_cta: get_field(&fields, 7),
+            cod_cta_ref: get_field(&fields, 8),
+            cnpj_est: get_field(&fields, 9),
         }
     }
 
@@ -109,7 +99,7 @@ impl Model for Reg0200 {
     }
 }
 
-impl Reg for Reg0200 {
+impl Reg for Reg0500 {
     fn to_line(&self) -> String {
         format!(
             "|{}|",
@@ -130,7 +120,7 @@ impl Reg for Reg0200 {
         Box::pin(async move {
             sqlx::query(
                 format!(
-                    "INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     DB_FIELDS.join(", ")
                 )
                 .as_str(),
@@ -138,17 +128,14 @@ impl Reg for Reg0200 {
             .bind(&self.parent_id)
             .bind(&self.file_id)
             .bind(&self.reg)
-            .bind(&self.cod_item)
-            .bind(&self.descr_item)
-            .bind(&self.cod_barra)
-            .bind(&self.cod_ant_item)
-            .bind(&self.unid_inv)
-            .bind(&self.tipo_item)
-            .bind(&self.cod_ncm)
-            .bind(&self.ex_ipi)
-            .bind(&self.cod_gen)
-            .bind(&self.cod_lst)
-            .bind(&self.aliq_icms)
+            .bind(&self.dt_alt)
+            .bind(&self.cod_nat_cc)
+            .bind(&self.ind_cta)
+            .bind(&self.nivel)
+            .bind(&self.cod_cta)
+            .bind(&self.nome_cta)
+            .bind(&self.cod_cta_ref)
+            .bind(&self.cnpj_est)
             .execute(&*DB_POOL)
             .await
         })
@@ -162,17 +149,14 @@ impl Reg for Reg0200 {
             ("id", id),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
-            ("cod_item", self.cod_item.clone()),
-            ("descr_item", self.descr_item.clone()),
-            ("cod_barra", self.cod_barra.clone()),
-            ("cod_ant_item", self.cod_ant_item.clone()),
-            ("unid_inv", self.unid_inv.clone()),
-            ("tipo_item", self.tipo_item.clone()),
-            ("cod_ncm", self.cod_ncm.clone()),
-            ("ex_ipi", self.ex_ipi.clone()),
-            ("cod_gen", self.cod_gen.clone()),
-            ("cod_lst", self.cod_lst.clone()),
-            ("aliq_icms", self.aliq_icms.clone()),
+            ("dt_alt", self.dt_alt.clone()),
+            ("cod_nat_cc", self.cod_nat_cc.clone()),
+            ("ind_cta", self.ind_cta.clone()),
+            ("nivel", self.nivel.clone()),
+            ("cod_cta", self.cod_cta.clone()),
+            ("nome_cta", self.nome_cta.clone()),
+            ("cod_cta_ref", self.cod_cta_ref.clone()),
+            ("cnpj_est", self.cnpj_est.clone()),
         ])
     }
 }

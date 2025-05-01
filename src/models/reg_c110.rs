@@ -1,6 +1,7 @@
-use crate::models::reg_trait::Reg;
+use indexmap::IndexMap;
+use crate::database::DB_POOL;
+use crate::models::traits::Reg;
 use crate::models::utils::get_field;
-use sqlx::SqlitePool;
 use std::future::Future;
 use std::pin::Pin;
 
@@ -32,9 +33,8 @@ impl Reg for RegC110 {
         )
     }
 
-    fn to_db<'a>(
+    fn save<'a>(
         &'a self,
-        conn: &'a SqlitePool,
     ) -> Pin<
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
@@ -47,8 +47,12 @@ impl Reg for RegC110 {
                 .bind("C110")
                 .bind(self.cod_inf.as_deref())
                 .bind(self.txt_compl.as_deref())
-                .execute(conn)
+                .execute(&*DB_POOL)
                 .await
         })
+    }
+
+    fn values(&self) -> IndexMap<&'static str, Option<String>> {
+        todo!()
     }
 }

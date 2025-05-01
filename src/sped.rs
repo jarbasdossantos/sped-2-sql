@@ -9,10 +9,15 @@ use crate::models::reg_0190::Reg0190;
 use crate::models::reg_0200::Reg0200;
 use crate::models::reg_c100::RegC100;
 use crate::models::reg_c110::RegC110;
-use crate::models::reg_trait::Reg;
+use crate::models::traits::{Model, Reg};
 use anyhow::Result;
 
-pub fn factories(reg: &str, parent_id: Option<i64>, file_id: i64, fields: Vec<&str>) -> Option<Box<dyn Reg>> {
+pub fn factories(
+    reg: &str,
+    parent_id: Option<i64>,
+    file_id: i64,
+    fields: Vec<&str>,
+) -> Option<Box<dyn Reg>> {
     match reg {
         "0000" => Some(Box::new(Reg0000::new(fields, parent_id, file_id))),
         "0001" => Some(Box::new(Reg0001::new(fields, parent_id, file_id))),
@@ -33,7 +38,6 @@ pub async fn handle_line(
     line: &str,
     parent_id: i64,
     file_id: i64,
-    conn: &sqlx::SqlitePool,
 ) -> Result<Option<sqlx::sqlite::SqliteQueryResult>, sqlx::Error> {
     let data = line.split("|").collect::<Vec<&str>>();
     let reg_code = data.get(1).unwrap_or(&"");
@@ -41,9 +45,9 @@ pub async fn handle_line(
     if let Some(factory) = factories(reg_code, Some(parent_id), file_id, data) {
         let reg: Box<dyn Reg> = factory;
 
-        match reg.to_db(conn).await {
+        match reg.save().await {
             Ok(result) => Ok(Some(result)),
-            Err(error) => { Err(error) }
+            Err(error) => Err(error),
         }
     } else {
         Ok(None)

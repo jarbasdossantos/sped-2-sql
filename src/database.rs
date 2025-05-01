@@ -1,4 +1,5 @@
-use sqlx::sqlite::SqlitePoolOptions;
+use once_cell::sync::Lazy;
+use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
 use tokio::fs::OpenOptions;
 
 pub async fn setup_database(use_memory: bool) -> sqlx::SqlitePool {
@@ -6,7 +7,11 @@ pub async fn setup_database(use_memory: bool) -> sqlx::SqlitePool {
         "sqlite::memory:".to_string()
     } else {
         let mut open_options = OpenOptions::new();
-        let result = open_options.create_new(true).write(true).open("db.sqlite").await;
+        let result = open_options
+            .create_new(true)
+            .write(true)
+            .open("db.sqlite")
+            .await;
 
         match result {
             Ok(_) => println!("Database file created"),
@@ -27,7 +32,7 @@ pub async fn setup_database(use_memory: bool) -> sqlx::SqlitePool {
         .await
         .unwrap();
 
-    // Configurações de performance
+    // Configurações de desempenho
     let pragmas = [
         "PRAGMA journal_mode = WAL", // Write-Ahead Logging para melhor concorrência
         "PRAGMA synchronous = NORMAL", // Bom equilíbrio entre performance e segurança
@@ -39,10 +44,30 @@ pub async fn setup_database(use_memory: bool) -> sqlx::SqlitePool {
     ];
 
     for pragma in pragmas {
-        sqlx::query(pragma).execute(&db).await.expect("Failed to set pragma");
+        sqlx::query(pragma)
+            .execute(&db)
+            .await
+            .expect("Failed to set pragma");
     }
 
-    sqlx::migrate!("./migrations").run(&db).await.expect("Failed to migrate");
+    sqlx::migrate!("./migrations")
+        .run(&db)
+        .await
+        .expect("Failed to migrate");
 
     db
+}
+
+pub static DB_POOL: Lazy<Pool<Sqlite>> = Lazy::new(|| {
+    SqlitePoolOptions::new()
+        .max_connections(20)
+        .connect_lazy("sqlite:db.sqlite")
+        .expect("Failed to create database pool")
+});
+
+pub async fn migrate() {
+    sqlx::migrate!("./migrations")
+        .run(&*DB_POOL)
+        .await
+        .expect("Failed to migrate");
 }

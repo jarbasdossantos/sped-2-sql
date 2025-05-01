@@ -1,9 +1,10 @@
-use sqlx::{FromRow, SqlitePool};
+use super::traits::Reg;
+use super::utils::get_field;
+use crate::database::DB_POOL;
+use indexmap::IndexMap;
+use sqlx::FromRow;
 use std::future::Future;
 use std::pin::Pin;
-
-use super::reg_trait::Reg;
-use super::utils::get_field;
 
 #[derive(Debug, Clone, FromRow)]
 #[allow(dead_code)]
@@ -123,9 +124,8 @@ impl Reg for RegC100 {
         )
     }
 
-    fn to_db<'a>(
+    fn save<'a>(
         &'a self,
-        conn: &'a SqlitePool,
     ) -> Pin<
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
@@ -163,7 +163,11 @@ impl Reg for RegC100 {
                 .bind(&self.vl_cofins)
                 .bind(&self.vl_pis_st)
                 .bind(&self.vl_cofins_st)
-                .execute(conn).await
+                .execute(&*DB_POOL).await
         })
+    }
+
+    fn values(&self) -> IndexMap<&'static str, Option<String>> {
+        todo!()
     }
 }

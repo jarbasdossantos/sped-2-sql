@@ -1,9 +1,9 @@
+use crate::database::DB_POOL;
+use crate::models::traits::Reg;
+use crate::models::utils::get_field;
+use indexmap::IndexMap;
 use std::future::Future;
 use std::pin::Pin;
-use sqlx::sqlite::SqliteQueryResult;
-use sqlx::{Error, SqlitePool};
-use crate::models::reg_trait::Reg;
-use crate::models::utils::get_field;
 
 #[derive(Debug)]
 pub struct Reg0100 {
@@ -77,7 +77,11 @@ impl Reg for Reg0100 {
         )
     }
 
-    fn to_db<'a>(&'a self, conn: &'a SqlitePool) -> Pin<Box<dyn Future<Output=Result<SqliteQueryResult, Error>> + Send + 'a>> {
+    fn save<'a>(
+        &'a self,
+    ) -> Pin<
+        Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
+    > {
         Box::pin(async move {
             sqlx::query("INSERT INTO reg_0100 (PARENT_ID, FILE_ID, REG, NOME, CPF, CRC, CNPJ, CEP, END, NUM, COMPL, BAIRRO, FONE, FAX, EMAIL, COD_MUN) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .bind(&self.parent_id)
@@ -96,7 +100,11 @@ impl Reg for Reg0100 {
                 .bind(&self.fax)
                 .bind(&self.email)
                 .bind(&self.cod_mun)
-                .execute(conn).await
+                .execute(&*DB_POOL).await
         })
+    }
+
+    fn values(&self) -> IndexMap<&'static str, Option<String>> {
+        todo!()
     }
 }
