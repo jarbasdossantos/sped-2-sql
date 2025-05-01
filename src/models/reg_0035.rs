@@ -1,14 +1,26 @@
-use super::traits::Reg;
+use super::traits::{Model, Reg};
 use super::utils::get_field;
 use crate::database::DB_POOL;
+use futures::executor::block_on;
 use indexmap::IndexMap;
-use sqlx::FromRow;
+use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
 
-#[derive(Debug, Clone, FromRow)]
-#[allow(dead_code)]
+static DB_FIELDS: &'static [&'static str] = &[
+    "ID",
+    "FILE_ID",
+    "PARENT_ID",
+    "REG",
+    "COD_SCP",
+    "NOME_SCP",
+    "INF_COMP",
+];
+static TABLE: &str = "reg_0035";
+
+#[derive(Debug, Clone)]
 pub struct Reg0035 {
+    pub id: Option<i64>,
     pub parent_id: Option<i64>,
     pub file_id: i64,
     pub reg: Option<String>,
@@ -17,9 +29,10 @@ pub struct Reg0035 {
     pub inf_comp: Option<String>,
 }
 
-impl Reg0035 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+impl Model for Reg0035 {
+    fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0035 {
+            id: fields.get(0).and_then(|v| v.parse().ok()),
             parent_id,
             file_id,
             reg: get_field(&fields, 1),
@@ -28,23 +41,54 @@ impl Reg0035 {
             inf_comp: get_field(&fields, 4),
         }
     }
+
+    fn load(file_id: i64, parent_id: Option<i64>) -> anyhow::Result<Vec<Self>, anyhow::Error> {
+        block_on(async move {
+            let rows = sqlx::query(
+                format!(
+                    "SELECT {} FROM {TABLE} WHERE FILE_ID = ? AND PARENT_ID = ?",
+                    DB_FIELDS.join(", ")
+                )
+                .as_str(),
+            )
+            .bind(file_id)
+            .bind(parent_id.unwrap_or(0))
+            .fetch_all(&*DB_POOL)
+            .await?;
+
+            let mut data = Vec::new();
+
+            for row in rows {
+                let _fields: Vec<String> = DB_FIELDS
+                    .iter()
+                    .map(|field| {
+                        if vec!["ID", "FILE_ID"].contains(field) {
+                            row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
+                        } else {
+                            row.try_get::<String, _>(*field).unwrap_or("".to_string())
+                        }
+                    })
+                    .collect();
+
+                let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
+
+                data.push(Self::new(fields, Some(0i64), file_id));
+            }
+
+            Ok(data)
+        })
+    }
 }
 
 impl Reg for Reg0035 {
     fn to_line(&self) -> String {
-        let fields = [
-            self.reg.as_deref(),
-            self.cod_scp.as_deref(),
-            self.nome_scp.as_deref(),
-            self.inf_comp.as_deref(),
-        ];
-
         format!(
             "|{}|",
-            fields
+            self.values()
                 .iter()
-                .map(|f| f.unwrap_or(""))
-                .collect::<Vec<&str>>()
+                .skip(2)
+                .map(|(_, v)| v.clone().unwrap_or_default())
+                .collect::<Vec<_>>()
                 .join("|")
         )
     }
@@ -55,18 +99,35 @@ impl Reg for Reg0035 {
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0035 (PARENT_ID, FILE_ID, REG, COD_SCP, NOME_SCP, INF_COMP) VALUES (?, ?, ?, ?, ?, ?)")
-                .bind(&self.parent_id)
-                .bind(&self.file_id)
-                .bind(&self.reg)
-                .bind(&self.cod_scp)
-                .bind(&self.nome_scp)
-                .bind(&self.inf_comp)
-                .execute(&*DB_POOL).await
+            sqlx::query(
+                format!(
+                    "INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?, ?)",
+                    DB_FIELDS.join(", ")
+                )
+                .as_str(),
+            )
+            .bind(&self.parent_id)
+            .bind(&self.file_id)
+            .bind(&self.reg)
+            .bind(&self.cod_scp)
+            .bind(&self.nome_scp)
+            .bind(&self.inf_comp)
+            .execute(&*DB_POOL)
+            .await
         })
     }
 
     fn values(&self) -> IndexMap<&'static str, Option<String>> {
-        todo!()
+        let id: Option<String> = self.id.clone().map(|id| id.to_string());
+        let parent_id: Option<String> = self.parent_id.map(|id| id.to_string());
+
+        IndexMap::from([
+            ("id", id),
+            ("parent_id", parent_id),
+            ("reg", self.reg.clone()),
+            ("cod_scp", self.cod_scp.clone()),
+            ("nome_scp", self.nome_scp.clone()),
+            ("inf_comp", self.inf_comp.clone()),
+        ])
     }
 }
