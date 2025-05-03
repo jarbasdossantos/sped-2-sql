@@ -46,7 +46,6 @@ impl FilesTrait for Files {
         let file = Self::get(id).await.await?;
         let mut prev_level = 0;
         let mut parent_stack: Vec<(u8, i64)> = Vec::new();
-        // let mut to_skip: Vec<&'static str> = Vec::new();
         let mut to_skip: HashSet<&'static str> = HashSet::new();
 
         let mut all_data: Vec<Box<dyn Reg>> = Vec::new();
