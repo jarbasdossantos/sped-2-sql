@@ -1,4 +1,4 @@
-use sped_to_database::{self};
+use sped_to_database::{self, Export};
 
 #[tokio::main]
 async fn main() {
@@ -11,9 +11,17 @@ async fn main() {
     // })
     // .await;
 
-    let data = sped_to_database::export().await.unwrap();
+    for id in vec![1] {
+        let data = match sped_to_database::export(Export { id }).await {
+            Ok(data) => data,
+            Err(e) => {
+                println!("{}", e);
+                continue;
+            }
+        };
 
-    for reg in data {
-        println!("{}", reg.to_line());
+        for reg in data {
+            println!("{}", reg.to_line());
+        }
     }
 }

@@ -56,11 +56,13 @@ impl FilesTrait for Files {
             .map(|v| v.0.to_string())
             .collect::<Vec<String>>();
 
+        println!("{:#?}", children);
+
         for (reg, structure) in FILE_STRUCTURE.iter() {
             // If the register was processed by children logic, skip it
-            if to_skip.contains(reg) && plain_children.contains(&reg.to_string()) {
-                continue;
-            }
+            // if to_skip.contains(reg) {
+            //     continue;
+            // }
 
             if structure.level > prev_level {
                 prev_level = structure.level;
@@ -76,29 +78,34 @@ impl FilesTrait for Files {
 
             let parent_id = parent_stack.last().map(|&(_, id)| id);
 
-            let data_vec = match structure.load_model {
+            let rows = match structure.load_model {
                 Some(model) => {
                     model(file.id.unwrap(), parent_id).map_err(|e| anyhow::anyhow!("{}", e))?
                 }
                 None => {
-                    // eprintln!("No model for {}", reg);
                     continue;
                 }
             };
 
-            for data in data_vec {
-                let id = data
+            // if reg == &"0140" {
+            //     println!("{:?}", rows);
+            // }
+
+            for row in rows {
+                let id = row
                     .values()
                     .get("id")
                     .and_then(|v| v.as_ref().unwrap().parse::<i64>().ok());
 
-                all_data.push(data);
+                all_data.push(row);
 
                 let child_regs = children.get(reg);
 
                 if child_regs.is_some() && reg != &"0000" {
                     for child_reg in child_regs.unwrap() {
-                        to_skip.insert(child_reg);
+                        // println!("{} - {}", reg, child_reg);
+
+                        // to_skip.insert(child_reg);
 
                         let child_model = match FILE_STRUCTURE.get(child_reg).unwrap().load_model {
                             model => model,
@@ -108,10 +115,14 @@ impl FilesTrait for Files {
                             continue;
                         }
 
-                        let child_data_vec = child_model.unwrap()(file.id.unwrap(), id).unwrap();
+                        let child_rows = child_model.unwrap()(file.id.unwrap(), id).unwrap();
 
-                        for child_data in child_data_vec {
-                            all_data.push(child_data);
+                        // if child_reg == &"0140" {
+                        //     println!("{:?}", child_rows);
+                        // }
+
+                        for child_row in child_rows {
+                            all_data.push(child_row);
                         }
                     }
                 }
@@ -121,5 +132,9 @@ impl FilesTrait for Files {
         }
 
         Ok(all_data)
+    }
+
+    asynf fn get_children_data() -> Vec<Box<dyn Reg>> {
+        
     }
 }
