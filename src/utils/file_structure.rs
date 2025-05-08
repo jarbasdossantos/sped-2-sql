@@ -12,6 +12,9 @@ use crate::models::{
     reg_0190::Reg0190,
     reg_0200::Reg0200,
     reg_0500::Reg0500,
+    reg_c001::RegC001,
+    reg_c010::RegC010,
+    reg_c180::RegC180,
     traits::{Model, Reg},
 };
 
@@ -287,14 +290,24 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             "C001",
             Struct {
                 level: 1,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Ok(RegC001::load(file_id, parent_id)?
+                        .into_iter()
+                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
+                        .collect())
+                }),
             },
         ),
         (
             "C010",
             Struct {
                 level: 2,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Ok(RegC010::load(file_id, parent_id)?
+                        .into_iter()
+                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
+                        .collect())
+                }),
             },
         ),
         (
@@ -343,7 +356,12 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             "C180",
             Struct {
                 level: 3,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Ok(RegC180::load(file_id, parent_id)?
+                        .into_iter()
+                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
+                        .collect())
+                }),
             },
         ),
         (
@@ -1526,17 +1544,7 @@ pub fn get_reg_children() -> HashMap<&'static str, Vec<&'static str>> {
                     .entry(parent_reg)
                     .or_insert_with(Vec::new)
                     .push(reg);
-            } else {
-                // This case might indicate an issue in the FILE_STRUCTURE definition
-                // or a need for more complex hierarchy logic (e.g., skipping levels).
-                // For now, we only add direct children (level + 1).
-                // You might want to handle this differently based on requirements.
-                // eprintln!("Warning: Register {} level {} is not a direct child of {}", reg, structure.level, parent_reg);
             }
-        } else if structure.level > 0 {
-            // This handles cases where a register > level 0 appears without a preceding parent
-            // in the defined order. This might indicate an issue in FILE_STRUCTURE order.
-            // eprintln!("Warning: Register {} level {} found without a parent on the stack.", reg, structure.level);
         }
 
         // Push the current register onto the stack as a potential parent

@@ -1,6 +1,7 @@
-use super::traits::{Model, Reg};
-use super::utils::get_field;
+use super::traits::Model;
 use crate::database::DB_POOL;
+use crate::models::traits::Reg;
+use crate::models::utils::get_field;
 use crate::utils::database;
 use futures::executor::block_on;
 use indexmap::IndexMap;
@@ -8,38 +9,26 @@ use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
 
-static DB_FIELDS: &'static [&'static str] = &[
-    "ID",
-    "FILE_ID",
-    "PARENT_ID",
-    "REG",
-    "COD_SCP",
-    "NOME_SCP",
-    "INF_COMP",
-];
-static TABLE: &str = "reg_0035";
+static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "IND_MOV"];
+static TABLE: &str = "reg_C001";
 
-#[derive(Debug, Clone)]
-pub struct Reg0035 {
+#[derive(Debug)]
+pub struct RegC001 {
     pub id: Option<i64>,
     pub file_id: i64,
     pub parent_id: Option<i64>,
     pub reg: Option<String>,
-    pub cod_scp: Option<String>,
-    pub nome_scp: Option<String>,
-    pub inf_comp: Option<String>,
+    pub ind_mov: Option<String>,
 }
 
-impl Model for Reg0035 {
+impl Model for RegC001 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg0035 {
+        RegC001 {
             id,
             file_id,
             parent_id,
             reg: get_field(&fields, 1),
-            cod_scp: get_field(&fields, 2),
-            nome_scp: get_field(&fields, 3),
-            inf_comp: get_field(&fields, 4),
+            ind_mov: get_field(&fields, 2),
         }
     }
 
@@ -86,7 +75,7 @@ impl Model for Reg0035 {
     }
 }
 
-impl Reg for Reg0035 {
+impl Reg for RegC001 {
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -104,9 +93,7 @@ impl Reg for Reg0035 {
             .bind(&self.file_id)
             .bind(&self.parent_id)
             .bind(&self.reg)
-            .bind(&self.cod_scp)
-            .bind(&self.nome_scp)
-            .bind(&self.inf_comp)
+            .bind(&self.ind_mov)
             .execute(&*DB_POOL)
             .await
         })
@@ -121,9 +108,7 @@ impl Reg for Reg0035 {
             ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
-            ("cod_scp", self.cod_scp.clone()),
-            ("nome_scp", self.nome_scp.clone()),
-            ("inf_comp", self.inf_comp.clone()),
+            ("ind_mov", self.ind_mov.clone()),
         ])
     }
 }

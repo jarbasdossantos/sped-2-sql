@@ -1,6 +1,7 @@
 use super::traits::{Model, Reg};
 use super::utils::get_field;
 use crate::database::DB_POOL;
+use crate::utils::database;
 use futures::executor::block_on;
 use indexmap::IndexMap;
 use sqlx::{FromRow, Row};
@@ -31,8 +32,8 @@ static TABLE: &str = "reg_0150";
 #[allow(dead_code)]
 pub struct Reg0150 {
     pub id: Option<i64>,
-    pub parent_id: Option<i64>,
     pub file_id: i64,
+    pub parent_id: Option<i64>,
     pub reg: Option<String>,
     pub cod_part: Option<String>,
     pub nome: Option<String>,
@@ -49,11 +50,11 @@ pub struct Reg0150 {
 }
 
 impl Model for Reg0150 {
-    fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0150 {
-            id: fields.get(0).and_then(|v| v.parse().ok()),
-            parent_id,
+            id,
             file_id,
+            parent_id,
             reg: get_field(&fields, 1),
             cod_part: get_field(&fields, 2),
             nome: get_field(&fields, 3),
@@ -102,7 +103,12 @@ impl Model for Reg0150 {
 
                 let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
 
-                result.push(Self::new(fields, parent_id, file_id));
+                result.push(Self::new(
+                    fields[2..].to_vec(),
+                    fields.get(0).and_then(|v| v.parse().ok()),
+                    parent_id,
+                    file_id,
+                ));
             }
 
             Ok(result)
@@ -111,18 +117,6 @@ impl Model for Reg0150 {
 }
 
 impl Reg for Reg0150 {
-    fn to_line(&self) -> String {
-        format!(
-            "|{}|",
-            self.values()
-                .iter()
-                .skip(3)
-                .map(|(_, v)| v.clone().unwrap_or_default())
-                .collect::<Vec<_>>()
-                .join("|")
-        )
-    }
-
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -130,10 +124,15 @@ impl Reg for Reg0150 {
     > {
         Box::pin(async move {
             sqlx::query(
-                "INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                format!(
+                    "INSERT INTO {TABLE} ({}) VALUES ({})",
+                    DB_FIELDS[1..].join(", "),
+                    database::binds(DB_FIELDS.len() - 1)
+                )
+                .as_str(),
             )
-            .bind(&self.parent_id)
             .bind(&self.file_id)
+            .bind(&self.parent_id)
             .bind(&self.reg)
             .bind(&self.cod_part)
             .bind(&self.nome)
@@ -158,8 +157,8 @@ impl Reg for Reg0150 {
 
         IndexMap::from([
             ("id", id),
-            ("parent_id", parent_id),
             ("file_id", Some(self.file_id.to_string())),
+            ("parent_id", parent_id),
             ("reg", self.reg.clone()),
             ("cod_part", self.cod_part.clone()),
             ("nome", self.nome.clone()),

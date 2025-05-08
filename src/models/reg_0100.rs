@@ -1,14 +1,37 @@
 use crate::database::DB_POOL;
 use crate::models::traits::Reg;
 use crate::models::utils::get_field;
+use crate::utils::database;
 use indexmap::IndexMap;
 use std::future::Future;
 use std::pin::Pin;
 
+static DB_FIELDS: &'static [&'static str] = &[
+    "ID",
+    "FILE_ID",
+    "PARENT_ID",
+    "REG",
+    "NOME",
+    "CPF",
+    "CRC",
+    "CNPJ",
+    "CEP",
+    "END",
+    "NUM",
+    "COMPL",
+    "BAIRRO",
+    "FONE",
+    "FAX",
+    "EMAIL",
+    "COD_MUN",
+];
+static TABLE: &str = "reg_0100";
+
 #[derive(Debug)]
 pub struct Reg0100 {
-    pub parent_id: Option<i64>,
+    pub id: Option<i64>,
     pub file_id: i64,
+    pub parent_id: Option<i64>,
     pub reg: Option<String>,
     pub nome: Option<String>,
     pub cpf: Option<String>,
@@ -26,10 +49,11 @@ pub struct Reg0100 {
 }
 
 impl Reg0100 {
-    pub fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+    pub fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0100 {
-            parent_id,
+            id,
             file_id,
+            parent_id,
             reg: get_field(&fields, 1),
             nome: get_field(&fields, 2),
             cpf: get_field(&fields, 3),
@@ -49,58 +73,38 @@ impl Reg0100 {
 }
 
 impl Reg for Reg0100 {
-    fn to_line(&self) -> String {
-        let fields = [
-            self.reg.as_deref(),
-            self.nome.as_deref(),
-            self.cpf.as_deref(),
-            self.crc.as_deref(),
-            self.cnpj.as_deref(),
-            self.cep.as_deref(),
-            self.end.as_deref(),
-            self.num.as_deref(),
-            self.compl.as_deref(),
-            self.bairro.as_deref(),
-            self.fone.as_deref(),
-            self.fax.as_deref(),
-            self.email.as_deref(),
-            self.cod_mun.as_deref(),
-        ];
-
-        format!(
-            "|{}|",
-            fields
-                .iter()
-                .map(|f| f.unwrap_or(""))
-                .collect::<Vec<&str>>()
-                .join("|")
-        )
-    }
-
     fn save<'a>(
         &'a self,
     ) -> Pin<
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
         Box::pin(async move {
-            sqlx::query("INSERT INTO reg_0100 (PARENT_ID, FILE_ID, REG, NOME, CPF, CRC, CNPJ, CEP, END, NUM, COMPL, BAIRRO, FONE, FAX, EMAIL, COD_MUN) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-                .bind(&self.parent_id)
-                .bind(&self.file_id)
-                .bind(&self.reg)
-                .bind(&self.nome)
-                .bind(&self.cpf)
-                .bind(&self.crc)
-                .bind(&self.cnpj)
-                .bind(&self.cep)
-                .bind(&self.end)
-                .bind(&self.num)
-                .bind(&self.compl)
-                .bind(&self.bairro)
-                .bind(&self.fone)
-                .bind(&self.fax)
-                .bind(&self.email)
-                .bind(&self.cod_mun)
-                .execute(&*DB_POOL).await
+            sqlx::query(
+                format!(
+                    "INSERT INTO {TABLE} ({}) VALUES ({})",
+                    DB_FIELDS[1..].join(", "),
+                    database::binds(DB_FIELDS.len() - 1)
+                )
+                .as_str(),
+            )
+            .bind(&self.file_id)
+            .bind(&self.parent_id)
+            .bind(&self.reg)
+            .bind(&self.nome)
+            .bind(&self.cpf)
+            .bind(&self.crc)
+            .bind(&self.cnpj)
+            .bind(&self.cep)
+            .bind(&self.end)
+            .bind(&self.num)
+            .bind(&self.compl)
+            .bind(&self.bairro)
+            .bind(&self.fone)
+            .bind(&self.fax)
+            .bind(&self.email)
+            .bind(&self.cod_mun)
+            .execute(&*DB_POOL)
+            .await
         })
     }
 
