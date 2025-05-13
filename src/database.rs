@@ -6,7 +6,7 @@ use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
 /// The database can be configured to use either in-memory storage or a file-based database
 /// through the USE_MEMORY_DB environment variable.
 pub static DB_POOL: Lazy<Pool<Sqlite>> = Lazy::new(|| {
-    let use_memory_env = std::env::var("USE_MEMORY_DB").unwrap_or_else(|_| "true".to_string());
+    let use_memory_env = std::env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());
     let use_memory = use_memory_env.eq_ignore_ascii_case("true");
 
     let database_url = if use_memory {
