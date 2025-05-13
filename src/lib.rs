@@ -3,15 +3,14 @@ mod models;
 mod sped;
 mod utils;
 
-use crate::database::migrate;
 use crate::models::files::Files;
 use crate::models::files::FilesTrait;
 use anyhow::Result;
+use database::DB_POOL;
 use encoding_rs::UTF_8;
 use futures::future::join_all;
 use models::traits::Reg;
 use sped::handle_line;
-use sqlx::{Pool, Sqlite};
 use std::time::SystemTime;
 use time::{format_description, OffsetDateTime};
 use tokio::fs::File;
@@ -32,10 +31,7 @@ pub struct Export {
 }
 
 pub async fn load(data: Load) -> Result<(), anyhow::Error> {
-    migrate().await;
-
     let (tx, mut rx) = mpsc::channel::<ProgressMessage>(100);
-
     let processing = task::spawn(async move { import_files(data.files, tx).await });
 
     while let Some(msg) = rx.recv().await {
@@ -57,7 +53,8 @@ async fn import_files(
     files: Vec<String>,
     tx: mpsc::Sender<ProgressMessage>,
 ) -> Result<(), anyhow::Error> {
-    let db = database::setup_database(false).await;
+    database::migrate().await;
+
     let mut tasks = vec![];
 
     if files.is_empty() {
@@ -78,7 +75,7 @@ async fn import_files(
             .unwrap_or("")
             .to_string();
 
-        let file_id = match create_file_entry(db.clone(), file_name.clone()).await {
+        let file_id = match create_file_entry(file_name.clone()).await {
             Ok(result) => result.last_insert_rowid(),
             Err(err) => {
                 let message = format!("Failed to create file entry: {}", err);
@@ -200,12 +197,11 @@ async fn import(
 }
 
 async fn create_file_entry(
-    db: Pool<Sqlite>,
     file_name: String,
 ) -> Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error> {
     sqlx::query("INSERT INTO files (name) VALUES (?)")
         .bind(&file_name)
-        .execute(&db)
+        .execute(&*DB_POOL)
         .await
 }
 

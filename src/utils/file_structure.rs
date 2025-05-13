@@ -1,4 +1,4 @@
-use std::{ collections::HashMap, pin::Pin };
+use std::{collections::HashMap, pin::Pin};
 
 use indexmap::IndexMap;
 use once_cell::sync::Lazy;
@@ -17,21 +17,21 @@ use crate::models::{
     reg_c180::RegC180,
     reg_c181::RegC181,
     reg_c185::RegC185,
-    traits::{ Model, Reg },
+    traits::{Model, Reg},
 };
 
 async fn load_model_helper<T>(
     file_id: i64,
-    parent_id: Option<i64>
+    parent_id: Option<i64>,
 ) -> Result<Vec<Box<dyn Reg>>, Box<dyn std::error::Error + Send + Sync>>
-    where T: Model + Reg + 'static
+where
+    T: Model + Reg + 'static,
 {
-    Ok(
-        T::load(file_id, parent_id).await?
-            .into_iter()
-            .map(|reg| Box::new(reg) as Box<dyn Reg>)
-            .collect()
-    )
+    Ok(T::load(file_id, parent_id)
+        .await?
+        .into_iter()
+        .map(|reg| Box::new(reg) as Box<dyn Reg>)
+        .collect())
 }
 
 #[derive(Debug)]
@@ -40,15 +40,17 @@ pub struct Struct {
     pub load_model: Option<
         fn(
             i64,
-            Option<i64>
+            Option<i64>,
         ) -> Pin<
             Box<
                 dyn std::future::Future<
-                    Output = Result<Vec<Box<dyn Reg>>, Box<dyn std::error::Error + Send + Sync>>
-                > +
-                    Send
-            >
-        >
+                        Output = Result<
+                            Vec<Box<dyn Reg>>,
+                            Box<dyn std::error::Error + Send + Sync>,
+                        >,
+                    > + Send,
+            >,
+        >,
     >,
 }
 
@@ -1538,7 +1540,10 @@ pub fn get_reg_children() -> HashMap<&'static str, Vec<&'static str>> {
         if let Some(&(parent_reg, _)) = parent_stack.last() {
             // Ensure the child's level is exactly one greater than the parent's level
             if structure.level == parent_stack.last().unwrap().1 + 1 {
-                children.entry(parent_reg).or_insert_with(Vec::new).push(reg);
+                children
+                    .entry(parent_reg)
+                    .or_insert_with(Vec::new)
+                    .push(reg);
             }
         }
 
