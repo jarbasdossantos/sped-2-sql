@@ -12,6 +12,7 @@ use crate::models::{
     reg_0190::Reg0190,
     reg_0200::Reg0200,
     reg_0500::Reg0500,
+    reg_9999::Reg9999,
     reg_c001::RegC001,
     reg_c010::RegC010,
     reg_c180::RegC180,
@@ -1516,7 +1517,9 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             "9999",
             Struct {
                 level: 1,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Box::pin(load_model_helper::<Reg9999>(file_id, parent_id))
+                }),
             },
         ),
     ])

@@ -7,6 +7,7 @@ use crate::models::reg_0140::Reg0140;
 use crate::models::reg_0150::Reg0150;
 use crate::models::reg_0190::Reg0190;
 use crate::models::reg_0200::Reg0200;
+use crate::models::reg_9999::Reg9999;
 use crate::models::reg_c001::RegC001;
 use crate::models::reg_c010::RegC010;
 use crate::models::reg_c100::RegC100;
@@ -40,6 +41,7 @@ pub fn factories(
         "C180" => Some(Box::new(RegC180::new(fields, None, parent_id, file_id))),
         "C181" => Some(Box::new(RegC181::new(fields, None, parent_id, file_id))),
         "C185" => Some(Box::new(RegC185::new(fields, None, parent_id, file_id))),
+        "9999" => Some(Box::new(Reg9999::new(fields, None, parent_id, file_id))),
         _ => None,
     }
 }
