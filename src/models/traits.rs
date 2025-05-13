@@ -2,6 +2,7 @@ use anyhow::Result;
 use indexmap::IndexMap;
 use std::future::Future;
 use std::pin::Pin;
+use async_trait::async_trait;
 
 pub trait Reg: std::fmt::Debug + Send + Sync {
     fn values(&self) -> IndexMap<&'static str, Option<String>>;
@@ -26,9 +27,10 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
     >;
 }
 
+#[async_trait]
 pub trait Model {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self;
-    fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error>
+    async fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error>
     where
         Self: Sized;
 }

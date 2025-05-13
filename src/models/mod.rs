@@ -14,5 +14,7 @@ pub mod reg_c010;
 pub mod reg_c100;
 pub mod reg_c110;
 pub mod reg_c180;
+pub mod reg_c181;
+pub mod reg_c185;
 pub mod traits;
 pub mod utils;

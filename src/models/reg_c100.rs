@@ -2,6 +2,7 @@ use super::traits::{Model, Reg};
 use super::utils::get_field;
 use crate::database::DB_POOL;
 use crate::utils::database;
+use async_trait::async_trait;
 use indexmap::IndexMap;
 use sqlx::FromRow;
 use std::future::Future;
@@ -78,10 +79,14 @@ pub struct RegC100 {
     pub vl_cofins: Option<String>,
     pub vl_pis_st: Option<String>,
     pub vl_cofins_st: Option<String>,
+    pub vl_desc_compl: Option<f64>,
 }
 
+#[async_trait]
 impl Model for RegC100 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
+        let vl_desc_compl = get_field(&fields, 30).and_then(|s| s.parse::<f64>().ok());
+
         RegC100 {
             id,
             file_id,
@@ -115,10 +120,11 @@ impl Model for RegC100 {
             vl_cofins: get_field(&fields, 27),
             vl_pis_st: get_field(&fields, 28),
             vl_cofins_st: get_field(&fields, 29),
+            vl_desc_compl,
         }
     }
 
-    fn load(file_id: i64, parent_id: Option<i64>) -> anyhow::Result<Vec<Self>, anyhow::Error> {
+    fn load<'a>(file_id: i64, parent_id: Option<i64>) -> Pin<Box<dyn Future<Output = anyhow::Result<Vec<Self>>> + Send + 'a>> {
         todo!()
     }
 }

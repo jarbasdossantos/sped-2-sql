@@ -3,11 +3,11 @@ use crate::database::DB_POOL;
 use crate::models::traits::Reg;
 use crate::models::utils::get_field;
 use crate::utils::database;
-use futures::executor::block_on;
 use indexmap::IndexMap;
 use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
+use async_trait::async_trait;
 
 static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "IND_MOV"];
 static TABLE: &str = "reg_0001";
@@ -21,6 +21,7 @@ pub struct Reg0001 {
     pub ind_mov: Option<String>,
 }
 
+#[async_trait]
 impl Model for Reg0001 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0001 {
@@ -32,8 +33,8 @@ impl Model for Reg0001 {
         }
     }
 
-    fn load(file_id: i64, parent_id: Option<i64>) -> anyhow::Result<Vec<Self>, anyhow::Error> {
-        block_on(async move {
+    async fn load(file_id: i64, parent_id: Option<i64>) -> anyhow::Result<Vec<Self>, anyhow::Error> {
+        {
             let rows = sqlx::query(
                 format!(
                     "SELECT {} FROM {TABLE} WHERE FILE_ID = ? AND PARENT_ID = ?",
@@ -65,13 +66,13 @@ impl Model for Reg0001 {
                 data.push(Self::new(
                     fields[2..].to_vec(),
                     fields.get(0).and_then(|v| v.parse().ok()),
-                    Some(0i64),
+                    parent_id,
                     file_id,
                 ));
             }
 
             Ok(data)
-        })
+        }
     }
 }
 

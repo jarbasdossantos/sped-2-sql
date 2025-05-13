@@ -39,7 +39,7 @@ impl FilesTrait for Files {
     }
 
     async fn get_data(id: i64) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
-        fn fetch_recursive<'a>(
+        async fn fetch_recursive<'a>(
             file_id: i64,
             reg: &str,
             parent_id: Option<i64>,
@@ -55,7 +55,7 @@ impl FilesTrait for Files {
                 None => return Ok(()),
             };
 
-            let rows = model(file_id, parent_id).map_err(|e| anyhow::anyhow!("{}", e))?;
+            let rows = model(file_id, parent_id).await.expect("Failed to load model data");
             let children = get_reg_children();
 
             for row in rows {
@@ -68,7 +68,7 @@ impl FilesTrait for Files {
 
                 if let Some(child_regs) = children.get(reg) {
                     for child_reg in child_regs {
-                        fetch_recursive(file_id, child_reg, id, all_data)?;
+                        Box::pin(fetch_recursive(file_id, child_reg, id, all_data)).await?;
                     }
                 }
             }
@@ -79,7 +79,7 @@ impl FilesTrait for Files {
         let file = Self::get(id).await.await?;
         let mut all_data: Vec<Box<dyn Reg>> = Vec::new();
 
-        fetch_recursive(file.id.unwrap(), "0000", None, &mut all_data)?;
+        Box::pin(fetch_recursive(file.id.unwrap(), "0000", None, &mut all_data)).await?;
 
         Ok(all_data)
     }

@@ -2,7 +2,7 @@ use crate::database::DB_POOL;
 use crate::models::traits::{Model, Reg};
 use crate::models::utils::{get_date, get_field};
 use crate::utils::database;
-use futures::executor::block_on;
+use async_trait::async_trait;
 use indexmap::IndexMap;
 use sqlx::Row;
 use std::future::Future;
@@ -50,6 +50,7 @@ pub struct Reg0000 {
     pub ind_ativ: Option<String>,
 }
 
+#[async_trait]
 impl Model for Reg0000 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0000 {
@@ -73,45 +74,43 @@ impl Model for Reg0000 {
         }
     }
 
-    fn load(file_id: i64, _parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
-        block_on(async move {
-            let rows = sqlx::query(
-                format!(
-                    "SELECT {} FROM {TABLE} WHERE FILE_ID = ?",
-                    DB_FIELDS.join(", ")
-                )
-                .as_str(),
+    async fn load(file_id: i64, _parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
+        let rows = sqlx::query(
+            format!(
+                "SELECT {} FROM {TABLE} WHERE FILE_ID = ?",
+                DB_FIELDS.join(", ")
             )
-            .bind(file_id)
-            .fetch_all(&*DB_POOL)
-            .await?;
+            .as_str(),
+        )
+        .bind(file_id)
+        .fetch_all(&*DB_POOL)
+        .await?;
 
-            let mut data = Vec::new();
+        let mut data = Vec::new();
 
-            for row in rows {
-                let _fields: Vec<String> = DB_FIELDS
-                    .iter()
-                    .map(|field| {
-                        if vec!["ID", "FILE_ID"].contains(field) {
-                            row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
-                        } else {
-                            row.try_get::<String, _>(*field).unwrap_or("".to_string())
-                        }
-                    })
-                    .collect();
+        for row in rows {
+            let _fields: Vec<String> = DB_FIELDS
+                .iter()
+                .map(|field| {
+                    if vec!["ID", "FILE_ID"].contains(field) {
+                        row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
+                    } else {
+                        row.try_get::<String, _>(*field).unwrap_or("".to_string())
+                    }
+                })
+                .collect();
 
-                let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
+            let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
 
-                data.push(Self::new(
-                    fields[2..].to_vec(),
-                    fields.get(0).and_then(|v| v.parse().ok()),
-                    Some(0i64),
-                    file_id,
-                ));
-            }
+            data.push(Self::new(
+                fields[2..].to_vec(),
+                fields.get(0).and_then(|v| v.parse().ok()),
+                Some(0i64),
+                file_id,
+            ));
+        }
 
-            Ok(data)
-        })
+        Ok(data)
     }
 }
 

@@ -60,7 +60,7 @@ pub async fn setup_database(use_memory: bool) -> sqlx::SqlitePool {
 
 pub static DB_POOL: Lazy<Pool<Sqlite>> = Lazy::new(|| {
     SqlitePoolOptions::new()
-        .max_connections(20)
+        .max_connections( 100)
         .connect_lazy("sqlite:db.sqlite")
         .expect("Failed to create database pool")
 });

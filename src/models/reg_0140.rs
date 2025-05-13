@@ -2,11 +2,11 @@ use super::traits::{Model, Reg};
 use super::utils::get_field;
 use crate::database::DB_POOL;
 use crate::utils::database;
-use futures::executor::block_on;
 use indexmap::IndexMap;
 use sqlx::{FromRow, Row};
 use std::future::Future;
 use std::pin::Pin;
+use async_trait::async_trait;
 
 static DB_FIELDS: &'static [&'static str] = &[
     "ID",
@@ -41,6 +41,7 @@ pub struct Reg0140 {
     pub suframa: Option<String>,
 }
 
+#[async_trait]
 impl Model for Reg0140 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0140 {
@@ -59,8 +60,8 @@ impl Model for Reg0140 {
         }
     }
 
-    fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
-        block_on(async move {
+    async fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
+        {
             let data_vec = sqlx::query(
                 format!(
                     "SELECT {} FROM {TABLE} WHERE FILE_ID = ? AND PARENT_ID = ?",
@@ -100,7 +101,7 @@ impl Model for Reg0140 {
             }
 
             Ok(result)
-        })
+        }
     }
 }
 

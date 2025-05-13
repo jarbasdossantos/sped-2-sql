@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{ collections::HashMap, pin::Pin };
 
 use indexmap::IndexMap;
 use once_cell::sync::Lazy;
@@ -15,14 +15,41 @@ use crate::models::{
     reg_c001::RegC001,
     reg_c010::RegC010,
     reg_c180::RegC180,
-    traits::{Model, Reg},
+    reg_c181::RegC181,
+    reg_c185::RegC185,
+    traits::{ Model, Reg },
 };
+
+async fn load_model_helper<T>(
+    file_id: i64,
+    parent_id: Option<i64>
+) -> Result<Vec<Box<dyn Reg>>, Box<dyn std::error::Error + Send + Sync>>
+    where T: Model + Reg + 'static
+{
+    Ok(
+        T::load(file_id, parent_id).await?
+            .into_iter()
+            .map(|reg| Box::new(reg) as Box<dyn Reg>)
+            .collect()
+    )
+}
 
 #[derive(Debug)]
 pub struct Struct {
     pub level: u8,
-    pub load_model:
-        Option<fn(i64, Option<i64>) -> Result<Vec<Box<dyn Reg>>, Box<dyn std::error::Error>>>,
+    pub load_model: Option<
+        fn(
+            i64,
+            Option<i64>
+        ) -> Pin<
+            Box<
+                dyn std::future::Future<
+                    Output = Result<Vec<Box<dyn Reg>>, Box<dyn std::error::Error + Send + Sync>>
+                > +
+                    Send
+            >
+        >
+    >,
 }
 
 impl Struct {}
@@ -34,10 +61,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 0,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0000::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0000>(file_id, parent_id))
                 }),
             },
         ),
@@ -46,10 +70,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 1,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0001::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0001>(file_id, parent_id))
                 }),
             },
         ),
@@ -65,10 +86,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 2,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0035::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0035>(file_id, parent_id))
                 }),
             },
         ),
@@ -112,10 +130,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 2,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0140::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0140>(file_id, parent_id))
                 }),
             },
         ),
@@ -131,10 +146,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 3,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0150::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0150>(file_id, parent_id))
                 }),
             },
         ),
@@ -143,10 +155,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 3,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0190::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0190>(file_id, parent_id))
                 }),
             },
         ),
@@ -155,10 +164,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 3,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0200::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0200>(file_id, parent_id))
                 }),
             },
         ),
@@ -202,10 +208,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 2,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(Reg0500::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<Reg0500>(file_id, parent_id))
                 }),
             },
         ),
@@ -291,10 +294,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 1,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(RegC001::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<RegC001>(file_id, parent_id))
                 }),
             },
         ),
@@ -303,10 +303,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 2,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(RegC010::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<RegC010>(file_id, parent_id))
                 }),
             },
         ),
@@ -357,10 +354,7 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             Struct {
                 level: 3,
                 load_model: Some(|file_id, parent_id| {
-                    Ok(RegC180::load(file_id, parent_id)?
-                        .into_iter()
-                        .map(|reg| Box::new(reg) as Box<dyn Reg>)
-                        .collect())
+                    Box::pin(load_model_helper::<RegC180>(file_id, parent_id))
                 }),
             },
         ),
@@ -368,14 +362,18 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             "C181",
             Struct {
                 level: 4,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Box::pin(load_model_helper::<RegC181>(file_id, parent_id))
+                }),
             },
         ),
         (
             "C185",
             Struct {
                 level: 4,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Box::pin(load_model_helper::<RegC185>(file_id, parent_id))
+                }),
             },
         ),
         (
@@ -1540,10 +1538,7 @@ pub fn get_reg_children() -> HashMap<&'static str, Vec<&'static str>> {
         if let Some(&(parent_reg, _)) = parent_stack.last() {
             // Ensure the child's level is exactly one greater than the parent's level
             if structure.level == parent_stack.last().unwrap().1 + 1 {
-                children
-                    .entry(parent_reg)
-                    .or_insert_with(Vec::new)
-                    .push(reg);
+                children.entry(parent_reg).or_insert_with(Vec::new).push(reg);
             }
         }
 
