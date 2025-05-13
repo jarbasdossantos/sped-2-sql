@@ -27,6 +27,10 @@ pub struct Load {
     pub files: Vec<String>,
 }
 
+pub struct Export {
+    pub id: i64,
+}
+
 pub async fn load(data: Load) -> Result<(), anyhow::Error> {
     migrate().await;
 
@@ -43,8 +47,8 @@ pub async fn load(data: Load) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-pub async fn export() -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
-    let file_data = Files::get_data(1).await?;
+pub async fn export(data: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
+    let file_data = Files::get_data(data.id).await?;
 
     return Ok(file_data);
 }

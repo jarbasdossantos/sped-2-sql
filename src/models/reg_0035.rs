@@ -1,11 +1,12 @@
 use super::traits::{Model, Reg};
 use super::utils::get_field;
 use crate::database::DB_POOL;
-use futures::executor::block_on;
+use crate::utils::database;
 use indexmap::IndexMap;
 use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
+use async_trait::async_trait;
 
 static DB_FIELDS: &'static [&'static str] = &[
     "ID",
@@ -21,20 +22,21 @@ static TABLE: &str = "reg_0035";
 #[derive(Debug, Clone)]
 pub struct Reg0035 {
     pub id: Option<i64>,
-    pub parent_id: Option<i64>,
     pub file_id: i64,
+    pub parent_id: Option<i64>,
     pub reg: Option<String>,
     pub cod_scp: Option<String>,
     pub nome_scp: Option<String>,
     pub inf_comp: Option<String>,
 }
 
+#[async_trait]
 impl Model for Reg0035 {
-    fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0035 {
-            id: fields.get(0).and_then(|v| v.parse().ok()),
-            parent_id,
+            id,
             file_id,
+            parent_id,
             reg: get_field(&fields, 1),
             cod_scp: get_field(&fields, 2),
             nome_scp: get_field(&fields, 3),
@@ -42,8 +44,8 @@ impl Model for Reg0035 {
         }
     }
 
-    fn load(file_id: i64, parent_id: Option<i64>) -> anyhow::Result<Vec<Self>, anyhow::Error> {
-        block_on(async move {
+    async fn load(file_id: i64, parent_id: Option<i64>) -> anyhow::Result<Vec<Self>, anyhow::Error> {
+        {
             let rows = sqlx::query(
                 format!(
                     "SELECT {} FROM {TABLE} WHERE FILE_ID = ? AND PARENT_ID = ?",
@@ -72,27 +74,20 @@ impl Model for Reg0035 {
 
                 let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
 
-                data.push(Self::new(fields, Some(0i64), file_id));
+                data.push(Self::new(
+                    fields[2..].to_vec(),
+                    fields.get(0).and_then(|v| v.parse().ok()),
+                    parent_id,
+                    file_id,
+                ));
             }
 
             Ok(data)
-        })
+        }
     }
 }
 
 impl Reg for Reg0035 {
-    fn to_line(&self) -> String {
-        format!(
-            "|{}|",
-            self.values()
-                .iter()
-                .skip(2)
-                .map(|(_, v)| v.clone().unwrap_or_default())
-                .collect::<Vec<_>>()
-                .join("|")
-        )
-    }
-
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -101,13 +96,14 @@ impl Reg for Reg0035 {
         Box::pin(async move {
             sqlx::query(
                 format!(
-                    "INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?, ?)",
-                    DB_FIELDS.join(", ")
+                    "INSERT INTO {TABLE} ({}) VALUES ({})",
+                    DB_FIELDS[1..].join(", "),
+                    database::binds(DB_FIELDS.len() - 1)
                 )
                 .as_str(),
             )
-            .bind(&self.parent_id)
             .bind(&self.file_id)
+            .bind(&self.parent_id)
             .bind(&self.reg)
             .bind(&self.cod_scp)
             .bind(&self.nome_scp)
@@ -123,6 +119,7 @@ impl Reg for Reg0035 {
 
         IndexMap::from([
             ("id", id),
+            ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
             ("cod_scp", self.cod_scp.clone()),

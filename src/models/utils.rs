@@ -6,7 +6,7 @@
  * @return Option<String> - The field as a string, or None if the index is out of bounds
  */
 pub(crate) fn get_field(fields: &Vec<&str>, field: usize) -> Option<String> {
-    fields.get(field + 2).map(|s| s.to_string())
+    fields.get(field).map(|s| s.to_string())
 }
 
 /*

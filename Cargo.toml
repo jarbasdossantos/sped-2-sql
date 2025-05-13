@@ -23,3 +23,4 @@ futures = "0.3.31"
 anyhow = "1.0.98"
 time = { version = "0.3.41", features = ["formatting"] }
 indexmap = "2.8.0"
+async-trait = "0.1.77"

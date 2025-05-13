@@ -9,27 +9,29 @@ use std::future::Future;
 use std::pin::Pin;
 use async_trait::async_trait;
 
-static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "IND_MOV"];
-static TABLE: &str = "reg_0001";
+static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "CNPJ"];
+static TABLE: &str = "reg_C010";
 
 #[derive(Debug)]
-pub struct Reg0001 {
+pub struct RegC010 {
     pub id: Option<i64>,
     pub file_id: i64,
     pub parent_id: Option<i64>,
     pub reg: Option<String>,
-    pub ind_mov: Option<String>,
+    pub cnpj: Option<String>,
+    pub ind_escri: Option<String>,
 }
 
 #[async_trait]
-impl Model for Reg0001 {
+impl Model for RegC010 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg0001 {
+        RegC010 {
             id,
-            file_id,
             parent_id,
+            file_id,
             reg: get_field(&fields, 1),
-            ind_mov: get_field(&fields, 2),
+            cnpj: get_field(&fields, 2),
+            ind_escri: get_field(&fields, 3),
         }
     }
 
@@ -76,7 +78,7 @@ impl Model for Reg0001 {
     }
 }
 
-impl Reg for Reg0001 {
+impl Reg for RegC010 {
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -94,7 +96,8 @@ impl Reg for Reg0001 {
             .bind(&self.file_id)
             .bind(&self.parent_id)
             .bind(&self.reg)
-            .bind(&self.ind_mov)
+            .bind(&self.cnpj)
+            .bind(&self.ind_escri)
             .execute(&*DB_POOL)
             .await
         })
@@ -109,7 +112,8 @@ impl Reg for Reg0001 {
             ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
-            ("ind_mov", self.ind_mov.clone()),
+            ("cnpj", self.cnpj.clone()),
+            ("ind_escri", self.ind_escri.clone()),
         ])
     }
 }

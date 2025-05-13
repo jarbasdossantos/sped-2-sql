@@ -10,10 +10,10 @@ use std::pin::Pin;
 use async_trait::async_trait;
 
 static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "IND_MOV"];
-static TABLE: &str = "reg_0001";
+static TABLE: &str = "reg_C001";
 
 #[derive(Debug)]
-pub struct Reg0001 {
+pub struct RegC001 {
     pub id: Option<i64>,
     pub file_id: i64,
     pub parent_id: Option<i64>,
@@ -22,9 +22,9 @@ pub struct Reg0001 {
 }
 
 #[async_trait]
-impl Model for Reg0001 {
+impl Model for RegC001 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg0001 {
+        RegC001 {
             id,
             file_id,
             parent_id,
@@ -76,7 +76,7 @@ impl Model for Reg0001 {
     }
 }
 
-impl Reg for Reg0001 {
+impl Reg for RegC001 {
     fn save<'a>(
         &'a self,
     ) -> Pin<

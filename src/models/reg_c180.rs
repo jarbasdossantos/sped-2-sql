@@ -9,27 +9,51 @@ use std::future::Future;
 use std::pin::Pin;
 use async_trait::async_trait;
 
-static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "IND_MOV"];
-static TABLE: &str = "reg_0001";
+static DB_FIELDS: &'static [&'static str] = &[
+    "ID",
+    "FILE_ID",
+    "PARENT_ID",
+    "REG",
+    "COD_MOD",
+    "DT_DOC_INI",
+    "DT_DOC_FIN",
+    "COD_ITEM",
+    "COD_NCM",
+    "EX_IPI",
+    "VL_TOT_ITEM",
+];
+static TABLE: &str = "reg_C180";
 
 #[derive(Debug)]
-pub struct Reg0001 {
+pub struct RegC180 {
     pub id: Option<i64>,
     pub file_id: i64,
     pub parent_id: Option<i64>,
     pub reg: Option<String>,
-    pub ind_mov: Option<String>,
+    pub cod_mod: Option<String>,
+    pub dt_doc_ini: Option<String>,
+    pub dt_doc_fin: Option<String>,
+    pub cod_item: Option<String>,
+    pub cod_ncm: Option<String>,
+    pub ex_ipi: Option<String>,
+    pub vl_tot_item: Option<String>,
 }
 
 #[async_trait]
-impl Model for Reg0001 {
+impl Model for RegC180 {
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg0001 {
+        RegC180 {
             id,
-            file_id,
             parent_id,
+            file_id,
             reg: get_field(&fields, 1),
-            ind_mov: get_field(&fields, 2),
+            cod_mod: get_field(&fields, 2),
+            dt_doc_ini: get_field(&fields, 3),
+            dt_doc_fin: get_field(&fields, 4),
+            cod_item: get_field(&fields, 5),
+            cod_ncm: get_field(&fields, 6),
+            ex_ipi: get_field(&fields, 7),
+            vl_tot_item: get_field(&fields, 8),
         }
     }
 
@@ -76,7 +100,7 @@ impl Model for Reg0001 {
     }
 }
 
-impl Reg for Reg0001 {
+impl Reg for RegC180 {
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -94,7 +118,13 @@ impl Reg for Reg0001 {
             .bind(&self.file_id)
             .bind(&self.parent_id)
             .bind(&self.reg)
-            .bind(&self.ind_mov)
+            .bind(&self.cod_mod)
+            .bind(&self.dt_doc_ini)
+            .bind(&self.dt_doc_fin)
+            .bind(&self.cod_item)
+            .bind(&self.cod_ncm)
+            .bind(&self.ex_ipi)
+            .bind(&self.vl_tot_item)
             .execute(&*DB_POOL)
             .await
         })
@@ -109,7 +139,13 @@ impl Reg for Reg0001 {
             ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
-            ("ind_mov", self.ind_mov.clone()),
+            ("cod_mod", self.cod_mod.clone()),
+            ("dt_doc_ini", self.dt_doc_ini.clone()),
+            ("dt_doc_fin", self.dt_doc_fin.clone()),
+            ("cod_item", self.cod_item.clone()),
+            ("cod_ncm", self.cod_ncm.clone()),
+            ("ex_ipi", self.ex_ipi.clone()),
+            ("vl_tot_item", self.vl_tot_item.clone()),
         ])
     }
 }

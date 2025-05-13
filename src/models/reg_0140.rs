@@ -1,16 +1,17 @@
 use super::traits::{Model, Reg};
 use super::utils::get_field;
 use crate::database::DB_POOL;
-use futures::executor::block_on;
+use crate::utils::database;
 use indexmap::IndexMap;
 use sqlx::{FromRow, Row};
 use std::future::Future;
 use std::pin::Pin;
+use async_trait::async_trait;
 
 static DB_FIELDS: &'static [&'static str] = &[
     "ID",
-    "PARENT_ID",
     "FILE_ID",
+    "PARENT_ID",
     "REG",
     "COD_EST",
     "NOME",
@@ -27,8 +28,8 @@ static TABLE: &str = "reg_0140";
 #[allow(dead_code)]
 pub struct Reg0140 {
     pub id: Option<i64>,
-    pub parent_id: Option<i64>,
     pub file_id: i64,
+    pub parent_id: Option<i64>,
     pub reg: Option<String>,
     pub cod_est: Option<String>,
     pub nome: Option<String>,
@@ -40,12 +41,13 @@ pub struct Reg0140 {
     pub suframa: Option<String>,
 }
 
+#[async_trait]
 impl Model for Reg0140 {
-    fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0140 {
-            id: fields.get(0).and_then(|v| v.parse().ok()),
-            parent_id,
+            id,
             file_id,
+            parent_id,
             reg: get_field(&fields, 1),
             cod_est: get_field(&fields, 2),
             nome: get_field(&fields, 3),
@@ -58,8 +60,8 @@ impl Model for Reg0140 {
         }
     }
 
-    fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
-        block_on(async move {
+    async fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
+        {
             let data_vec = sqlx::query(
                 format!(
                     "SELECT {} FROM {TABLE} WHERE FILE_ID = ? AND PARENT_ID = ?",
@@ -90,65 +92,64 @@ impl Model for Reg0140 {
 
                 let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
 
-                result.push(Self::new(fields, parent_id, file_id));
+                result.push(Self::new(
+                    fields[2..].to_vec(),
+                    fields.get(0).and_then(|v| v.parse().ok()),
+                    parent_id,
+                    file_id,
+                ));
             }
 
             Ok(result)
-        })
+        }
     }
 }
 
 impl Reg for Reg0140 {
-    fn to_line(&self) -> String {
-        format!(
-            "|{}|",
-            self.values()
-                .iter()
-                .skip(2)
-                .map(|(_, v)| v.clone().unwrap_or_default())
-                .collect::<Vec<_>>()
-                .join("|")
-        )
-    }
-
     fn save<'a>(
         &'a self,
     ) -> Pin<
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
         Box::pin(async move {
-            sqlx::query("INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-                .bind(&self.parent_id)
-                .bind(&self.file_id)
-                .bind(&self.reg)
-                .bind(&self.cod_est)
-                .bind(&self.nome)
-                .bind(&self.cnpj)
-                .bind(&self.uf)
-                .bind(&self.ie)
-                .bind(&self.cod_mun)
-                .bind(&self.im)
-                .bind(&self.suframa)
-                .execute(&*DB_POOL)
-                .await
+            sqlx::query(
+                format!(
+                    "INSERT INTO {TABLE} ({}) VALUES ({})",
+                    DB_FIELDS[1..].join(", "),
+                    database::binds(DB_FIELDS.len() - 1)
+                )
+                .as_str(),
+            )
+            .bind(&self.file_id)
+            .bind(&self.parent_id)
+            .bind(&self.reg)
+            .bind(&self.cod_est)
+            .bind(&self.nome)
+            .bind(&self.cnpj)
+            .bind(&self.uf)
+            .bind(&self.ie)
+            .bind(&self.cod_mun)
+            .bind(&self.im)
+            .bind(&self.suframa)
+            .execute(&*DB_POOL)
+            .await
         })
     }
 
     fn values(&self) -> IndexMap<&'static str, Option<String>> {
-        let mut values = IndexMap::new();
-
-        values.insert("id", self.id.map(|id| id.to_string()));
-        values.insert("parent_id", self.parent_id.map(|id| id.to_string()));
-        values.insert("reg", Some("0140".to_string()));
-        values.insert("cod_est", self.cod_est.clone());
-        values.insert("nome", self.nome.clone());
-        values.insert("cnpj", self.cnpj.clone());
-        values.insert("uf", self.uf.clone());
-        values.insert("ie", self.ie.clone());
-        values.insert("cod_mun", self.cod_mun.clone());
-        values.insert("im", self.im.clone());
-        values.insert("suframa", self.suframa.clone());
-
-        values
+        IndexMap::from([
+            ("id", self.id.map(|id| id.to_string())),
+            ("file_id", Some(self.file_id.to_string())),
+            ("parent_id", self.parent_id.map(|id| id.to_string())),
+            ("reg", Some("0140".to_string())),
+            ("cod_est", self.cod_est.clone()),
+            ("nome", self.nome.clone()),
+            ("cnpj", self.cnpj.clone()),
+            ("uf", self.uf.clone()),
+            ("ie", self.ie.clone()),
+            ("cod_mun", self.cod_mun.clone()),
+            ("im", self.im.clone()),
+            ("suframa", self.suframa.clone()),
+        ])
     }
 }

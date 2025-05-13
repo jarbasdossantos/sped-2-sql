@@ -1,7 +1,8 @@
 use crate::database::DB_POOL;
 use crate::models::traits::{Model, Reg};
 use crate::models::utils::{get_date, get_field};
-use futures::executor::block_on;
+use crate::utils::database;
+use async_trait::async_trait;
 use indexmap::IndexMap;
 use sqlx::Row;
 use std::future::Future;
@@ -9,8 +10,8 @@ use std::pin::Pin;
 
 static DB_FIELDS: &'static [&'static str] = &[
     "ID",
-    "PARENT_ID",
     "FILE_ID",
+    "PARENT_ID",
     "REG",
     "COD_VER",
     "TIPO_ESCRIT",
@@ -31,8 +32,8 @@ static TABLE: &str = "reg_0000";
 #[derive(Debug)]
 pub struct Reg0000 {
     pub id: Option<i64>,
-    pub parent_id: Option<i64>,
     pub file_id: i64,
+    pub parent_id: Option<i64>,
     pub reg: Option<String>,
     pub cod_ver: Option<String>,
     pub tipo_escrit: Option<String>,
@@ -49,12 +50,13 @@ pub struct Reg0000 {
     pub ind_ativ: Option<String>,
 }
 
+#[async_trait]
 impl Model for Reg0000 {
-    fn new(fields: Vec<&str>, parent_id: Option<i64>, file_id: i64) -> Self {
+    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0000 {
-            id: fields.get(0).and_then(|v| v.parse().ok()),
-            parent_id,
+            id,
             file_id,
+            parent_id,
             reg: get_field(&fields, 1),
             cod_ver: get_field(&fields, 2),
             tipo_escrit: get_field(&fields, 3),
@@ -72,40 +74,43 @@ impl Model for Reg0000 {
         }
     }
 
-    fn load(file_id: i64, _parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
-        block_on(async move {
-            let rows = sqlx::query(
-                format!(
-                    "SELECT {} FROM {TABLE} WHERE FILE_ID = ?",
-                    DB_FIELDS.join(", ")
-                )
-                .as_str(),
+    async fn load(file_id: i64, _parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
+        let rows = sqlx::query(
+            format!(
+                "SELECT {} FROM {TABLE} WHERE FILE_ID = ?",
+                DB_FIELDS.join(", ")
             )
-            .bind(file_id)
-            .fetch_all(&*DB_POOL)
-            .await?;
+            .as_str(),
+        )
+        .bind(file_id)
+        .fetch_all(&*DB_POOL)
+        .await?;
 
-            let mut data = Vec::new();
+        let mut data = Vec::new();
 
-            for row in rows {
-                let _fields: Vec<String> = DB_FIELDS
-                    .iter()
-                    .map(|field| {
-                        if vec!["ID", "FILE_ID"].contains(field) {
-                            row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
-                        } else {
-                            row.try_get::<String, _>(*field).unwrap_or("".to_string())
-                        }
-                    })
-                    .collect();
+        for row in rows {
+            let _fields: Vec<String> = DB_FIELDS
+                .iter()
+                .map(|field| {
+                    if vec!["ID", "FILE_ID"].contains(field) {
+                        row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
+                    } else {
+                        row.try_get::<String, _>(*field).unwrap_or("".to_string())
+                    }
+                })
+                .collect();
 
-                let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
+            let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
 
-                data.push(Self::new(fields, Some(0i64), file_id));
-            }
+            data.push(Self::new(
+                fields[2..].to_vec(),
+                fields.get(0).and_then(|v| v.parse().ok()),
+                Some(0i64),
+                file_id,
+            ));
+        }
 
-            Ok(data)
-        })
+        Ok(data)
     }
 }
 
@@ -127,6 +132,7 @@ impl Reg for Reg0000 {
 
         IndexMap::from([
             ("id", id),
+            ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
             ("cod_ver", self.cod_ver.clone()),
@@ -145,42 +151,38 @@ impl Reg for Reg0000 {
         ])
     }
 
-    fn to_line(&self) -> String {
-        format!(
-            "|{}|",
-            self.values()
-                .iter()
-                .skip(2)
-                .map(|(_, v)| v.clone().unwrap_or_default())
-                .collect::<Vec<_>>()
-                .join("|")
-        )
-    }
-
     fn save<'a>(
         &'a self,
     ) -> Pin<
         Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
     > {
         Box::pin(async move {
-            sqlx::query(format!("INSERT INTO {TABLE} ({}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", DB_FIELDS.join(", ")).as_str())
-                .bind(self.parent_id)
-                .bind(self.file_id)
-                .bind(&self.reg)
-                .bind(&self.cod_ver)
-                .bind(&self.tipo_escrit)
-                .bind(&self.ind_sit_esp)
-                .bind(&self.num_rec_anterior)
-                .bind(self.dt_ini)
-                .bind(self.dt_fin)
-                .bind(&self.nome)
-                .bind(&self.cnpj)
-                .bind(&self.uf)
-                .bind(&self.cod_mun)
-                .bind(&self.suframa)
-                .bind(&self.ind_nat_pj)
-                .bind(&self.ind_ativ)
-                .execute(&*DB_POOL).await
+            sqlx::query(
+                format!(
+                    "INSERT INTO {TABLE} ({}) VALUES ({})",
+                    DB_FIELDS[1..].join(", "),
+                    database::binds(DB_FIELDS.len() - 1)
+                )
+                .as_str(),
+            )
+            .bind(self.file_id)
+            .bind(self.parent_id)
+            .bind(&self.reg)
+            .bind(&self.cod_ver)
+            .bind(&self.tipo_escrit)
+            .bind(&self.ind_sit_esp)
+            .bind(&self.num_rec_anterior)
+            .bind(self.dt_ini)
+            .bind(self.dt_fin)
+            .bind(&self.nome)
+            .bind(&self.cnpj)
+            .bind(&self.uf)
+            .bind(&self.cod_mun)
+            .bind(&self.suframa)
+            .bind(&self.ind_nat_pj)
+            .bind(&self.ind_ativ)
+            .execute(&*DB_POOL)
+            .await
         })
     }
 }
