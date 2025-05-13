@@ -4,30 +4,30 @@ use std::future::Future;
 use std::pin::Pin;
 use async_trait::async_trait;
 
-/// Trait que define a interface para registros que podem ser salvos no banco de dados.
-/// 
-/// Esta trait é implementada por estruturas que representam registros da EFD (Escrituração Fiscal Digital)
-/// e fornece métodos para manipulação e persistência desses registros.
-/// 
-/// Os tipos que implementam esta trait devem ser `Debug`, `Send` e `Sync` para garantir
-/// compatibilidade com operações assíncronas e logging.
+/// Trait that defines the interface for records that can be saved to the database.
+///
+/// This trait is implemented by structures that represent EFD (Digital Tax Bookkeeping) records
+/// and provides methods for manipulating and persisting these records.
+///
+/// Types that implement this trait must be `Debug`, `Send`, and `Sync` to ensure
+/// compatibility with asynchronous operations and logging.
 pub trait Reg: std::fmt::Debug + Send + Sync {
-    /// Retorna um mapa ordenado contendo os valores dos campos do registro.
-    /// 
-    /// # Retorno
-    /// 
-    /// Um `IndexMap` onde as chaves são os nomes dos campos (como strings estáticas)
-    /// e os valores são opcionais (`Option<String>`), representando os valores dos campos.
+    /// Returns an ordered map containing the field values of the record.
+    ///
+    /// # Returns
+    ///
+    /// An `IndexMap` where the keys are the field names (as static strings)
+    /// and the values are optional (`Option<String>`), representing the field values.
     fn values(&self) -> IndexMap<&'static str, Option<String>>;
 
-    /// Converte o registro para uma representação em formato de linha de texto.
-    /// 
-    /// Este método formata os valores do registro como uma linha delimitada por pipes (|),
-    /// ignorando os três primeiros campos (id, file_id e parent_id).
-    /// 
-    /// # Retorno
-    /// 
-    /// Uma `String` contendo a representação do registro em formato de linha.
+    /// Converts the record to a text line representation.
+    ///
+    /// This method formats the record values as a pipe-delimited line (|),
+    /// ignoring the first three fields (id, file_id, and parent_id).
+    ///
+    /// # Returns
+    ///
+    /// A `String` containing the record's representation in line format.
     #[allow(dead_code)]
     fn to_line(&self) -> String {
         format!(
@@ -41,15 +41,15 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
         )
     }
 
-    /// Salva o registro no banco de dados SQLite.
-    /// 
-    /// Este método é assíncrono e retorna um `Future` que, quando executado,
-    /// insere o registro no banco de dados.
-    /// 
-    /// # Retorno
-    /// 
-    /// Um `Future` que resolve para um `Result` contendo o resultado da operação SQL
-    /// ou um erro do SQLx caso a operação falhe.
+    /// Saves the record to the SQLite database.
+    ///
+    /// This method is asynchronous and returns a `Future` that, when executed,
+    /// inserts the record into the database.
+    ///
+    /// # Returns
+    ///
+    /// A `Future` that resolves to a `Result` containing the SQL operation result
+    /// or an SQLx error if the operation fails.
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -57,41 +57,41 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
     >;
 }
 
-/// Trait que define a interface para modelos que podem ser carregados e criados a partir de campos.
-/// 
-/// Esta trait é implementada por estruturas que representam modelos de dados da EFD
-/// e fornece métodos para criar novas instâncias e carregar dados do banco de dados.
-/// 
-/// A trait utiliza `async_trait` para permitir métodos assíncronos.
+/// Trait that defines the interface for models that can be loaded and created from fields.
+///
+/// This trait is implemented by structures that represent EFD data models
+/// and provides methods for creating new instances and loading data from the database.
+///
+/// The trait uses `async_trait` to allow asynchronous methods.
 #[async_trait]
 pub trait Model {
-    /// Cria uma nova instância do modelo a partir de campos e metadados.
-    /// 
-    /// # Parâmetros
-    /// 
-    /// * `fields` - Um vetor de strings contendo os valores dos campos do registro
-    /// * `id` - Identificador opcional do registro no banco de dados
-    /// * `parent_id` - Identificador opcional do registro pai
-    /// * `file_id` - Identificador do arquivo ao qual o registro pertence
-    /// 
-    /// # Retorno
-    /// 
-    /// Uma nova instância do tipo que implementa esta trait.
+    /// Creates a new instance of the model from fields and metadata.
+    ///
+    /// # Parameters
+    ///
+    /// * `fields` - A vector of strings containing the record field values
+    /// * `id` - Optional identifier of the record in the database
+    /// * `parent_id` - Optional identifier of the parent record
+    /// * `file_id` - Identifier of the file to which the record belongs
+    ///
+    /// # Returns
+    ///
+    /// A new instance of the type that implements this trait.
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self;
-    /// Carrega registros do banco de dados com base no arquivo e registro pai.
-    /// 
-    /// Este método assíncrono consulta o banco de dados e retorna todos os registros
-    /// que correspondem ao arquivo especificado e, opcionalmente, ao registro pai.
-    /// 
-    /// # Parâmetros
-    /// 
-    /// * `file_id` - Identificador do arquivo cujos registros devem ser carregados
-    /// * `parent_id` - Identificador opcional do registro pai para filtrar os resultados
-    /// 
-    /// # Retorno
-    /// 
-    /// Um `Result` contendo um vetor de instâncias do tipo que implementa esta trait,
-    /// ou um erro caso a operação falhe.
+    /// Loads records from the database based on the file and parent record.
+    ///
+    /// This asynchronous method queries the database and returns all records
+    /// that match the specified file and, optionally, the parent record.
+    ///
+    /// # Parameters
+    ///
+    /// * `file_id` - Identifier of the file whose records should be loaded
+    /// * `parent_id` - Optional identifier of the parent record to filter the results
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a vector of instances of the type that implements this trait,
+    /// or an error if the operation fails.
     async fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error>
     where
         Self: Sized;
