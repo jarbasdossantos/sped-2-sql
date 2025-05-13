@@ -1,5 +1,6 @@
 use once_cell::sync::Lazy;
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
+use log::info;
 
 /// Global SQLite connection pool that can be used across the application.
 /// This pool is lazily initialized when first accessed and maintains up to 20 connections.
@@ -28,9 +29,24 @@ pub static DB_POOL: Lazy<Pool<Sqlite>> = Lazy::new(|| {
 /// # Panics
 ///
 /// This function will panic if migrations fail to execute.
-pub async fn migrate() {
+pub(crate) async fn migrate() {
+    info!("Migrating database");
+
     sqlx::migrate!("./migrations")
         .run(&*DB_POOL)
         .await
         .expect("Failed to migrate");
+}
+
+pub(crate) async fn clean() -> Result<(), anyhow::Error> {
+    info!("Cleaning database");
+
+    match std::fs::remove_file("db.sqlite") {
+        Ok(_) => {}
+        Err(_) => {}
+    };
+
+    std::fs::File::create("db.sqlite")?;
+
+    Ok(())
 }

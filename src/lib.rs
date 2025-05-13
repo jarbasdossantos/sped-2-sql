@@ -9,6 +9,7 @@ use anyhow::Result;
 use database::DB_POOL;
 use encoding_rs::UTF_8;
 use futures::future::join_all;
+use log::error;
 use models::traits::Reg;
 use sped::handle_line;
 use std::time::SystemTime;
@@ -53,6 +54,14 @@ async fn import_files(
     files: Vec<String>,
     tx: mpsc::Sender<ProgressMessage>,
 ) -> Result<(), anyhow::Error> {
+    match database::clean().await {
+        Ok(_) => {}
+        Err(err) => {
+            error!("Failed to clean database: {}", err);
+            return Err(err);
+        }
+    };
+
     database::migrate().await;
 
     let mut tasks = vec![];
