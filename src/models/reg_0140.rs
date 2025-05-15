@@ -2,11 +2,11 @@ use super::traits::{Model, Reg};
 use super::utils::get_field;
 use crate::database::DB_POOL;
 use crate::utils::database;
+use async_trait::async_trait;
 use indexmap::IndexMap;
-use sqlx::{FromRow, Row};
+use sqlx::FromRow;
 use std::future::Future;
 use std::pin::Pin;
-use async_trait::async_trait;
 
 static DB_FIELDS: &'static [&'static str] = &[
     "ID",
@@ -22,6 +22,7 @@ static DB_FIELDS: &'static [&'static str] = &[
     "IM",
     "SUFRAMA",
 ];
+
 static TABLE: &str = "reg_0140";
 
 #[derive(Debug, Clone, FromRow)]
@@ -43,6 +44,14 @@ pub struct Reg0140 {
 
 #[async_trait]
 impl Model for Reg0140 {
+    fn table() -> &'static str {
+        TABLE
+    }
+
+    fn fields() -> &'static [&'static str] {
+        DB_FIELDS
+    }
+
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0140 {
             id,
@@ -57,50 +66,6 @@ impl Model for Reg0140 {
             cod_mun: get_field(&fields, 7),
             im: get_field(&fields, 8),
             suframa: get_field(&fields, 9),
-        }
-    }
-
-    async fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
-        {
-            let data_vec = sqlx::query(
-                format!(
-                    "SELECT {} FROM {TABLE} WHERE FILE_ID = ? AND PARENT_ID = ?",
-                    DB_FIELDS.join(", ")
-                )
-                .as_str(),
-            )
-            .bind(file_id)
-            .bind(parent_id.unwrap_or(0))
-            .fetch_all(&*DB_POOL)
-            .await?;
-
-            let mut result = Vec::new();
-
-            for data in data_vec {
-                let parent_id = data.try_get::<i64, _>("PARENT_ID").unwrap_or(0).into();
-
-                let _fields: Vec<String> = DB_FIELDS
-                    .iter()
-                    .map(|field| {
-                        if vec!["ID", "FILE_ID"].contains(field) {
-                            data.try_get::<i64, _>(*field).unwrap_or(0).to_string()
-                        } else {
-                            data.try_get::<String, _>(*field).unwrap_or("".to_string())
-                        }
-                    })
-                    .collect();
-
-                let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
-
-                result.push(Self::new(
-                    fields[2..].to_vec(),
-                    fields.get(0).and_then(|v| v.parse().ok()),
-                    parent_id,
-                    file_id,
-                ));
-            }
-
-            Ok(result)
         }
     }
 }

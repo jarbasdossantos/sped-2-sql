@@ -73,6 +73,18 @@ impl Reg for Reg0110 {
     }
 
     fn values(&self) -> IndexMap<&'static str, Option<String>> {
-        todo!()
+        let id: Option<String> = self.id.clone().map(|id| id.to_string());
+        let parent_id: Option<String> = self.parent_id.map(|id| id.to_string());
+
+        IndexMap::from([
+            ("id", id),
+            ("file_id", Some(self.file_id.to_string())),
+            ("parent_id", parent_id),
+            ("reg", self.reg.clone()),
+            ("cod_inc_trib", self.cod_inc_trib.clone()),
+            ("ind_apro_cred", self.ind_apro_cred.clone()),
+            ("cod_tipo_cont", self.cod_tipo_cont.clone()),
+            ("ind_reg_cum", self.ind_reg_cum.clone()),
+        ])
     }
 }

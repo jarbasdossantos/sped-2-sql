@@ -1,10 +1,9 @@
 use crate::database::DB_POOL;
 use crate::models::traits::{Model, Reg};
-use crate::models::utils::{get_date, get_field};
+use crate::models::utils::get_field;
 use crate::utils::database;
 use async_trait::async_trait;
 use indexmap::IndexMap;
-use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
 
@@ -39,8 +38,8 @@ pub struct Reg0000 {
     pub tipo_escrit: Option<String>,
     pub ind_sit_esp: Option<String>,
     pub num_rec_anterior: Option<String>,
-    pub dt_ini: Option<chrono::NaiveDate>,
-    pub dt_fin: Option<chrono::NaiveDate>,
+    pub dt_ini: Option<String>,
+    pub dt_fin: Option<String>,
     pub nome: Option<String>,
     pub cnpj: Option<String>,
     pub uf: Option<String>,
@@ -52,6 +51,14 @@ pub struct Reg0000 {
 
 #[async_trait]
 impl Model for Reg0000 {
+    fn table() -> &'static str {
+        TABLE
+    }
+
+    fn fields() -> &'static [&'static str] {
+        DB_FIELDS
+    }
+
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0000 {
             id,
@@ -62,8 +69,8 @@ impl Model for Reg0000 {
             tipo_escrit: get_field(&fields, 3),
             ind_sit_esp: get_field(&fields, 4),
             num_rec_anterior: get_field(&fields, 5),
-            dt_ini: get_date(&fields, 6),
-            dt_fin: get_date(&fields, 7),
+            dt_ini: get_field(&fields, 6),
+            dt_fin: get_field(&fields, 7),
             nome: get_field(&fields, 8),
             cnpj: get_field(&fields, 9),
             uf: get_field(&fields, 10),
@@ -73,60 +80,10 @@ impl Model for Reg0000 {
             ind_ativ: get_field(&fields, 14),
         }
     }
-
-    async fn load(file_id: i64, _parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error> {
-        let rows = sqlx::query(
-            format!(
-                "SELECT {} FROM {TABLE} WHERE FILE_ID = ?",
-                DB_FIELDS.join(", ")
-            )
-            .as_str(),
-        )
-        .bind(file_id)
-        .fetch_all(&*DB_POOL)
-        .await?;
-
-        let mut data = Vec::new();
-
-        for row in rows {
-            let _fields: Vec<String> = DB_FIELDS
-                .iter()
-                .map(|field| {
-                    if vec!["ID", "FILE_ID"].contains(field) {
-                        row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
-                    } else {
-                        row.try_get::<String, _>(*field).unwrap_or("".to_string())
-                    }
-                })
-                .collect();
-
-            let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
-
-            data.push(Self::new(
-                fields[2..].to_vec(),
-                fields.get(0).and_then(|v| v.parse().ok()),
-                Some(0i64),
-                file_id,
-            ));
-        }
-
-        Ok(data)
-    }
 }
 
 impl Reg for Reg0000 {
     fn values(&self) -> IndexMap<&'static str, Option<String>> {
-        let dt_ini: String = self
-            .dt_ini
-            .as_ref()
-            .map(|d| d.format("%d%m%Y").to_string())
-            .unwrap_or_default();
-        let dt_fin: String = self
-            .dt_fin
-            .as_ref()
-            .map(|d| d.format("%d%m%Y").to_string())
-            .unwrap_or_default();
-
         let id: Option<String> = self.id.clone().map(|id| id.to_string());
         let parent_id: Option<String> = self.parent_id.map(|id| id.to_string());
 
@@ -139,8 +96,8 @@ impl Reg for Reg0000 {
             ("tipo_escrit", self.tipo_escrit.clone()),
             ("ind_sit_esp", self.ind_sit_esp.clone()),
             ("num_rec_anterior", self.num_rec_anterior.clone()),
-            ("dt_ini", Some(dt_ini).clone()),
-            ("dt_fin", Some(dt_fin).clone()),
+            ("dt_ini", self.dt_ini.clone()),
+            ("dt_fin", self.dt_fin.clone()),
             ("nome", self.nome.clone()),
             ("cnpj", self.cnpj.clone()),
             ("uf", self.uf.clone()),
@@ -172,8 +129,8 @@ impl Reg for Reg0000 {
             .bind(&self.tipo_escrit)
             .bind(&self.ind_sit_esp)
             .bind(&self.num_rec_anterior)
-            .bind(self.dt_ini)
-            .bind(self.dt_fin)
+            .bind(&self.dt_ini)
+            .bind(&self.dt_fin)
             .bind(&self.nome)
             .bind(&self.cnpj)
             .bind(&self.uf)

@@ -15,6 +15,7 @@ use crate::models::reg_c110::RegC110;
 use crate::models::reg_c180::RegC180;
 use crate::models::reg_c181::RegC181;
 use crate::models::reg_c185::RegC185;
+use crate::models::reg_p200::RegP200;
 use crate::models::traits::{Model, Reg};
 use anyhow::Result;
 
@@ -41,6 +42,7 @@ pub fn factories(
         "C180" => Some(Box::new(RegC180::new(fields, None, parent_id, file_id))),
         "C181" => Some(Box::new(RegC181::new(fields, None, parent_id, file_id))),
         "C185" => Some(Box::new(RegC185::new(fields, None, parent_id, file_id))),
+        "P200" => Some(Box::new(RegP200::new(fields, None, parent_id, file_id))),
         "9999" => Some(Box::new(Reg9999::new(fields, None, parent_id, file_id))),
         _ => None,
     }

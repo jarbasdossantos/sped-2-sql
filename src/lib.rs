@@ -23,12 +23,18 @@ struct ProgressMessage {
     message: String,
 }
 
+pub struct LoadData {
+    pub file: String,
+    pub registers: Option<Vec<String>>,
+}
+
 pub struct Load {
-    pub files: Vec<String>,
+    pub files: Vec<LoadData>,
 }
 
 pub struct Export {
     pub id: i64,
+    pub registers: Option<Vec<String>>,
 }
 
 pub async fn load(data: Load) -> Result<(), anyhow::Error> {
@@ -45,13 +51,13 @@ pub async fn load(data: Load) -> Result<(), anyhow::Error> {
 }
 
 pub async fn export(data: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
-    let file_data = Files::get_data(data.id).await?;
+    let file_data = Files::get_data(data).await?;
 
     return Ok(file_data);
 }
 
 async fn import_files(
-    files: Vec<String>,
+    files: Vec<LoadData>,
     tx: mpsc::Sender<ProgressMessage>,
 ) -> Result<(), anyhow::Error> {
     match database::clean().await {
@@ -75,10 +81,11 @@ async fn import_files(
         return Ok(());
     }
 
-    for file in files {
-        let extension = file.split('.').last().map(|s| s.to_string()).unwrap();
+    for data in files {
+        let extension = data.file.split('.').last().map(|s| s.to_string()).unwrap();
 
-        let file_name = file
+        let file_name = data
+            .file
             .split(std::path::MAIN_SEPARATOR_STR)
             .last()
             .unwrap_or("")
@@ -98,11 +105,12 @@ async fn import_files(
         }
 
         let tx_clone = tx.clone();
-        let file_clone = file.clone();
+        let file_clone = data.file.clone();
 
         // Run each file in an async separate task
         let task = task::spawn(async move {
-            if let Err(err) = import(file_clone, file_name, file_id, tx_clone).await {
+            if let Err(err) = import(file_clone, file_name, data.registers, file_id, tx_clone).await
+            {
                 let message = format!("Failed to process file: {}", err);
                 eprintln!("{message}");
             }
@@ -124,6 +132,7 @@ async fn import_files(
 async fn import(
     file_path: String,
     file_name: String,
+    registers: Option<Vec<String>>,
     file_id: i64,
     tx: mpsc::Sender<ProgressMessage>,
 ) -> Result<(), anyhow::Error> {
@@ -167,6 +176,13 @@ async fn import(
         }
 
         let reg_code = line[1..5].to_string();
+
+        if let Some(ref regs) = registers {
+            if !regs.contains(&reg_code) {
+                continue;
+            }
+        }
+
         let hierarchy = utils::file_structure::FILE_STRUCTURE.get(&reg_code.as_str());
         let level = match hierarchy.is_some() {
             true => hierarchy.unwrap().level,
@@ -181,6 +197,7 @@ async fn import(
                 break;
             }
         }
+
         let parent_id = parent_stack.last().map(|&(_, id)| id).unwrap_or(0);
         let inserted_line = handle_line(&line, parent_id, file_id).await;
 

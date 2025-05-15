@@ -84,6 +84,14 @@ pub struct RegC100 {
 
 #[async_trait]
 impl Model for RegC100 {
+    fn table() -> &'static str {
+        TABLE
+    }
+
+    fn fields() -> &'static [&'static str] {
+        DB_FIELDS
+    }
+
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         let vl_desc_compl = get_field(&fields, 30).and_then(|s| s.parse::<f64>().ok());
 
@@ -122,10 +130,6 @@ impl Model for RegC100 {
             vl_cofins_st: get_field(&fields, 29),
             vl_desc_compl,
         }
-    }
-
-    fn load<'a>(file_id: i64, parent_id: Option<i64>) -> Pin<Box<dyn Future<Output = anyhow::Result<Vec<Self>>> + Send + 'a>> {
-        todo!()
     }
 }
 

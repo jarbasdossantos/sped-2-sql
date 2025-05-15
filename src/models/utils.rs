@@ -16,6 +16,7 @@ pub(crate) fn get_field(fields: &Vec<&str>, field: usize) -> Option<String> {
  * @param field: usize - The index of the field to get
  * @return Option<chrono::NaiveDate> - The date as a chrono::NaiveDate, or None if the index is out of bounds
  */
+#[allow(dead_code)]
 pub(crate) fn get_date(fields: &Vec<&str>, field: usize) -> Option<chrono::NaiveDate> {
     let date = get_field(fields, field);
 

@@ -4,7 +4,6 @@ use crate::models::traits::Reg;
 use crate::models::utils::get_field;
 use crate::utils::database;
 use indexmap::IndexMap;
-use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
 use async_trait::async_trait;
@@ -43,6 +42,14 @@ pub struct Reg0500 {
 
 #[async_trait]
 impl Model for Reg0500 {
+    fn table() -> &'static str {
+        TABLE
+    }
+
+    fn fields() -> &'static [&'static str] {
+        DB_FIELDS
+    }
+
     fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
         Reg0500 {
             id,
@@ -57,51 +64,6 @@ impl Model for Reg0500 {
             nome_cta: get_field(&fields, 7),
             cod_cta_ref: get_field(&fields, 8),
             cnpj_est: get_field(&fields, 9),
-        }
-    }
-
-    async fn load(file_id: i64, parent_id: Option<i64>) -> anyhow::Result<Vec<Self>, anyhow::Error> {
-        {
-            let rows = sqlx::query(
-                format!(
-                    "SELECT {} FROM {} WHERE FILE_ID = ? AND PARENT_ID = ?",
-                    DB_FIELDS.join(", "),
-                    TABLE
-                )
-                .as_str(),
-            )
-            .bind(file_id)
-            .bind(parent_id)
-            .fetch_all(&*DB_POOL)
-            .await?;
-
-            let mut data = Vec::new();
-
-            for row in rows {
-                let parent_id = row.try_get::<i64, _>("PARENT_ID").unwrap_or(0).into();
-
-                let _fields: Vec<String> = DB_FIELDS
-                    .iter()
-                    .map(|field| {
-                        if vec!["ID", "FILE_ID"].contains(field) {
-                            row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
-                        } else {
-                            row.try_get::<String, _>(*field).unwrap_or("".to_string())
-                        }
-                    })
-                    .collect();
-
-                let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
-
-                data.push(Self::new(
-                    fields[2..].to_vec(),
-                    fields.get(0).and_then(|v| v.parse().ok()),
-                    parent_id,
-                    file_id,
-                ));
-            }
-
-            Ok(data)
         }
     }
 }

@@ -1,8 +1,10 @@
+use crate::database::DB_POOL;
 use anyhow::Result;
+use async_trait::async_trait;
 use indexmap::IndexMap;
+use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
-use async_trait::async_trait;
 
 /// Trait that defines the interface for records that can be saved to the database.
 ///
@@ -65,6 +67,12 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
 /// The trait uses `async_trait` to allow asynchronous methods.
 #[async_trait]
 pub trait Model {
+    /// Database table name.
+    fn table() -> &'static str;
+
+    /// Database fields.
+    fn fields() -> &'static [&'static str];
+
     /// Creates a new instance of the model from fields and metadata.
     ///
     /// # Parameters
@@ -94,5 +102,53 @@ pub trait Model {
     /// or an error if the operation fails.
     async fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error>
     where
-        Self: Sized;
+        Self: Sized,
+    {
+        let query = if parent_id.is_some() {
+            format!(
+                "SELECT {} FROM {} WHERE FILE_ID = ? AND PARENT_ID = ?",
+                Self::fields().join(", "),
+                Self::table()
+            )
+        } else {
+            format!(
+                "SELECT {} FROM {} WHERE FILE_ID = ?",
+                Self::fields().join(", "),
+                Self::table()
+            )
+        };
+
+        let mut query_builder = sqlx::query(query.as_str()).bind(file_id);
+
+        if let Some(pid) = parent_id {
+            query_builder = query_builder.bind(pid);
+        }
+
+        let rows = query_builder.fetch_all(&*DB_POOL).await?;
+        let mut data = Vec::new();
+
+        for row in rows {
+            let _fields: Vec<String> = Self::fields()
+                .iter()
+                .map(|field| {
+                    if vec!["ID", "PARENT_ID", "FILE_ID"].contains(field) {
+                        row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
+                    } else {
+                        row.try_get::<String, _>(*field).unwrap_or("".to_string())
+                    }
+                })
+                .collect();
+
+            let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
+
+            data.push(Self::new(
+                fields[2..].to_vec(),
+                fields.get(0).and_then(|v| v.parse().ok()),
+                Some(0i64),
+                file_id,
+            ));
+        }
+
+        Ok(data)
+    }
 }

@@ -1,7 +1,8 @@
 use super::traits::Reg;
 use crate::database::DB_POOL;
 use crate::utils::file_structure::{get_reg_children, FILE_STRUCTURE};
-use anyhow::Result;
+use crate::Export;
+use anyhow::{Ok, Result};
 use sqlx::Row;
 use std::future::Future;
 use std::pin::Pin;
@@ -16,7 +17,7 @@ pub struct Files {
 pub(crate) trait FilesTrait: Sized {
     fn new(id: Option<i64>, name: Option<String>) -> Files;
     async fn get(id: i64) -> Pin<Box<dyn Future<Output = Result<Self, anyhow::Error>>>>;
-    async fn get_data(id: i64) -> Result<Vec<Box<dyn Reg>>, anyhow::Error>;
+    async fn get_data(file: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error>;
 }
 
 impl FilesTrait for Files {
@@ -38,14 +39,21 @@ impl FilesTrait for Files {
         })
     }
 
-    async fn get_data(id: i64) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
+    async fn get_data(file_data: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
         async fn fetch_recursive<'a>(
             file_id: i64,
-            reg: &str,
+            register: &str,
             parent_id: Option<i64>,
+            registers: Option<Vec<String>>,
             all_data: &mut Vec<Box<dyn Reg>>,
         ) -> Result<(), anyhow::Error> {
-            let structure = match FILE_STRUCTURE.get(reg) {
+            if let Some(ref reg) = registers {
+                if !reg.contains(&register.to_string()) {
+                    return Ok(());
+                }
+            }
+
+            let structure = match FILE_STRUCTURE.get(register) {
                 Some(s) => s,
                 None => return Ok(()),
             };
@@ -55,10 +63,19 @@ impl FilesTrait for Files {
                 None => return Ok(()),
             };
 
-            let rows = model(file_id, parent_id).await.expect("Failed to load model data");
+            let rows = model(file_id, parent_id)
+                .await
+                .expect("Failed to load model data");
+
             let children = get_reg_children();
 
             for row in rows {
+                if let Some(ref reg) = registers {
+                    if !reg.contains(&register.to_string()) {
+                        continue;
+                    }
+                }
+
                 let id = row
                     .values()
                     .get("id")
@@ -66,9 +83,22 @@ impl FilesTrait for Files {
 
                 all_data.push(row);
 
-                if let Some(child_regs) = children.get(reg) {
+                if let Some(child_regs) = children.get(register) {
                     for child_reg in child_regs {
-                        Box::pin(fetch_recursive(file_id, child_reg, id, all_data)).await?;
+                        if let Some(ref reg) = registers {
+                            if !reg.contains(&register.to_string()) {
+                                continue;
+                            }
+                        }
+
+                        Box::pin(fetch_recursive(
+                            file_id,
+                            child_reg,
+                            id,
+                            registers.clone(),
+                            all_data,
+                        ))
+                        .await?;
                     }
                 }
             }
@@ -76,10 +106,30 @@ impl FilesTrait for Files {
             Ok(())
         }
 
-        let file = Self::get(id).await.await?;
+        let file = Self::get(file_data.id).await.await?;
         let mut all_data: Vec<Box<dyn Reg>> = Vec::new();
 
-        Box::pin(fetch_recursive(file.id.unwrap(), "0000", None, &mut all_data)).await?;
+        if let Some(ref regs) = file_data.registers {
+            if let Some(ref reg) = regs.first() {
+                Box::pin(fetch_recursive(
+                    file.id.unwrap(),
+                    reg,
+                    None,
+                    file_data.registers.clone(),
+                    &mut all_data,
+                ))
+                .await?;
+            }
+        } else {
+            Box::pin(fetch_recursive(
+                file.id.unwrap(),
+                "0000",
+                None,
+                file_data.registers,
+                &mut all_data,
+            ))
+            .await?;
+        }
 
         Ok(all_data)
     }
