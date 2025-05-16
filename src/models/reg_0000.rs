@@ -26,6 +26,7 @@ static DB_FIELDS: &'static [&'static str] = &[
     "IND_NAT_PJ",
     "IND_ATIV",
 ];
+
 static TABLE: &str = "reg_0000";
 
 #[derive(Debug)]

@@ -1,6 +1,6 @@
+use log::info;
 use once_cell::sync::Lazy;
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
-use log::info;
 
 /// Global SQLite connection pool that can be used across the application.
 /// This pool is lazily initialized when first accessed and maintains up to 20 connections.
@@ -8,17 +8,18 @@ use log::info;
 /// through the USE_MEMORY_DB environment variable.
 pub static DB_POOL: Lazy<Pool<Sqlite>> = Lazy::new(|| {
     let use_memory_env = std::env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());
+    let db_file = std::env::var("DB_FILE").unwrap_or("jarbas.sqlite".to_string());
     let use_memory = use_memory_env.eq_ignore_ascii_case("true");
 
     let database_url = if use_memory {
-        "sqlite::memory:"
+        "sqlite::memory:".to_string()
     } else {
-        "sqlite:db.sqlite"
+        format!("sqlite:{}", db_file)
     };
 
     SqlitePoolOptions::new()
         .max_connections(20)
-        .connect_lazy(database_url)
+        .connect_lazy(database_url.as_str())
         .expect("Failed to create database pool")
 });
 
@@ -41,12 +42,14 @@ pub(crate) async fn migrate() {
 pub(crate) async fn clean() -> Result<(), anyhow::Error> {
     info!("Cleaning database");
 
-    match std::fs::remove_file("db.sqlite") {
+    let db_file = std::env::var("DB_FILE").unwrap_or("jarbas.sqlite".to_string());
+
+    match std::fs::remove_file(db_file.clone()) {
         Ok(_) => {}
         Err(_) => {}
     };
 
-    std::fs::File::create("db.sqlite")?;
+    std::fs::File::create(db_file)?;
 
     Ok(())
 }

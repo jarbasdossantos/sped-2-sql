@@ -12,16 +12,9 @@ use futures::future::join_all;
 use log::error;
 use models::traits::Reg;
 use sped::handle_line;
-use std::time::SystemTime;
-use time::{format_description, OffsetDateTime};
 use tokio::fs::File;
 use tokio::io::{AsyncBufReadExt, BufReader};
-use tokio::sync::mpsc;
 use tokio::task;
-
-struct ProgressMessage {
-    message: String,
-}
 
 pub struct LoadData {
     pub file: String,
@@ -38,12 +31,7 @@ pub struct Export {
 }
 
 pub async fn load(data: Load) -> Result<(), anyhow::Error> {
-    let (tx, mut rx) = mpsc::channel::<ProgressMessage>(100);
-    let processing = task::spawn(async move { import_files(data.files, tx).await });
-
-    while let Some(msg) = rx.recv().await {
-        println!("{}", msg.message);
-    }
+    let processing = task::spawn(async move { import_files(data.files).await });
 
     processing.await??;
 
@@ -56,10 +44,7 @@ pub async fn export(data: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
     return Ok(file_data);
 }
 
-async fn import_files(
-    files: Vec<LoadData>,
-    tx: mpsc::Sender<ProgressMessage>,
-) -> Result<(), anyhow::Error> {
+async fn import_files(files: Vec<LoadData>) -> Result<(), anyhow::Error> {
     match database::clean().await {
         Ok(_) => {}
         Err(err) => {
@@ -73,11 +58,6 @@ async fn import_files(
     let mut tasks = vec![];
 
     if files.is_empty() {
-        tx.send(ProgressMessage {
-            message: "No files to process".to_string(),
-        })
-        .await?;
-
         return Ok(());
     }
 
@@ -94,8 +74,7 @@ async fn import_files(
         let file_id = match create_file_entry(file_name.clone()).await {
             Ok(result) => result.last_insert_rowid(),
             Err(err) => {
-                let message = format!("Failed to create file entry: {}", err);
-                tx.send(ProgressMessage { message }).await?;
+                println!("Failed to create file entry: {}", err);
                 continue;
             }
         };
@@ -104,13 +83,11 @@ async fn import_files(
             continue;
         }
 
-        let tx_clone = tx.clone();
         let file_clone = data.file.clone();
 
         // Run each file in an async separate task
         let task = task::spawn(async move {
-            if let Err(err) = import(file_clone, file_name, data.registers, file_id, tx_clone).await
-            {
+            if let Err(err) = import(file_clone, data.registers, file_id).await {
                 let message = format!("Failed to process file: {}", err);
                 eprintln!("{message}");
             }
@@ -121,26 +98,14 @@ async fn import_files(
 
     join_all(tasks).await;
 
-    tx.send(ProgressMessage {
-        message: "Finished processing files".to_string(),
-    })
-    .await?;
-
     Ok(())
 }
 
 async fn import(
     file_path: String,
-    file_name: String,
     registers: Option<Vec<String>>,
     file_id: i64,
-    tx: mpsc::Sender<ProgressMessage>,
 ) -> Result<(), anyhow::Error> {
-    tx.send(ProgressMessage {
-        message: format!("{}: Processing file: {}", get_time(), file_name),
-    })
-    .await?;
-
     let file = File::open(file_path).await?;
 
     let mut reader = BufReader::new(file);
@@ -207,17 +172,11 @@ async fn import(
                 parent_stack.push((level, result.last_insert_rowid()));
             }
             Err(error) => {
-                let message = format!("Failed to insert line ({}): {}", reg_code, error);
-                tx.send(ProgressMessage { message }).await?;
+                println!("Failed to insert line ({}): {}", reg_code, error);
             }
             _ => {}
         };
     }
-
-    tx.send(ProgressMessage {
-        message: format!("{}: Finished file: {}", get_time(), file_name),
-    })
-    .await?;
 
     Ok(())
 }
@@ -229,12 +188,4 @@ async fn create_file_entry(
         .bind(&file_name)
         .execute(&*DB_POOL)
         .await
-}
-
-fn get_time() -> String {
-    let time: OffsetDateTime = SystemTime::now().into();
-    let format: &'static str = "[hour]:[minute]:[second]";
-    let time_format = format_description::parse(format).unwrap();
-
-    time.format(&time_format).unwrap().to_string()
 }

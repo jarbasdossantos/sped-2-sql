@@ -1,6 +1,6 @@
-use std::{collections::HashMap, pin::Pin};
 use indexmap::IndexMap;
 use once_cell::sync::Lazy;
+use std::{collections::HashMap, pin::Pin};
 
 use crate::models::{
     reg_0000::Reg0000,
@@ -10,6 +10,7 @@ use crate::models::{
     reg_0150::Reg0150,
     reg_0190::Reg0190,
     reg_0200::Reg0200,
+    reg_0400::Reg0400,
     reg_0500::Reg0500,
     reg_9999::Reg9999,
     reg_c001::RegC001,
@@ -196,7 +197,9 @@ pub static FILE_STRUCTURE: Lazy<IndexMap<&str, Struct>> = Lazy::new(|| {
             "0400",
             Struct {
                 level: 3,
-                load_model: None,
+                load_model: Some(|file_id, parent_id| {
+                    Box::pin(load_model_helper::<Reg0400>(file_id, parent_id))
+                }),
             },
         ),
         (

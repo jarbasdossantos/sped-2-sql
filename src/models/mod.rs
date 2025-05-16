@@ -8,6 +8,7 @@ pub mod reg_0140;
 pub mod reg_0150;
 pub mod reg_0190;
 pub mod reg_0200;
+pub mod reg_0400;
 pub mod reg_0500;
 pub mod reg_c001;
 pub mod reg_c010;
