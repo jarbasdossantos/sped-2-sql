@@ -33,9 +33,7 @@ pub struct Export {
 pub async fn load(data: Load) -> Result<(), anyhow::Error> {
     let processing = task::spawn(async move { import_files(data.files).await });
 
-    processing.await??;
-
-    Ok(())
+    processing.await?
 }
 
 pub async fn export(data: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
@@ -188,4 +186,8 @@ async fn create_file_entry(
         .bind(&file_name)
         .execute(&*DB_POOL)
         .await
+}
+
+pub async fn clean() -> Result<(), anyhow::Error> {
+    Ok(database::clean().await?)
 }
