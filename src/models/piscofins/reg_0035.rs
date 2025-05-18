@@ -1,27 +1,36 @@
-use super::traits::Model;
-use crate::database::DB_POOL;
-use crate::models::traits::Reg;
+use crate::models::traits::{Model, Reg};
 use crate::models::utils::get_field;
+use crate::database::DB_POOL;
 use crate::utils::database;
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use std::future::Future;
 use std::pin::Pin;
 
-static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "QTD_LIN"];
-static TABLE: &str = "reg_9999";
+static DB_FIELDS: &'static [&'static str] = &[
+    "ID",
+    "FILE_ID",
+    "PARENT_ID",
+    "REG",
+    "COD_SCP",
+    "NOME_SCP",
+    "INF_COMP",
+];
+static TABLE: &str = "reg_0035";
 
-#[derive(Debug)]
-pub struct Reg9999 {
-    pub id: Option<i64>,
-    pub file_id: i64,
-    pub parent_id: Option<i64>,
+#[derive(Debug, Clone)]
+pub struct Reg0035 {
+    pub id: Option<i32>,
+    pub file_id: i32,
+    pub parent_id: Option<i32>,
     pub reg: Option<String>,
-    pub qtd_lin: Option<String>,
+    pub cod_scp: Option<String>,
+    pub nome_scp: Option<String>,
+    pub inf_comp: Option<String>,
 }
 
 #[async_trait]
-impl Model for Reg9999 {
+impl Model for Reg0035 {
     fn table() -> &'static str {
         TABLE
     }
@@ -30,18 +39,20 @@ impl Model for Reg9999 {
         DB_FIELDS
     }
 
-    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg9999 {
+    fn new(fields: Vec<&str>, id: Option<i32>, parent_id: Option<i32>, file_id: i32) -> Self {
+        Reg0035 {
             id,
-            parent_id,
             file_id,
+            parent_id,
             reg: get_field(&fields, 1),
-            qtd_lin: get_field(&fields, 2),
+            cod_scp: get_field(&fields, 2),
+            nome_scp: get_field(&fields, 3),
+            inf_comp: get_field(&fields, 4),
         }
     }
 }
 
-impl Reg for Reg9999 {
+impl Reg for Reg0035 {
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -59,7 +70,9 @@ impl Reg for Reg9999 {
             .bind(&self.file_id)
             .bind(&self.parent_id)
             .bind(&self.reg)
-            .bind(&self.qtd_lin)
+            .bind(&self.cod_scp)
+            .bind(&self.nome_scp)
+            .bind(&self.inf_comp)
             .execute(&*DB_POOL)
             .await
         })
@@ -74,7 +87,9 @@ impl Reg for Reg9999 {
             ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
-            ("qtd_lin", self.qtd_lin.clone()),
+            ("cod_scp", self.cod_scp.clone()),
+            ("nome_scp", self.nome_scp.clone()),
+            ("inf_comp", self.inf_comp.clone()),
         ])
     }
 }

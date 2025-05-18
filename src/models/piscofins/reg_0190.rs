@@ -1,27 +1,29 @@
-use super::traits::Model;
-use crate::database::DB_POOL;
-use crate::models::traits::Reg;
+use crate::models::traits::{Model, Reg};
 use crate::models::utils::get_field;
+use crate::database::DB_POOL;
 use crate::utils::database;
 use async_trait::async_trait;
 use indexmap::IndexMap;
+use sqlx::FromRow;
 use std::future::Future;
 use std::pin::Pin;
 
-static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "IND_MOV"];
-static TABLE: &str = "reg_0001";
+static DB_FIELDS: &'static [&'static str] = &["ID", "FILE_ID", "PARENT_ID", "REG", "UNID", "DESCR"];
+static TABLE: &str = "reg_0190";
 
-#[derive(Debug)]
-pub struct Reg0001 {
-    pub id: Option<i64>,
-    pub file_id: i64,
-    pub parent_id: Option<i64>,
+#[derive(Debug, Clone, FromRow)]
+#[allow(dead_code)]
+pub struct Reg0190 {
+    pub id: Option<i32>,
+    pub file_id: i32,
+    pub parent_id: Option<i32>,
     pub reg: Option<String>,
-    pub ind_mov: Option<String>,
+    pub unid: Option<String>,
+    pub descr: Option<String>,
 }
 
 #[async_trait]
-impl Model for Reg0001 {
+impl Model for Reg0190 {
     fn table() -> &'static str {
         TABLE
     }
@@ -30,18 +32,19 @@ impl Model for Reg0001 {
         DB_FIELDS
     }
 
-    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg0001 {
+    fn new(fields: Vec<&str>, id: Option<i32>, parent_id: Option<i32>, file_id: i32) -> Self {
+        Reg0190 {
             id,
             file_id,
             parent_id,
             reg: get_field(&fields, 1),
-            ind_mov: get_field(&fields, 2),
+            unid: get_field(&fields, 2),
+            descr: get_field(&fields, 3),
         }
     }
 }
 
-impl Reg for Reg0001 {
+impl Reg for Reg0190 {
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -56,10 +59,11 @@ impl Reg for Reg0001 {
                 )
                 .as_str(),
             )
-            .bind(&self.file_id)
-            .bind(&self.parent_id)
-            .bind(&self.reg)
-            .bind(&self.ind_mov)
+            .bind(self.file_id)
+            .bind(self.parent_id)
+            .bind(self.reg.as_deref())
+            .bind(self.unid.as_deref())
+            .bind(self.descr.as_deref())
             .execute(&*DB_POOL)
             .await
         })
@@ -74,7 +78,8 @@ impl Reg for Reg0001 {
             ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
-            ("ind_mov", self.ind_mov.clone()),
+            ("unid", self.unid.clone()),
+            ("descr", self.descr.clone()),
         ])
     }
 }

@@ -1,8 +1,10 @@
-use crate::database::DB_POOL;
-use crate::models::traits::Reg;
+use crate::models::traits::{Model, Reg};
 use crate::models::utils::get_field;
+use crate::database::DB_POOL;
 use crate::utils::database;
+use async_trait::async_trait;
 use indexmap::IndexMap;
+use sqlx::FromRow;
 use std::future::Future;
 use std::pin::Pin;
 
@@ -11,68 +13,75 @@ static DB_FIELDS: &'static [&'static str] = &[
     "FILE_ID",
     "PARENT_ID",
     "REG",
+    "COD_PART",
     "NOME",
-    "CPF",
-    "CRC",
+    "COD_PAIS",
     "CNPJ",
-    "CEP",
+    "CPF",
+    "IE",
+    "COD_MUN",
+    "SUFRAMA",
     "END",
     "NUM",
     "COMPL",
     "BAIRRO",
-    "FONE",
-    "FAX",
-    "EMAIL",
-    "COD_MUN",
 ];
-static TABLE: &str = "reg_0100";
+static TABLE: &str = "reg_0150";
 
-#[derive(Debug)]
-pub struct Reg0100 {
-    pub id: Option<i64>,
-    pub file_id: i64,
-    pub parent_id: Option<i64>,
+#[derive(Debug, Clone, FromRow)]
+#[allow(dead_code)]
+pub struct Reg0150 {
+    pub id: Option<i32>,
+    pub file_id: i32,
+    pub parent_id: Option<i32>,
     pub reg: Option<String>,
+    pub cod_part: Option<String>,
     pub nome: Option<String>,
-    pub cpf: Option<String>,
-    pub crc: Option<String>,
+    pub cod_pais: Option<String>,
     pub cnpj: Option<String>,
-    pub cep: Option<String>,
+    pub cpf: Option<String>,
+    pub ie: Option<String>,
+    pub cod_mun: Option<String>,
+    pub suframa: Option<String>,
     pub end: Option<String>,
     pub num: Option<String>,
     pub compl: Option<String>,
     pub bairro: Option<String>,
-    pub fone: Option<String>,
-    pub fax: Option<String>,
-    pub email: Option<String>,
-    pub cod_mun: Option<String>,
 }
 
-impl Reg0100 {
-    pub fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        Reg0100 {
+#[async_trait]
+impl Model for Reg0150 {
+    fn table() -> &'static str {
+        TABLE
+    }
+
+    fn fields() -> &'static [&'static str] {
+        DB_FIELDS
+    }
+
+    fn new(fields: Vec<&str>, id: Option<i32>, parent_id: Option<i32>, file_id: i32) -> Self {
+        Reg0150 {
             id,
             file_id,
             parent_id,
             reg: get_field(&fields, 1),
-            nome: get_field(&fields, 2),
-            cpf: get_field(&fields, 3),
-            crc: get_field(&fields, 4),
+            cod_part: get_field(&fields, 2),
+            nome: get_field(&fields, 3),
+            cod_pais: get_field(&fields, 4),
             cnpj: get_field(&fields, 5),
-            cep: get_field(&fields, 6),
-            end: get_field(&fields, 7),
-            num: get_field(&fields, 8),
-            compl: get_field(&fields, 9),
-            bairro: get_field(&fields, 10),
-            fone: get_field(&fields, 11),
-            fax: get_field(&fields, 12),
-            email: get_field(&fields, 13),
-            cod_mun: get_field(&fields, 14),
+            cpf: get_field(&fields, 6),
+            ie: get_field(&fields, 7),
+            cod_mun: get_field(&fields, 8),
+            suframa: get_field(&fields, 9),
+            end: get_field(&fields, 10),
+            num: get_field(&fields, 11),
+            compl: get_field(&fields, 12),
+            bairro: get_field(&fields, 13),
         }
     }
 }
 
-impl Reg for Reg0100 {
+impl Reg for Reg0150 {
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -90,19 +99,18 @@ impl Reg for Reg0100 {
             .bind(&self.file_id)
             .bind(&self.parent_id)
             .bind(&self.reg)
+            .bind(&self.cod_part)
             .bind(&self.nome)
-            .bind(&self.cpf)
-            .bind(&self.crc)
+            .bind(&self.cod_pais)
             .bind(&self.cnpj)
-            .bind(&self.cep)
+            .bind(&self.cpf)
+            .bind(&self.ie)
+            .bind(&self.cod_mun)
+            .bind(&self.suframa)
             .bind(&self.end)
             .bind(&self.num)
             .bind(&self.compl)
             .bind(&self.bairro)
-            .bind(&self.fone)
-            .bind(&self.fax)
-            .bind(&self.email)
-            .bind(&self.cod_mun)
             .execute(&*DB_POOL)
             .await
         })
@@ -117,19 +125,18 @@ impl Reg for Reg0100 {
             ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
+            ("cod_part", self.cod_part.clone()),
             ("nome", self.nome.clone()),
-            ("cpf", self.cpf.clone()),
-            ("crc", self.crc.clone()),
+            ("cod_pais", self.cod_pais.clone()),
             ("cnpj", self.cnpj.clone()),
-            ("cep", self.cep.clone()),
+            ("cpf", self.cpf.clone()),
+            ("ie", self.ie.clone()),
+            ("cod_mun", self.cod_mun.clone()),
+            ("suframa", self.suframa.clone()),
             ("end", self.end.clone()),
             ("num", self.num.clone()),
             ("compl", self.compl.clone()),
             ("bairro", self.bairro.clone()),
-            ("fone", self.fone.clone()),
-            ("fax", self.fax.clone()),
-            ("email", self.email.clone()),
-            ("cod_mun", self.cod_mun.clone()),
         ])
     }
 }

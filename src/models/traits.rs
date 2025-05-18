@@ -1,10 +1,13 @@
-use crate::database::DB_POOL;
+pub(crate) use crate::database::DB_POOL;
 use anyhow::Result;
 use async_trait::async_trait;
 use indexmap::IndexMap;
-use sqlx::Row;
+use once_cell::sync::Lazy;
 use std::future::Future;
 use std::pin::Pin;
+use diesel::{sql_query, RunQueryDsl};
+use diesel::result::Error;
+use crate::models::piscofins::reg_0000::Reg0000;
 
 /// Trait that defines the interface for records that can be saved to the database.
 ///
@@ -20,7 +23,7 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
     ///
     /// An `IndexMap` where the keys are the field names (as static strings)
     /// and the values are optional (`Option<String>`), representing the field values.
-    fn values(&self) -> IndexMap<&'static str, Option<String>>;
+    // fn values(&self) -> IndexMap<&'static str, Option<String>>;
 
     /// Converts the record to a text line representation.
     ///
@@ -34,12 +37,13 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
     fn to_line(&self) -> String {
         format!(
             "|{}|",
-            self.values()
-                .iter()
-                .skip(3)
-                .map(|(_, v)| v.clone().unwrap_or_default())
-                .collect::<Vec<_>>()
-                .join("|")
+            "teste"
+            // self.values()
+            //     .iter()
+            //     .skip(3)
+            //     .map(|(_, v)| v.clone().unwrap_or_default())
+            //     .collect::<Vec<_>>()
+            //     .join("|")
         )
     }
 
@@ -55,7 +59,7 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
     fn save<'a>(
         &'a self,
     ) -> Pin<
-        Box<dyn Future<Output = Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error>> + Send + 'a>,
+        Pin<Box<dyn Future<Output=std::result::Result<Reg0000, Error>> + Send + 'a>>,
     >;
 }
 
@@ -67,11 +71,13 @@ pub trait Reg: std::fmt::Debug + Send + Sync {
 /// The trait uses `async_trait` to allow asynchronous methods.
 #[async_trait]
 pub trait Model {
-    /// Database table name.
-    fn table() -> &'static str;
+    type Table;
+    type Id;
+    type FileId;
+    type ParentId;
 
-    /// Database fields.
-    fn fields() -> &'static [&'static str];
+    /// Database table name.
+    fn table() -> Self::Table;
 
     /// Creates a new instance of the model from fields and metadata.
     ///
@@ -84,8 +90,10 @@ pub trait Model {
     ///
     /// # Returns
     ///
+
     /// A new instance of the type that implements this trait.
-    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self;
+    fn new(fields: Vec<&str>, id: Option<Self::Id>, parent_id: Option<Self::ParentId>, file_id: Self::FileId) -> Self;
+
     /// Loads records from the database based on the file and parent record.
     ///
     /// This asynchronous method queries the database and returns all records
@@ -100,54 +108,60 @@ pub trait Model {
     ///
     /// A `Result` containing a vector of instances of the type that implements this trait,
     /// or an error if the operation fails.
-    async fn load(file_id: i64, parent_id: Option<i64>) -> Result<Vec<Self>, anyhow::Error>
+    async fn load(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Self>, anyhow::Error>
     where
         Self: Sized,
+        Self::Table: diesel::Table,
     {
+        let conn = &mut DB_POOL.get().expect("Failed to get DB connection from pool");
+        let table = Self::table();
+
         let query = if parent_id.is_some() {
             format!(
-                "SELECT {} FROM {} WHERE FILE_ID = ? AND PARENT_ID = ?",
-                Self::fields().join(", "),
-                Self::table()
+                "SELECT * FROM {} WHERE FILE_ID = ? AND PARENT_ID = ?",
+                table
             )
         } else {
             format!(
-                "SELECT {} FROM {} WHERE FILE_ID = ?",
-                Self::fields().join(", "),
-                Self::table()
+                "SELECT * FROM {} WHERE FILE_ID = ?",
+                table
             )
         };
 
-        let mut query_builder = sqlx::query(query.as_str()).bind(file_id);
+        let rows = sql_query(query).bind(file_id).bind(parent_id).load(conn).unwrap();
 
-        if let Some(pid) = parent_id {
-            query_builder = query_builder.bind(pid);
-        }
-
-        let rows = query_builder.fetch_all(&*DB_POOL).await?;
         let mut data = Vec::new();
 
         for row in rows {
-            let _fields: Vec<String> = Self::fields()
-                .iter()
-                .map(|field| {
-                    if vec!["ID", "PARENT_ID", "FILE_ID"].contains(field) {
-                        row.try_get::<i64, _>(*field).unwrap_or(0).to_string()
-                    } else {
-                        row.try_get::<String, _>(*field).unwrap_or("".to_string())
-                    }
-                })
-                .collect();
-
-            let fields: Vec<&str> = _fields.iter().map(|field| field.as_str()).collect();
-
-            data.push(Self::new(
-                fields[2..].to_vec(),
-                fields.get(0).and_then(|v| v.parse().ok()),
-                Some(0i64),
-                file_id,
-            ));
+            data.push(row);
         }
+
+        // for row in rows {
+        //     // Extrair os campos básicos necessários para criar uma nova instância
+        //     let id: Option<i32> = row.try_get("ID").ok();
+        //     let parent_id: Option<i32> = row.try_get("PARENT_ID").ok();
+        //
+        //     // Obter todos os campos como strings para passar para o método new
+        //     let columns = row.columns();
+        //     let mut field_values = Vec::new();
+        //
+        //     // Pular os primeiros campos administrativos (ID, FILE_ID, PARENT_ID)
+        //     // e coletar os valores dos campos restantes
+        //     for i in 3..columns.len() {
+        //         let column = columns[i];
+        //         let value: Option<String> = row.try_get(column.name()).ok();
+        //         field_values.push(value.unwrap_or_default());
+        //     }
+        //
+        //     // Converter para slice de &str
+        //     let fields: Vec<&str> = field_values.iter().map(|s| s.as_str()).collect();
+        //
+        //     data.push(Self::new(
+        //         fields,
+        //         id,
+        //         parent_id,
+        //         file_id,
+        //     ));
 
         Ok(data)
     }

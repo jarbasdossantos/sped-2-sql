@@ -7,25 +7,11 @@ use indexmap::IndexMap;
 use std::future::Future;
 use std::pin::Pin;
 
-static DB_FIELDS: &'static [&'static str] = &[
-    "ID",
-    "FILE_ID",
-    "PARENT_ID",
-    "REG",
-    "PER_REF",
-    "VL_TOT_CONT_APU",
-    "VL_TOT_AJ_REDUC",
-    "VL_TOT_AJ_ACRES",
-    "VL_TOT_CONT_DEV",
-    "COD_REC",
-];
-static TABLE: &str = "reg_p200";
-
 #[derive(Debug)]
 pub struct RegP200 {
-    pub id: Option<i64>,
-    pub file_id: i64,
-    pub parent_id: Option<i64>,
+    pub id: Option<i32>,
+    pub file_id: i32,
+    pub parent_id: Option<i32>,
     pub reg: Option<String>,
     pub per_ref: Option<String>,
     pub vl_tot_cont_apu: Option<String>,
@@ -45,7 +31,7 @@ impl Model for RegP200 {
         DB_FIELDS
     }
 
-    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
+    fn new(fields: Vec<&str>, id: Option<i32>, parent_id: Option<i32>, file_id: i32) -> Self {
         RegP200 {
             id,
             file_id,

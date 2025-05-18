@@ -1,39 +1,36 @@
+use crate::models::traits::Model;
 use crate::database::DB_POOL;
 use crate::models::traits::Reg;
 use crate::models::utils::get_field;
 use crate::utils::database;
+use async_trait::async_trait;
 use indexmap::IndexMap;
 use std::future::Future;
 use std::pin::Pin;
 
-static DB_FIELDS: &'static [&'static str] =
-    &["ID", "FILE_ID", "PARENT_ID", "REG", "COD_INF", "TXT_COMPL"];
-static TABLE: &str = "reg_C110";
-
 #[derive(Debug)]
-pub struct RegC110 {
-    pub id: Option<i64>,
-    pub file_id: i64,
-    pub parent_id: Option<i64>,
+pub struct Reg0001 {
+    pub id: Option<i32>,
+    pub file_id: i32,
+    pub parent_id: Option<i32>,
     pub reg: Option<String>,
-    pub cod_inf: Option<String>,
-    pub txt_compl: Option<String>,
+    pub ind_mov: Option<String>,
 }
 
-impl RegC110 {
-    pub fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
-        RegC110 {
+#[async_trait]
+impl Model for Reg0001 {
+    fn new(fields: Vec<&str>, id: Option<i32>, parent_id: Option<i32>, file_id: i32) -> Self {
+        Reg0001 {
             id,
             file_id,
             parent_id,
             reg: get_field(&fields, 1),
-            cod_inf: get_field(&fields, 2),
-            txt_compl: get_field(&fields, 3),
+            ind_mov: get_field(&fields, 2),
         }
     }
 }
 
-impl Reg for RegC110 {
+impl Reg for Reg0001 {
     fn save<'a>(
         &'a self,
     ) -> Pin<
@@ -51,8 +48,7 @@ impl Reg for RegC110 {
             .bind(&self.file_id)
             .bind(&self.parent_id)
             .bind(&self.reg)
-            .bind(&self.cod_inf.as_deref())
-            .bind(&self.txt_compl.as_deref())
+            .bind(&self.ind_mov)
             .execute(&*DB_POOL)
             .await
         })
@@ -67,8 +63,7 @@ impl Reg for RegC110 {
             ("file_id", Some(self.file_id.to_string())),
             ("parent_id", parent_id),
             ("reg", self.reg.clone()),
-            ("cod_inf", self.cod_inf.clone()),
-            ("txt_compl", self.txt_compl.clone()),
+            ("ind_mov", self.ind_mov.clone()),
         ])
     }
 }

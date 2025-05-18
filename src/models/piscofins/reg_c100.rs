@@ -1,5 +1,5 @@
-use super::traits::{Model, Reg};
-use super::utils::get_field;
+use crate::models::traits::{Model, Reg};
+use crate::models::utils::get_field;
 use crate::database::DB_POOL;
 use crate::utils::database;
 use async_trait::async_trait;
@@ -47,9 +47,9 @@ static TABLE: &str = "reg_c100";
 #[derive(Debug, Clone, FromRow)]
 #[allow(dead_code)]
 pub struct RegC100 {
-    pub id: Option<i64>,
-    pub file_id: i64,
-    pub parent_id: Option<i64>,
+    pub id: Option<i32>,
+    pub file_id: i32,
+    pub parent_id: Option<i32>,
     pub reg: Option<String>,
     pub ind_oper: Option<String>,
     pub ind_emit: Option<String>,
@@ -92,7 +92,7 @@ impl Model for RegC100 {
         DB_FIELDS
     }
 
-    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
+    fn new(fields: Vec<&str>, id: Option<i32>, parent_id: Option<i32>, file_id: i32) -> Self {
         let vl_desc_compl = get_field(&fields, 30).and_then(|s| s.parse::<f64>().ok());
 
         RegC100 {

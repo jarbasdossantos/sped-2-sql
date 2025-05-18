@@ -1,4 +1,4 @@
-use super::traits::Model;
+use crate::models::traits::Model;
 use crate::database::DB_POOL;
 use crate::models::traits::Reg;
 use crate::models::utils::get_field;
@@ -13,9 +13,9 @@ static TABLE: &str = "reg_C001";
 
 #[derive(Debug)]
 pub struct RegC001 {
-    pub id: Option<i64>,
-    pub file_id: i64,
-    pub parent_id: Option<i64>,
+    pub id: Option<i32>,
+    pub file_id: i32,
+    pub parent_id: Option<i32>,
     pub reg: Option<String>,
     pub ind_mov: Option<String>,
 }
@@ -30,7 +30,7 @@ impl Model for RegC001 {
         DB_FIELDS
     }
 
-    fn new(fields: Vec<&str>, id: Option<i64>, parent_id: Option<i64>, file_id: i64) -> Self {
+    fn new(fields: Vec<&str>, id: Option<i32>, parent_id: Option<i32>, file_id: i32) -> Self {
         RegC001 {
             id,
             file_id,
