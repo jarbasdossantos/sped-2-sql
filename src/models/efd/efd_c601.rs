@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -46,19 +46,19 @@ impl Model for EfdC601 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cst_pis: get_field(&fields, 2),
-        vl_item: get_field(&fields, 3),
-        vl_bc_pis: get_field(&fields, 4),
-        aliq_pis: get_field(&fields, 5),
-        vl_pis: get_field(&fields, 6),
-        cod_cta: get_field(&fields, 7),
+            cst_pis: get_field(&fields, 2),
+            vl_item: get_field(&fields, 3),
+            vl_bc_pis: get_field(&fields, 4),
+            aliq_pis: get_field(&fields, 5),
+            vl_pis: get_field(&fields, 6),
+            cod_cta: get_field(&fields, 7),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC601>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC601::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -71,12 +71,12 @@ impl Model for EfdC601 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cst_pis.eq(&self.cst_pis),
-schema::vl_item.eq(&self.vl_item),
-schema::vl_bc_pis.eq(&self.vl_bc_pis),
-schema::aliq_pis.eq(&self.aliq_pis),
-schema::vl_pis.eq(&self.vl_pis),
-schema::cod_cta.eq(&self.cod_cta),
+                    schema::cst_pis.eq(&self.cst_pis),
+                    schema::vl_item.eq(&self.vl_item),
+                    schema::vl_bc_pis.eq(&self.vl_bc_pis),
+                    schema::aliq_pis.eq(&self.aliq_pis),
+                    schema::vl_pis.eq(&self.vl_pis),
+                    schema::cod_cta.eq(&self.cod_cta),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

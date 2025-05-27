@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -61,34 +61,34 @@ impl Model for EfdC600 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_mod: get_field(&fields, 2),
-        cod_mun: get_field(&fields, 3),
-        ser: get_field(&fields, 4),
-        sub: get_field(&fields, 5),
-        cod_cons: get_field(&fields, 6),
-        qtd_cons: get_field(&fields, 7),
-        qtd_canc: get_field(&fields, 8),
-        dt_doc: get_field(&fields, 9),
-        vl_doc: get_field(&fields, 10),
-        vl_desc: get_field(&fields, 11),
-        cons: get_field(&fields, 12),
-        vl_forn: get_field(&fields, 13),
-        vl_serv_nt: get_field(&fields, 14),
-        vl_terc: get_field(&fields, 15),
-        vl_da: get_field(&fields, 16),
-        vl_bc_icms: get_field(&fields, 17),
-        vl_icms: get_field(&fields, 18),
-        vl_bc_icms_st: get_field(&fields, 19),
-        vl_icms_st: get_field(&fields, 20),
-        vl_pis: get_field(&fields, 21),
-        vl_cofins: get_field(&fields, 22),
+            cod_mod: get_field(&fields, 2),
+            cod_mun: get_field(&fields, 3),
+            ser: get_field(&fields, 4),
+            sub: get_field(&fields, 5),
+            cod_cons: get_field(&fields, 6),
+            qtd_cons: get_field(&fields, 7),
+            qtd_canc: get_field(&fields, 8),
+            dt_doc: get_field(&fields, 9),
+            vl_doc: get_field(&fields, 10),
+            vl_desc: get_field(&fields, 11),
+            cons: get_field(&fields, 12),
+            vl_forn: get_field(&fields, 13),
+            vl_serv_nt: get_field(&fields, 14),
+            vl_terc: get_field(&fields, 15),
+            vl_da: get_field(&fields, 16),
+            vl_bc_icms: get_field(&fields, 17),
+            vl_icms: get_field(&fields, 18),
+            vl_bc_icms_st: get_field(&fields, 19),
+            vl_icms_st: get_field(&fields, 20),
+            vl_pis: get_field(&fields, 21),
+            vl_cofins: get_field(&fields, 22),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC600>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC600::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -101,27 +101,27 @@ impl Model for EfdC600 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_mod.eq(&self.cod_mod),
-schema::cod_mun.eq(&self.cod_mun),
-schema::ser.eq(&self.ser),
-schema::sub.eq(&self.sub),
-schema::cod_cons.eq(&self.cod_cons),
-schema::qtd_cons.eq(&self.qtd_cons),
-schema::qtd_canc.eq(&self.qtd_canc),
-schema::dt_doc.eq(&self.dt_doc),
-schema::vl_doc.eq(&self.vl_doc),
-schema::vl_desc.eq(&self.vl_desc),
-schema::cons.eq(&self.cons),
-schema::vl_forn.eq(&self.vl_forn),
-schema::vl_serv_nt.eq(&self.vl_serv_nt),
-schema::vl_terc.eq(&self.vl_terc),
-schema::vl_da.eq(&self.vl_da),
-schema::vl_bc_icms.eq(&self.vl_bc_icms),
-schema::vl_icms.eq(&self.vl_icms),
-schema::vl_bc_icms_st.eq(&self.vl_bc_icms_st),
-schema::vl_icms_st.eq(&self.vl_icms_st),
-schema::vl_pis.eq(&self.vl_pis),
-schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::cod_mod.eq(&self.cod_mod),
+                    schema::cod_mun.eq(&self.cod_mun),
+                    schema::ser.eq(&self.ser),
+                    schema::sub.eq(&self.sub),
+                    schema::cod_cons.eq(&self.cod_cons),
+                    schema::qtd_cons.eq(&self.qtd_cons),
+                    schema::qtd_canc.eq(&self.qtd_canc),
+                    schema::dt_doc.eq(&self.dt_doc),
+                    schema::vl_doc.eq(&self.vl_doc),
+                    schema::vl_desc.eq(&self.vl_desc),
+                    schema::cons.eq(&self.cons),
+                    schema::vl_forn.eq(&self.vl_forn),
+                    schema::vl_serv_nt.eq(&self.vl_serv_nt),
+                    schema::vl_terc.eq(&self.vl_terc),
+                    schema::vl_da.eq(&self.vl_da),
+                    schema::vl_bc_icms.eq(&self.vl_bc_icms),
+                    schema::vl_icms.eq(&self.vl_icms),
+                    schema::vl_bc_icms_st.eq(&self.vl_bc_icms_st),
+                    schema::vl_icms_st.eq(&self.vl_icms_st),
+                    schema::vl_pis.eq(&self.vl_pis),
+                    schema::vl_cofins.eq(&self.vl_cofins),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

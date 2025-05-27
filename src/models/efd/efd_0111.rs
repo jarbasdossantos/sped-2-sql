@@ -56,7 +56,7 @@ impl Model for Efd0111 {
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0111>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd0111::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)

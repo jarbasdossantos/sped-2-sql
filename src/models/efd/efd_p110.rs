@@ -44,17 +44,17 @@ impl Model for EfdP110 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    num_campo: get_field(&fields, 2),
-        cod_det: get_field(&fields, 3),
-        det_valor: get_field(&fields, 4),
-        inf_compl: get_field(&fields, 5),
+            num_campo: get_field(&fields, 2),
+            cod_det: get_field(&fields, 3),
+            det_valor: get_field(&fields, 4),
+            inf_compl: get_field(&fields, 5),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdP110>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdP110::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -67,10 +67,10 @@ impl Model for EfdP110 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::num_campo.eq(&self.num_campo),
-schema::cod_det.eq(&self.cod_det),
-schema::det_valor.eq(&self.det_valor),
-schema::inf_compl.eq(&self.inf_compl),
+                    schema::num_campo.eq(&self.num_campo),
+                    schema::cod_det.eq(&self.cod_det),
+                    schema::det_valor.eq(&self.det_valor),
+                    schema::inf_compl.eq(&self.inf_compl),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

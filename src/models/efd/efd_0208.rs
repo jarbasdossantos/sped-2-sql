@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -43,16 +43,16 @@ impl Model for Efd0208 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_tab: get_field(&fields, 2),
-        cod_gru: get_field(&fields, 3),
-        marca_com: get_field(&fields, 4),
+            cod_tab: get_field(&fields, 2),
+            cod_gru: get_field(&fields, 3),
+            marca_com: get_field(&fields, 4),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0208>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd0208::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -65,9 +65,9 @@ impl Model for Efd0208 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_tab.eq(&self.cod_tab),
-schema::cod_gru.eq(&self.cod_gru),
-schema::marca_com.eq(&self.marca_com),
+                    schema::cod_tab.eq(&self.cod_tab),
+                    schema::cod_gru.eq(&self.cod_gru),
+                    schema::marca_com.eq(&self.marca_com),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

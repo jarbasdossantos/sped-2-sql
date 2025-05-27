@@ -48,21 +48,21 @@ impl Model for EfdF800 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    ind_nat_even: get_field(&fields, 2),
-        dt_even: get_field(&fields, 3),
-        cnpj_suced: get_field(&fields, 4),
-        pa_cont_cred: get_field(&fields, 5),
-        cod_cred: get_field(&fields, 6),
-        vl_cred_pis: get_field(&fields, 7),
-        vl_cred_cofins: get_field(&fields, 8),
-        per_cred_cis: get_field(&fields, 9),
+            ind_nat_even: get_field(&fields, 2),
+            dt_even: get_field(&fields, 3),
+            cnpj_suced: get_field(&fields, 4),
+            pa_cont_cred: get_field(&fields, 5),
+            cod_cred: get_field(&fields, 6),
+            vl_cred_pis: get_field(&fields, 7),
+            vl_cred_cofins: get_field(&fields, 8),
+            per_cred_cis: get_field(&fields, 9),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdF800>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdF800::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -75,14 +75,14 @@ impl Model for EfdF800 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::ind_nat_even.eq(&self.ind_nat_even),
-schema::dt_even.eq(&self.dt_even),
-schema::cnpj_suced.eq(&self.cnpj_suced),
-schema::pa_cont_cred.eq(&self.pa_cont_cred),
-schema::cod_cred.eq(&self.cod_cred),
-schema::vl_cred_pis.eq(&self.vl_cred_pis),
-schema::vl_cred_cofins.eq(&self.vl_cred_cofins),
-schema::per_cred_cis.eq(&self.per_cred_cis),
+                    schema::ind_nat_even.eq(&self.ind_nat_even),
+                    schema::dt_even.eq(&self.dt_even),
+                    schema::cnpj_suced.eq(&self.cnpj_suced),
+                    schema::pa_cont_cred.eq(&self.pa_cont_cred),
+                    schema::cod_cred.eq(&self.cod_cred),
+                    schema::vl_cred_pis.eq(&self.vl_cred_pis),
+                    schema::vl_cred_cofins.eq(&self.vl_cred_cofins),
+                    schema::per_cred_cis.eq(&self.per_cred_cis),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

@@ -44,17 +44,17 @@ impl Model for EfdM810 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    nat_rec: get_field(&fields, 2),
-        vl_rec: get_field(&fields, 3),
-        cod_cta: get_field(&fields, 4),
-        desc_compl: get_field(&fields, 5),
+            nat_rec: get_field(&fields, 2),
+            vl_rec: get_field(&fields, 3),
+            cod_cta: get_field(&fields, 4),
+            desc_compl: get_field(&fields, 5),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdM810>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdM810::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -67,10 +67,10 @@ impl Model for EfdM810 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::nat_rec.eq(&self.nat_rec),
-schema::vl_rec.eq(&self.vl_rec),
-schema::cod_cta.eq(&self.cod_cta),
-schema::desc_compl.eq(&self.desc_compl),
+                    schema::nat_rec.eq(&self.nat_rec),
+                    schema::vl_rec.eq(&self.vl_rec),
+                    schema::cod_cta.eq(&self.cod_cta),
+                    schema::desc_compl.eq(&self.desc_compl),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

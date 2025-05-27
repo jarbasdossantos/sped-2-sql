@@ -51,24 +51,24 @@ impl Model for EfdP100 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    dt_ini: get_field(&fields, 2),
-        dt_fim: get_field(&fields, 3),
-        vl_rec_tot_est: get_field(&fields, 4),
-        cod_ativ_econ: get_field(&fields, 5),
-        vl_rec_ativ_estab: get_field(&fields, 6),
-        vl_exc: get_field(&fields, 7),
-        vl_bc_cont: get_field(&fields, 8),
-        aliq_cont: get_field(&fields, 9),
-        vl_cont_apu: get_field(&fields, 10),
-        cod_cta: get_field(&fields, 11),
-        info_compl: get_field(&fields, 12),
+            dt_ini: get_field(&fields, 2),
+            dt_fim: get_field(&fields, 3),
+            vl_rec_tot_est: get_field(&fields, 4),
+            cod_ativ_econ: get_field(&fields, 5),
+            vl_rec_ativ_estab: get_field(&fields, 6),
+            vl_exc: get_field(&fields, 7),
+            vl_bc_cont: get_field(&fields, 8),
+            aliq_cont: get_field(&fields, 9),
+            vl_cont_apu: get_field(&fields, 10),
+            cod_cta: get_field(&fields, 11),
+            info_compl: get_field(&fields, 12),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdP100>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdP100::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -81,17 +81,17 @@ impl Model for EfdP100 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::dt_ini.eq(&self.dt_ini),
-schema::dt_fim.eq(&self.dt_fim),
-schema::vl_rec_tot_est.eq(&self.vl_rec_tot_est),
-schema::cod_ativ_econ.eq(&self.cod_ativ_econ),
-schema::vl_rec_ativ_estab.eq(&self.vl_rec_ativ_estab),
-schema::vl_exc.eq(&self.vl_exc),
-schema::vl_bc_cont.eq(&self.vl_bc_cont),
-schema::aliq_cont.eq(&self.aliq_cont),
-schema::vl_cont_apu.eq(&self.vl_cont_apu),
-schema::cod_cta.eq(&self.cod_cta),
-schema::info_compl.eq(&self.info_compl),
+                    schema::dt_ini.eq(&self.dt_ini),
+                    schema::dt_fim.eq(&self.dt_fim),
+                    schema::vl_rec_tot_est.eq(&self.vl_rec_tot_est),
+                    schema::cod_ativ_econ.eq(&self.cod_ativ_econ),
+                    schema::vl_rec_ativ_estab.eq(&self.vl_rec_ativ_estab),
+                    schema::vl_exc.eq(&self.vl_exc),
+                    schema::vl_bc_cont.eq(&self.vl_bc_cont),
+                    schema::aliq_cont.eq(&self.aliq_cont),
+                    schema::vl_cont_apu.eq(&self.vl_cont_apu),
+                    schema::cod_cta.eq(&self.cod_cta),
+                    schema::info_compl.eq(&self.info_compl),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

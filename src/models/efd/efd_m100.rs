@@ -54,27 +54,27 @@ impl Model for EfdM100 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_cred: get_field(&fields, 2),
-        ind_cred_ori: get_field(&fields, 3),
-        vl_bc_cred: get_field(&fields, 4),
-        aliq_pis: get_field(&fields, 5),
-        quant_bc_pis: get_field(&fields, 6),
-        aliq_pis_quant: get_field(&fields, 7),
-        vl_cred: get_field(&fields, 8),
-        vl_ajus_acres: get_field(&fields, 9),
-        vl_ajus_reduc: get_field(&fields, 10),
-        vl_cred_dif: get_field(&fields, 11),
-        vl_cred_disp: get_field(&fields, 12),
-        ind_desc_cred: get_field(&fields, 13),
-        vl_cred_desc: get_field(&fields, 14),
-        sld_cred: get_field(&fields, 15),
+            cod_cred: get_field(&fields, 2),
+            ind_cred_ori: get_field(&fields, 3),
+            vl_bc_cred: get_field(&fields, 4),
+            aliq_pis: get_field(&fields, 5),
+            quant_bc_pis: get_field(&fields, 6),
+            aliq_pis_quant: get_field(&fields, 7),
+            vl_cred: get_field(&fields, 8),
+            vl_ajus_acres: get_field(&fields, 9),
+            vl_ajus_reduc: get_field(&fields, 10),
+            vl_cred_dif: get_field(&fields, 11),
+            vl_cred_disp: get_field(&fields, 12),
+            ind_desc_cred: get_field(&fields, 13),
+            vl_cred_desc: get_field(&fields, 14),
+            sld_cred: get_field(&fields, 15),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdM100>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdM100::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -87,20 +87,20 @@ impl Model for EfdM100 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_cred.eq(&self.cod_cred),
-schema::ind_cred_ori.eq(&self.ind_cred_ori),
-schema::vl_bc_cred.eq(&self.vl_bc_cred),
-schema::aliq_pis.eq(&self.aliq_pis),
-schema::quant_bc_pis.eq(&self.quant_bc_pis),
-schema::aliq_pis_quant.eq(&self.aliq_pis_quant),
-schema::vl_cred.eq(&self.vl_cred),
-schema::vl_ajus_acres.eq(&self.vl_ajus_acres),
-schema::vl_ajus_reduc.eq(&self.vl_ajus_reduc),
-schema::vl_cred_dif.eq(&self.vl_cred_dif),
-schema::vl_cred_disp.eq(&self.vl_cred_disp),
-schema::ind_desc_cred.eq(&self.ind_desc_cred),
-schema::vl_cred_desc.eq(&self.vl_cred_desc),
-schema::sld_cred.eq(&self.sld_cred),
+                    schema::cod_cred.eq(&self.cod_cred),
+                    schema::ind_cred_ori.eq(&self.ind_cred_ori),
+                    schema::vl_bc_cred.eq(&self.vl_bc_cred),
+                    schema::aliq_pis.eq(&self.aliq_pis),
+                    schema::quant_bc_pis.eq(&self.quant_bc_pis),
+                    schema::aliq_pis_quant.eq(&self.aliq_pis_quant),
+                    schema::vl_cred.eq(&self.vl_cred),
+                    schema::vl_ajus_acres.eq(&self.vl_ajus_acres),
+                    schema::vl_ajus_reduc.eq(&self.vl_ajus_reduc),
+                    schema::vl_cred_dif.eq(&self.vl_cred_dif),
+                    schema::vl_cred_disp.eq(&self.vl_cred_disp),
+                    schema::ind_desc_cred.eq(&self.ind_desc_cred),
+                    schema::vl_cred_desc.eq(&self.vl_cred_desc),
+                    schema::sld_cred.eq(&self.sld_cred),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

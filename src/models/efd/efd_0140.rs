@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -48,21 +48,21 @@ impl Model for Efd0140 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_est: get_field(&fields, 2),
-        nome: get_field(&fields, 3),
-        cnpj: get_field(&fields, 4),
-        uf: get_field(&fields, 5),
-        ie: get_field(&fields, 6),
-        cod_mun: get_field(&fields, 7),
-        im: get_field(&fields, 8),
-        suframa: get_field(&fields, 9),
+            cod_est: get_field(&fields, 2),
+            nome: get_field(&fields, 3),
+            cnpj: get_field(&fields, 4),
+            uf: get_field(&fields, 5),
+            ie: get_field(&fields, 6),
+            cod_mun: get_field(&fields, 7),
+            im: get_field(&fields, 8),
+            suframa: get_field(&fields, 9),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0140>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd0140::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -75,14 +75,14 @@ impl Model for Efd0140 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_est.eq(&self.cod_est),
-schema::nome.eq(&self.nome),
-schema::cnpj.eq(&self.cnpj),
-schema::uf.eq(&self.uf),
-schema::ie.eq(&self.ie),
-schema::cod_mun.eq(&self.cod_mun),
-schema::im.eq(&self.im),
-schema::suframa.eq(&self.suframa),
+                    schema::cod_est.eq(&self.cod_est),
+                    schema::nome.eq(&self.nome),
+                    schema::cnpj.eq(&self.cnpj),
+                    schema::uf.eq(&self.uf),
+                    schema::ie.eq(&self.ie),
+                    schema::cod_mun.eq(&self.cod_mun),
+                    schema::im.eq(&self.im),
+                    schema::suframa.eq(&self.suframa),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

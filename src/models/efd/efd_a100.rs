@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -60,33 +60,33 @@ impl Model for EfdA100 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    ind_oper: get_field(&fields, 2),
-        ind_emit: get_field(&fields, 3),
-        cod_part: get_field(&fields, 4),
-        cod_sit: get_field(&fields, 5),
-        ser: get_field(&fields, 6),
-        sub: get_field(&fields, 7),
-        num_doc: get_field(&fields, 8),
-        chv_nfse: get_field(&fields, 9),
-        dt_doc: get_field(&fields, 10),
-        dt_exe_serv: get_field(&fields, 11),
-        vl_doc: get_field(&fields, 12),
-        ind_pgto: get_field(&fields, 13),
-        vl_desc: get_field(&fields, 14),
-        vl_bc_pis: get_field(&fields, 15),
-        vl_pis: get_field(&fields, 16),
-        vl_bc_cofins: get_field(&fields, 17),
-        vl_cofins: get_field(&fields, 18),
-        vl_pis_ret: get_field(&fields, 19),
-        vl_cofins_ret: get_field(&fields, 20),
-        vl_iss: get_field(&fields, 21),
+            ind_oper: get_field(&fields, 2),
+            ind_emit: get_field(&fields, 3),
+            cod_part: get_field(&fields, 4),
+            cod_sit: get_field(&fields, 5),
+            ser: get_field(&fields, 6),
+            sub: get_field(&fields, 7),
+            num_doc: get_field(&fields, 8),
+            chv_nfse: get_field(&fields, 9),
+            dt_doc: get_field(&fields, 10),
+            dt_exe_serv: get_field(&fields, 11),
+            vl_doc: get_field(&fields, 12),
+            ind_pgto: get_field(&fields, 13),
+            vl_desc: get_field(&fields, 14),
+            vl_bc_pis: get_field(&fields, 15),
+            vl_pis: get_field(&fields, 16),
+            vl_bc_cofins: get_field(&fields, 17),
+            vl_cofins: get_field(&fields, 18),
+            vl_pis_ret: get_field(&fields, 19),
+            vl_cofins_ret: get_field(&fields, 20),
+            vl_iss: get_field(&fields, 21),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdA100>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdA100::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -99,26 +99,26 @@ impl Model for EfdA100 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::ind_oper.eq(&self.ind_oper),
-schema::ind_emit.eq(&self.ind_emit),
-schema::cod_part.eq(&self.cod_part),
-schema::cod_sit.eq(&self.cod_sit),
-schema::ser.eq(&self.ser),
-schema::sub.eq(&self.sub),
-schema::num_doc.eq(&self.num_doc),
-schema::chv_nfse.eq(&self.chv_nfse),
-schema::dt_doc.eq(&self.dt_doc),
-schema::dt_exe_serv.eq(&self.dt_exe_serv),
-schema::vl_doc.eq(&self.vl_doc),
-schema::ind_pgto.eq(&self.ind_pgto),
-schema::vl_desc.eq(&self.vl_desc),
-schema::vl_bc_pis.eq(&self.vl_bc_pis),
-schema::vl_pis.eq(&self.vl_pis),
-schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
-schema::vl_cofins.eq(&self.vl_cofins),
-schema::vl_pis_ret.eq(&self.vl_pis_ret),
-schema::vl_cofins_ret.eq(&self.vl_cofins_ret),
-schema::vl_iss.eq(&self.vl_iss),
+                    schema::ind_oper.eq(&self.ind_oper),
+                    schema::ind_emit.eq(&self.ind_emit),
+                    schema::cod_part.eq(&self.cod_part),
+                    schema::cod_sit.eq(&self.cod_sit),
+                    schema::ser.eq(&self.ser),
+                    schema::sub.eq(&self.sub),
+                    schema::num_doc.eq(&self.num_doc),
+                    schema::chv_nfse.eq(&self.chv_nfse),
+                    schema::dt_doc.eq(&self.dt_doc),
+                    schema::dt_exe_serv.eq(&self.dt_exe_serv),
+                    schema::vl_doc.eq(&self.vl_doc),
+                    schema::ind_pgto.eq(&self.ind_pgto),
+                    schema::vl_desc.eq(&self.vl_desc),
+                    schema::vl_bc_pis.eq(&self.vl_bc_pis),
+                    schema::vl_pis.eq(&self.vl_pis),
+                    schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
+                    schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::vl_pis_ret.eq(&self.vl_pis_ret),
+                    schema::vl_cofins_ret.eq(&self.vl_cofins_ret),
+                    schema::vl_iss.eq(&self.vl_iss),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

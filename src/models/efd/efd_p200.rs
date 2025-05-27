@@ -46,19 +46,19 @@ impl Model for EfdP200 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    per_ref: get_field(&fields, 2),
-        vl_tot_cont_apu: get_field(&fields, 3),
-        vl_tot_aj_reduc: get_field(&fields, 4),
-        vl_tot_aj_acres: get_field(&fields, 5),
-        vl_tot_cont_dev: get_field(&fields, 6),
-        cod_rec: get_field(&fields, 7),
+            per_ref: get_field(&fields, 2),
+            vl_tot_cont_apu: get_field(&fields, 3),
+            vl_tot_aj_reduc: get_field(&fields, 4),
+            vl_tot_aj_acres: get_field(&fields, 5),
+            vl_tot_cont_dev: get_field(&fields, 6),
+            cod_rec: get_field(&fields, 7),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdP200>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdP200::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -71,12 +71,12 @@ impl Model for EfdP200 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::per_ref.eq(&self.per_ref),
-schema::vl_tot_cont_apu.eq(&self.vl_tot_cont_apu),
-schema::vl_tot_aj_reduc.eq(&self.vl_tot_aj_reduc),
-schema::vl_tot_aj_acres.eq(&self.vl_tot_aj_acres),
-schema::vl_tot_cont_dev.eq(&self.vl_tot_cont_dev),
-schema::cod_rec.eq(&self.cod_rec),
+                    schema::per_ref.eq(&self.per_ref),
+                    schema::vl_tot_cont_apu.eq(&self.vl_tot_cont_apu),
+                    schema::vl_tot_aj_reduc.eq(&self.vl_tot_aj_reduc),
+                    schema::vl_tot_aj_acres.eq(&self.vl_tot_aj_acres),
+                    schema::vl_tot_cont_dev.eq(&self.vl_tot_cont_dev),
+                    schema::cod_rec.eq(&self.cod_rec),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

@@ -47,20 +47,20 @@ impl Model for EfdF700 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    ind_ori_ded: get_field(&fields, 2),
-        ind_nat_ded: get_field(&fields, 3),
-        vl_ded_pis: get_field(&fields, 4),
-        vl_ded_cofins: get_field(&fields, 5),
-        vl_bc_oper: get_field(&fields, 6),
-        cnpj: get_field(&fields, 7),
-        inf_comp: get_field(&fields, 8),
+            ind_ori_ded: get_field(&fields, 2),
+            ind_nat_ded: get_field(&fields, 3),
+            vl_ded_pis: get_field(&fields, 4),
+            vl_ded_cofins: get_field(&fields, 5),
+            vl_bc_oper: get_field(&fields, 6),
+            cnpj: get_field(&fields, 7),
+            inf_comp: get_field(&fields, 8),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdF700>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdF700::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -73,13 +73,13 @@ impl Model for EfdF700 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::ind_ori_ded.eq(&self.ind_ori_ded),
-schema::ind_nat_ded.eq(&self.ind_nat_ded),
-schema::vl_ded_pis.eq(&self.vl_ded_pis),
-schema::vl_ded_cofins.eq(&self.vl_ded_cofins),
-schema::vl_bc_oper.eq(&self.vl_bc_oper),
-schema::cnpj.eq(&self.cnpj),
-schema::inf_comp.eq(&self.inf_comp),
+                    schema::ind_ori_ded.eq(&self.ind_ori_ded),
+                    schema::ind_nat_ded.eq(&self.ind_nat_ded),
+                    schema::vl_ded_pis.eq(&self.vl_ded_pis),
+                    schema::vl_ded_cofins.eq(&self.vl_ded_cofins),
+                    schema::vl_bc_oper.eq(&self.vl_bc_oper),
+                    schema::cnpj.eq(&self.cnpj),
+                    schema::inf_comp.eq(&self.inf_comp),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

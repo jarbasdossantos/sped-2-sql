@@ -58,7 +58,7 @@ impl Model for Efd0110 {
 
         Ok(table
             .filter(schema::file_id.eq(file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd0110::as_select())
             .load(conn)?)
     }

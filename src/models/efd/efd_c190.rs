@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -47,20 +47,20 @@ impl Model for EfdC190 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_mod: get_field(&fields, 2),
-        dt_ref_ini: get_field(&fields, 3),
-        dt_ref_fin: get_field(&fields, 4),
-        cod_item: get_field(&fields, 5),
-        cod_ncm: get_field(&fields, 6),
-        ex_ipi: get_field(&fields, 7),
-        vl_tot_item: get_field(&fields, 8),
+            cod_mod: get_field(&fields, 2),
+            dt_ref_ini: get_field(&fields, 3),
+            dt_ref_fin: get_field(&fields, 4),
+            cod_item: get_field(&fields, 5),
+            cod_ncm: get_field(&fields, 6),
+            ex_ipi: get_field(&fields, 7),
+            vl_tot_item: get_field(&fields, 8),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC190>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC190::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -73,13 +73,13 @@ impl Model for EfdC190 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_mod.eq(&self.cod_mod),
-schema::dt_ref_ini.eq(&self.dt_ref_ini),
-schema::dt_ref_fin.eq(&self.dt_ref_fin),
-schema::cod_item.eq(&self.cod_item),
-schema::cod_ncm.eq(&self.cod_ncm),
-schema::ex_ipi.eq(&self.ex_ipi),
-schema::vl_tot_item.eq(&self.vl_tot_item),
+                    schema::cod_mod.eq(&self.cod_mod),
+                    schema::dt_ref_ini.eq(&self.dt_ref_ini),
+                    schema::dt_ref_fin.eq(&self.dt_ref_fin),
+                    schema::cod_item.eq(&self.cod_item),
+                    schema::cod_ncm.eq(&self.cod_ncm),
+                    schema::ex_ipi.eq(&self.ex_ipi),
+                    schema::vl_tot_item.eq(&self.vl_tot_item),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

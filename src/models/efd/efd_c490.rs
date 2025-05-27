@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -43,16 +43,16 @@ impl Model for EfdC490 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    dt_doc_ini: get_field(&fields, 2),
-        dt_doc_fin: get_field(&fields, 3),
-        cod_mod: get_field(&fields, 4),
+            dt_doc_ini: get_field(&fields, 2),
+            dt_doc_fin: get_field(&fields, 3),
+            cod_mod: get_field(&fields, 4),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC490>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC490::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -65,9 +65,9 @@ impl Model for EfdC490 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::dt_doc_ini.eq(&self.dt_doc_ini),
-schema::dt_doc_fin.eq(&self.dt_doc_fin),
-schema::cod_mod.eq(&self.cod_mod),
+                    schema::dt_doc_ini.eq(&self.dt_doc_ini),
+                    schema::dt_doc_fin.eq(&self.dt_doc_fin),
+                    schema::cod_mod.eq(&self.cod_mod),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -47,20 +47,20 @@ impl Model for EfdC395 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_mod: get_field(&fields, 2),
-        cod_part: get_field(&fields, 3),
-        ser: get_field(&fields, 4),
-        sub_ser: get_field(&fields, 5),
-        num_doc: get_field(&fields, 6),
-        dt_doc: get_field(&fields, 7),
-        vl_doc: get_field(&fields, 8),
+            cod_mod: get_field(&fields, 2),
+            cod_part: get_field(&fields, 3),
+            ser: get_field(&fields, 4),
+            sub_ser: get_field(&fields, 5),
+            num_doc: get_field(&fields, 6),
+            dt_doc: get_field(&fields, 7),
+            vl_doc: get_field(&fields, 8),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC395>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC395::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -73,13 +73,13 @@ impl Model for EfdC395 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_mod.eq(&self.cod_mod),
-schema::cod_part.eq(&self.cod_part),
-schema::ser.eq(&self.ser),
-schema::sub_ser.eq(&self.sub_ser),
-schema::num_doc.eq(&self.num_doc),
-schema::dt_doc.eq(&self.dt_doc),
-schema::vl_doc.eq(&self.vl_doc),
+                    schema::cod_mod.eq(&self.cod_mod),
+                    schema::cod_part.eq(&self.cod_part),
+                    schema::ser.eq(&self.ser),
+                    schema::sub_ser.eq(&self.sub_ser),
+                    schema::num_doc.eq(&self.num_doc),
+                    schema::dt_doc.eq(&self.dt_doc),
+                    schema::vl_doc.eq(&self.vl_doc),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

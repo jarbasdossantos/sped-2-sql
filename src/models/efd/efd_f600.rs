@@ -50,23 +50,23 @@ impl Model for EfdF600 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    ind_nat_ret: get_field(&fields, 2),
-        dt_ret: get_field(&fields, 3),
-        vl_bc_ret: get_field(&fields, 4),
-        vl_ret: get_field(&fields, 5),
-        cod_rec: get_field(&fields, 6),
-        ind_nat_rec: get_field(&fields, 7),
-        cnpj: get_field(&fields, 8),
-        vl_ret_pis: get_field(&fields, 9),
-        vl_ret_cofins: get_field(&fields, 10),
-        ind_dec: get_field(&fields, 11),
+            ind_nat_ret: get_field(&fields, 2),
+            dt_ret: get_field(&fields, 3),
+            vl_bc_ret: get_field(&fields, 4),
+            vl_ret: get_field(&fields, 5),
+            cod_rec: get_field(&fields, 6),
+            ind_nat_rec: get_field(&fields, 7),
+            cnpj: get_field(&fields, 8),
+            vl_ret_pis: get_field(&fields, 9),
+            vl_ret_cofins: get_field(&fields, 10),
+            ind_dec: get_field(&fields, 11),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdF600>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdF600::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -79,16 +79,16 @@ impl Model for EfdF600 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::ind_nat_ret.eq(&self.ind_nat_ret),
-schema::dt_ret.eq(&self.dt_ret),
-schema::vl_bc_ret.eq(&self.vl_bc_ret),
-schema::vl_ret.eq(&self.vl_ret),
-schema::cod_rec.eq(&self.cod_rec),
-schema::ind_nat_rec.eq(&self.ind_nat_rec),
-schema::cnpj.eq(&self.cnpj),
-schema::vl_ret_pis.eq(&self.vl_ret_pis),
-schema::vl_ret_cofins.eq(&self.vl_ret_cofins),
-schema::ind_dec.eq(&self.ind_dec),
+                    schema::ind_nat_ret.eq(&self.ind_nat_ret),
+                    schema::dt_ret.eq(&self.dt_ret),
+                    schema::vl_bc_ret.eq(&self.vl_bc_ret),
+                    schema::vl_ret.eq(&self.vl_ret),
+                    schema::cod_rec.eq(&self.cod_rec),
+                    schema::ind_nat_rec.eq(&self.ind_nat_rec),
+                    schema::cnpj.eq(&self.cnpj),
+                    schema::vl_ret_pis.eq(&self.vl_ret_pis),
+                    schema::vl_ret_cofins.eq(&self.vl_ret_cofins),
+                    schema::ind_dec.eq(&self.ind_dec),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

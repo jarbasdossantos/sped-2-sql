@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -53,26 +53,26 @@ impl Model for EfdC396 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_item: get_field(&fields, 2),
-        vl_item: get_field(&fields, 3),
-        vl_desc: get_field(&fields, 4),
-        nat_bc_cred: get_field(&fields, 5),
-        cst_pis: get_field(&fields, 6),
-        vl_bc_pis: get_field(&fields, 7),
-        aliq_pis: get_field(&fields, 8),
-        vl_pis: get_field(&fields, 9),
-        cst_cofins: get_field(&fields, 10),
-        vl_bc_cofins: get_field(&fields, 11),
-        aliq_cofins: get_field(&fields, 12),
-        vl_cofins: get_field(&fields, 13),
-        cod_cta: get_field(&fields, 14),
+            cod_item: get_field(&fields, 2),
+            vl_item: get_field(&fields, 3),
+            vl_desc: get_field(&fields, 4),
+            nat_bc_cred: get_field(&fields, 5),
+            cst_pis: get_field(&fields, 6),
+            vl_bc_pis: get_field(&fields, 7),
+            aliq_pis: get_field(&fields, 8),
+            vl_pis: get_field(&fields, 9),
+            cst_cofins: get_field(&fields, 10),
+            vl_bc_cofins: get_field(&fields, 11),
+            aliq_cofins: get_field(&fields, 12),
+            vl_cofins: get_field(&fields, 13),
+            cod_cta: get_field(&fields, 14),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC396>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC396::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -85,19 +85,19 @@ impl Model for EfdC396 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_item.eq(&self.cod_item),
-schema::vl_item.eq(&self.vl_item),
-schema::vl_desc.eq(&self.vl_desc),
-schema::nat_bc_cred.eq(&self.nat_bc_cred),
-schema::cst_pis.eq(&self.cst_pis),
-schema::vl_bc_pis.eq(&self.vl_bc_pis),
-schema::aliq_pis.eq(&self.aliq_pis),
-schema::vl_pis.eq(&self.vl_pis),
-schema::cst_cofins.eq(&self.cst_cofins),
-schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
-schema::aliq_cofins.eq(&self.aliq_cofins),
-schema::vl_cofins.eq(&self.vl_cofins),
-schema::cod_cta.eq(&self.cod_cta),
+                    schema::cod_item.eq(&self.cod_item),
+                    schema::vl_item.eq(&self.vl_item),
+                    schema::vl_desc.eq(&self.vl_desc),
+                    schema::nat_bc_cred.eq(&self.nat_bc_cred),
+                    schema::cst_pis.eq(&self.cst_pis),
+                    schema::vl_bc_pis.eq(&self.vl_bc_pis),
+                    schema::aliq_pis.eq(&self.aliq_pis),
+                    schema::vl_pis.eq(&self.vl_pis),
+                    schema::cst_cofins.eq(&self.cst_cofins),
+                    schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
+                    schema::aliq_cofins.eq(&self.aliq_cofins),
+                    schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::cod_cta.eq(&self.cod_cta),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

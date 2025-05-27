@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -52,25 +52,25 @@ impl Model for Efd1900 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cnpj: get_field(&fields, 2),
-        cod_mod: get_field(&fields, 3),
-        ser: get_field(&fields, 4),
-        sub_ser: get_field(&fields, 5),
-        cod_sit: get_field(&fields, 6),
-        vl_tot_rec: get_field(&fields, 7),
-        quant_doc: get_field(&fields, 8),
-        cst_pis: get_field(&fields, 9),
-        cst_cofins: get_field(&fields, 10),
-        cfop: get_field(&fields, 11),
-        info_compl: get_field(&fields, 12),
-        cod_cta: get_field(&fields, 13),
+            cnpj: get_field(&fields, 2),
+            cod_mod: get_field(&fields, 3),
+            ser: get_field(&fields, 4),
+            sub_ser: get_field(&fields, 5),
+            cod_sit: get_field(&fields, 6),
+            vl_tot_rec: get_field(&fields, 7),
+            quant_doc: get_field(&fields, 8),
+            cst_pis: get_field(&fields, 9),
+            cst_cofins: get_field(&fields, 10),
+            cfop: get_field(&fields, 11),
+            info_compl: get_field(&fields, 12),
+            cod_cta: get_field(&fields, 13),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd1900>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd1900::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -83,18 +83,18 @@ impl Model for Efd1900 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cnpj.eq(&self.cnpj),
-schema::cod_mod.eq(&self.cod_mod),
-schema::ser.eq(&self.ser),
-schema::sub_ser.eq(&self.sub_ser),
-schema::cod_sit.eq(&self.cod_sit),
-schema::vl_tot_rec.eq(&self.vl_tot_rec),
-schema::quant_doc.eq(&self.quant_doc),
-schema::cst_pis.eq(&self.cst_pis),
-schema::cst_cofins.eq(&self.cst_cofins),
-schema::cfop.eq(&self.cfop),
-schema::info_compl.eq(&self.info_compl),
-schema::cod_cta.eq(&self.cod_cta),
+                    schema::cnpj.eq(&self.cnpj),
+                    schema::cod_mod.eq(&self.cod_mod),
+                    schema::ser.eq(&self.ser),
+                    schema::sub_ser.eq(&self.sub_ser),
+                    schema::cod_sit.eq(&self.cod_sit),
+                    schema::vl_tot_rec.eq(&self.vl_tot_rec),
+                    schema::quant_doc.eq(&self.quant_doc),
+                    schema::cst_pis.eq(&self.cst_pis),
+                    schema::cst_cofins.eq(&self.cst_cofins),
+                    schema::cfop.eq(&self.cfop),
+                    schema::info_compl.eq(&self.info_compl),
+                    schema::cod_cta.eq(&self.cod_cta),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

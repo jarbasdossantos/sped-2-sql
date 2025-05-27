@@ -45,18 +45,18 @@ impl Model for EfdM350 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    vl_tot_fol: get_field(&fields, 2),
-        vl_exc_bc: get_field(&fields, 3),
-        vl_tot_bc: get_field(&fields, 4),
-        aliq_pis_fol: get_field(&fields, 5),
-        vl_tot_cont_fol: get_field(&fields, 6),
+            vl_tot_fol: get_field(&fields, 2),
+            vl_exc_bc: get_field(&fields, 3),
+            vl_tot_bc: get_field(&fields, 4),
+            aliq_pis_fol: get_field(&fields, 5),
+            vl_tot_cont_fol: get_field(&fields, 6),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdM350>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdM350::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -69,11 +69,11 @@ impl Model for EfdM350 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::vl_tot_fol.eq(&self.vl_tot_fol),
-schema::vl_exc_bc.eq(&self.vl_exc_bc),
-schema::vl_tot_bc.eq(&self.vl_tot_bc),
-schema::aliq_pis_fol.eq(&self.aliq_pis_fol),
-schema::vl_tot_cont_fol.eq(&self.vl_tot_cont_fol),
+                    schema::vl_tot_fol.eq(&self.vl_tot_fol),
+                    schema::vl_exc_bc.eq(&self.vl_exc_bc),
+                    schema::vl_tot_bc.eq(&self.vl_tot_bc),
+                    schema::aliq_pis_fol.eq(&self.aliq_pis_fol),
+                    schema::vl_tot_cont_fol.eq(&self.vl_tot_cont_fol),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

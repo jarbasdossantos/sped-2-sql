@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -48,21 +48,21 @@ impl Model for Efd0500 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    dt_alt: get_field(&fields, 2),
-        cod_nat_cc: get_field(&fields, 3),
-        ind_cta: get_field(&fields, 4),
-        nivel: get_field(&fields, 5),
-        cod_cta: get_field(&fields, 6),
-        nome_cta: get_field(&fields, 7),
-        cod_cta_ref: get_field(&fields, 8),
-        cnpj_est: get_field(&fields, 9),
+            dt_alt: get_field(&fields, 2),
+            cod_nat_cc: get_field(&fields, 3),
+            ind_cta: get_field(&fields, 4),
+            nivel: get_field(&fields, 5),
+            cod_cta: get_field(&fields, 6),
+            nome_cta: get_field(&fields, 7),
+            cod_cta_ref: get_field(&fields, 8),
+            cnpj_est: get_field(&fields, 9),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0500>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd0500::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -75,14 +75,14 @@ impl Model for Efd0500 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::dt_alt.eq(&self.dt_alt),
-schema::cod_nat_cc.eq(&self.cod_nat_cc),
-schema::ind_cta.eq(&self.ind_cta),
-schema::nivel.eq(&self.nivel),
-schema::cod_cta.eq(&self.cod_cta),
-schema::nome_cta.eq(&self.nome_cta),
-schema::cod_cta_ref.eq(&self.cod_cta_ref),
-schema::cnpj_est.eq(&self.cnpj_est),
+                    schema::dt_alt.eq(&self.dt_alt),
+                    schema::cod_nat_cc.eq(&self.cod_nat_cc),
+                    schema::ind_cta.eq(&self.ind_cta),
+                    schema::nivel.eq(&self.nivel),
+                    schema::cod_cta.eq(&self.cod_cta),
+                    schema::nome_cta.eq(&self.nome_cta),
+                    schema::cod_cta_ref.eq(&self.cod_cta_ref),
+                    schema::cnpj_est.eq(&self.cnpj_est),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

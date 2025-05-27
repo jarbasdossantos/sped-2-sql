@@ -51,24 +51,24 @@ impl Model for EfdI100 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    vl_rec_fin: get_field(&fields, 2),
-        cst: get_field(&fields, 3),
-        vl_tot_ded_ger: get_field(&fields, 4),
-        vl_tot_ded_esp: get_field(&fields, 5),
-        vl_bc_pis: get_field(&fields, 6),
-        aliq_pis: get_field(&fields, 7),
-        vl_pis: get_field(&fields, 8),
-        vl_bc_cofins: get_field(&fields, 9),
-        aliq_cofins: get_field(&fields, 10),
-        vl_cofins: get_field(&fields, 11),
-        inf_comp: get_field(&fields, 12),
+            vl_rec_fin: get_field(&fields, 2),
+            cst: get_field(&fields, 3),
+            vl_tot_ded_ger: get_field(&fields, 4),
+            vl_tot_ded_esp: get_field(&fields, 5),
+            vl_bc_pis: get_field(&fields, 6),
+            aliq_pis: get_field(&fields, 7),
+            vl_pis: get_field(&fields, 8),
+            vl_bc_cofins: get_field(&fields, 9),
+            aliq_cofins: get_field(&fields, 10),
+            vl_cofins: get_field(&fields, 11),
+            inf_comp: get_field(&fields, 12),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdI100>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdI100::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -81,17 +81,17 @@ impl Model for EfdI100 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::vl_rec_fin.eq(&self.vl_rec_fin),
-schema::cst.eq(&self.cst),
-schema::vl_tot_ded_ger.eq(&self.vl_tot_ded_ger),
-schema::vl_tot_ded_esp.eq(&self.vl_tot_ded_esp),
-schema::vl_bc_pis.eq(&self.vl_bc_pis),
-schema::aliq_pis.eq(&self.aliq_pis),
-schema::vl_pis.eq(&self.vl_pis),
-schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
-schema::aliq_cofins.eq(&self.aliq_cofins),
-schema::vl_cofins.eq(&self.vl_cofins),
-schema::inf_comp.eq(&self.inf_comp),
+                    schema::vl_rec_fin.eq(&self.vl_rec_fin),
+                    schema::cst.eq(&self.cst),
+                    schema::vl_tot_ded_ger.eq(&self.vl_tot_ded_ger),
+                    schema::vl_tot_ded_esp.eq(&self.vl_tot_ded_esp),
+                    schema::vl_bc_pis.eq(&self.vl_bc_pis),
+                    schema::aliq_pis.eq(&self.aliq_pis),
+                    schema::vl_pis.eq(&self.vl_pis),
+                    schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
+                    schema::aliq_cofins.eq(&self.aliq_cofins),
+                    schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::inf_comp.eq(&self.inf_comp),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

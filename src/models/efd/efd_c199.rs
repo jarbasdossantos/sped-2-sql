@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -45,18 +45,18 @@ impl Model for EfdC199 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_doc_imp: get_field(&fields, 2),
-        num_doc_imp: get_field(&fields, 3),
-        vl_pis_imp: get_field(&fields, 4),
-        vl_cofins_imp: get_field(&fields, 5),
-        num_acdraw: get_field(&fields, 6),
+            cod_doc_imp: get_field(&fields, 2),
+            num_doc_imp: get_field(&fields, 3),
+            vl_pis_imp: get_field(&fields, 4),
+            vl_cofins_imp: get_field(&fields, 5),
+            num_acdraw: get_field(&fields, 6),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC199>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC199::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -69,11 +69,11 @@ impl Model for EfdC199 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_doc_imp.eq(&self.cod_doc_imp),
-schema::num_doc_imp.eq(&self.num_doc_imp),
-schema::vl_pis_imp.eq(&self.vl_pis_imp),
-schema::vl_cofins_imp.eq(&self.vl_cofins_imp),
-schema::num_acdraw.eq(&self.num_acdraw),
+                    schema::cod_doc_imp.eq(&self.cod_doc_imp),
+                    schema::num_doc_imp.eq(&self.num_doc_imp),
+                    schema::vl_pis_imp.eq(&self.vl_pis_imp),
+                    schema::vl_cofins_imp.eq(&self.vl_cofins_imp),
+                    schema::num_acdraw.eq(&self.num_acdraw),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

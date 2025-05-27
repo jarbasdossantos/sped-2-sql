@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -44,17 +44,17 @@ impl Model for Efd0205 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    descr_ant_item: get_field(&fields, 2),
-        dt_ini: get_field(&fields, 3),
-        dt_fim: get_field(&fields, 4),
-        cod_ant_item: get_field(&fields, 5),
+            descr_ant_item: get_field(&fields, 2),
+            dt_ini: get_field(&fields, 3),
+            dt_fim: get_field(&fields, 4),
+            cod_ant_item: get_field(&fields, 5),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0205>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd0205::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -67,10 +67,10 @@ impl Model for Efd0205 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::descr_ant_item.eq(&self.descr_ant_item),
-schema::dt_ini.eq(&self.dt_ini),
-schema::dt_fim.eq(&self.dt_fim),
-schema::cod_ant_item.eq(&self.cod_ant_item),
+                    schema::descr_ant_item.eq(&self.descr_ant_item),
+                    schema::dt_ini.eq(&self.dt_ini),
+                    schema::dt_fim.eq(&self.dt_fim),
+                    schema::cod_ant_item.eq(&self.cod_ant_item),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

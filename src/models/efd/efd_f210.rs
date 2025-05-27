@@ -50,23 +50,23 @@ impl Model for EfdF210 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    vl_cus_orc: get_field(&fields, 2),
-        vl_exc: get_field(&fields, 3),
-        vl_cus_orc_aju: get_field(&fields, 4),
-        vl_bc_cred: get_field(&fields, 5),
-        cst_pis: get_field(&fields, 6),
-        aliq_pis: get_field(&fields, 7),
-        vl_cred_pis_util: get_field(&fields, 8),
-        cst_cofins: get_field(&fields, 9),
-        aliq_cofins: get_field(&fields, 10),
-        vl_cred_cofins_util: get_field(&fields, 11),
+            vl_cus_orc: get_field(&fields, 2),
+            vl_exc: get_field(&fields, 3),
+            vl_cus_orc_aju: get_field(&fields, 4),
+            vl_bc_cred: get_field(&fields, 5),
+            cst_pis: get_field(&fields, 6),
+            aliq_pis: get_field(&fields, 7),
+            vl_cred_pis_util: get_field(&fields, 8),
+            cst_cofins: get_field(&fields, 9),
+            aliq_cofins: get_field(&fields, 10),
+            vl_cred_cofins_util: get_field(&fields, 11),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdF210>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdF210::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -79,16 +79,16 @@ impl Model for EfdF210 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::vl_cus_orc.eq(&self.vl_cus_orc),
-schema::vl_exc.eq(&self.vl_exc),
-schema::vl_cus_orc_aju.eq(&self.vl_cus_orc_aju),
-schema::vl_bc_cred.eq(&self.vl_bc_cred),
-schema::cst_pis.eq(&self.cst_pis),
-schema::aliq_pis.eq(&self.aliq_pis),
-schema::vl_cred_pis_util.eq(&self.vl_cred_pis_util),
-schema::cst_cofins.eq(&self.cst_cofins),
-schema::aliq_cofins.eq(&self.aliq_cofins),
-schema::vl_cred_cofins_util.eq(&self.vl_cred_cofins_util),
+                    schema::vl_cus_orc.eq(&self.vl_cus_orc),
+                    schema::vl_exc.eq(&self.vl_exc),
+                    schema::vl_cus_orc_aju.eq(&self.vl_cus_orc_aju),
+                    schema::vl_bc_cred.eq(&self.vl_bc_cred),
+                    schema::cst_pis.eq(&self.cst_pis),
+                    schema::aliq_pis.eq(&self.aliq_pis),
+                    schema::vl_cred_pis_util.eq(&self.vl_cred_pis_util),
+                    schema::cst_cofins.eq(&self.cst_cofins),
+                    schema::aliq_cofins.eq(&self.aliq_cofins),
+                    schema::vl_cred_cofins_util.eq(&self.vl_cred_cofins_util),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

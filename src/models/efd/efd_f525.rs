@@ -50,23 +50,23 @@ impl Model for EfdF525 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    vl_rec: get_field(&fields, 2),
-        ind_rec: get_field(&fields, 3),
-        cnpj_cpf: get_field(&fields, 4),
-        num_doc: get_field(&fields, 5),
-        cod_item: get_field(&fields, 6),
-        vl_rec_det: get_field(&fields, 7),
-        cst_pis: get_field(&fields, 8),
-        cst_cofins: get_field(&fields, 9),
-        info_compl: get_field(&fields, 10),
-        cod_cta: get_field(&fields, 11),
+            vl_rec: get_field(&fields, 2),
+            ind_rec: get_field(&fields, 3),
+            cnpj_cpf: get_field(&fields, 4),
+            num_doc: get_field(&fields, 5),
+            cod_item: get_field(&fields, 6),
+            vl_rec_det: get_field(&fields, 7),
+            cst_pis: get_field(&fields, 8),
+            cst_cofins: get_field(&fields, 9),
+            info_compl: get_field(&fields, 10),
+            cod_cta: get_field(&fields, 11),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdF525>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdF525::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -79,16 +79,16 @@ impl Model for EfdF525 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::vl_rec.eq(&self.vl_rec),
-schema::ind_rec.eq(&self.ind_rec),
-schema::cnpj_cpf.eq(&self.cnpj_cpf),
-schema::num_doc.eq(&self.num_doc),
-schema::cod_item.eq(&self.cod_item),
-schema::vl_rec_det.eq(&self.vl_rec_det),
-schema::cst_pis.eq(&self.cst_pis),
-schema::cst_cofins.eq(&self.cst_cofins),
-schema::info_compl.eq(&self.info_compl),
-schema::cod_cta.eq(&self.cod_cta),
+                    schema::vl_rec.eq(&self.vl_rec),
+                    schema::ind_rec.eq(&self.ind_rec),
+                    schema::cnpj_cpf.eq(&self.cnpj_cpf),
+                    schema::num_doc.eq(&self.num_doc),
+                    schema::cod_item.eq(&self.cod_item),
+                    schema::vl_rec_det.eq(&self.vl_rec_det),
+                    schema::cst_pis.eq(&self.cst_pis),
+                    schema::cst_cofins.eq(&self.cst_cofins),
+                    schema::info_compl.eq(&self.info_compl),
+                    schema::cod_cta.eq(&self.cod_cta),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

@@ -48,21 +48,21 @@ impl Model for EfdD605 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_class: get_field(&fields, 2),
-        vl_item: get_field(&fields, 3),
-        vl_desc: get_field(&fields, 4),
-        cst_cofins: get_field(&fields, 5),
-        vl_bc_cofins: get_field(&fields, 6),
-        aliq_cofins: get_field(&fields, 7),
-        vl_cofins: get_field(&fields, 8),
-        cod_cta: get_field(&fields, 9),
+            cod_class: get_field(&fields, 2),
+            vl_item: get_field(&fields, 3),
+            vl_desc: get_field(&fields, 4),
+            cst_cofins: get_field(&fields, 5),
+            vl_bc_cofins: get_field(&fields, 6),
+            aliq_cofins: get_field(&fields, 7),
+            vl_cofins: get_field(&fields, 8),
+            cod_cta: get_field(&fields, 9),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdD605>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdD605::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -75,14 +75,14 @@ impl Model for EfdD605 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_class.eq(&self.cod_class),
-schema::vl_item.eq(&self.vl_item),
-schema::vl_desc.eq(&self.vl_desc),
-schema::cst_cofins.eq(&self.cst_cofins),
-schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
-schema::aliq_cofins.eq(&self.aliq_cofins),
-schema::vl_cofins.eq(&self.vl_cofins),
-schema::cod_cta.eq(&self.cod_cta),
+                    schema::cod_class.eq(&self.cod_class),
+                    schema::vl_item.eq(&self.vl_item),
+                    schema::vl_desc.eq(&self.vl_desc),
+                    schema::cst_cofins.eq(&self.cst_cofins),
+                    schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
+                    schema::aliq_cofins.eq(&self.aliq_cofins),
+                    schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::cod_cta.eq(&self.cod_cta),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

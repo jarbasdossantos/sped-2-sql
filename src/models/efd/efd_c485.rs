@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -49,22 +49,22 @@ impl Model for EfdC485 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cst_cofins: get_field(&fields, 2),
-        vl_item: get_field(&fields, 3),
-        vl_bc_cofins: get_field(&fields, 4),
-        aliq_cofins: get_field(&fields, 5),
-        quant_bc_cofins: get_field(&fields, 6),
-        aliq_cofins_quant: get_field(&fields, 7),
-        vl_cofins: get_field(&fields, 8),
-        cod_item: get_field(&fields, 9),
-        cod_cta: get_field(&fields, 10),
+            cst_cofins: get_field(&fields, 2),
+            vl_item: get_field(&fields, 3),
+            vl_bc_cofins: get_field(&fields, 4),
+            aliq_cofins: get_field(&fields, 5),
+            quant_bc_cofins: get_field(&fields, 6),
+            aliq_cofins_quant: get_field(&fields, 7),
+            vl_cofins: get_field(&fields, 8),
+            cod_item: get_field(&fields, 9),
+            cod_cta: get_field(&fields, 10),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC485>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdC485::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -77,15 +77,15 @@ impl Model for EfdC485 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cst_cofins.eq(&self.cst_cofins),
-schema::vl_item.eq(&self.vl_item),
-schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
-schema::aliq_cofins.eq(&self.aliq_cofins),
-schema::quant_bc_cofins.eq(&self.quant_bc_cofins),
-schema::aliq_cofins_quant.eq(&self.aliq_cofins_quant),
-schema::vl_cofins.eq(&self.vl_cofins),
-schema::cod_item.eq(&self.cod_item),
-schema::cod_cta.eq(&self.cod_cta),
+                    schema::cst_cofins.eq(&self.cst_cofins),
+                    schema::vl_item.eq(&self.vl_item),
+                    schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
+                    schema::aliq_cofins.eq(&self.aliq_cofins),
+                    schema::quant_bc_cofins.eq(&self.quant_bc_cofins),
+                    schema::aliq_cofins_quant.eq(&self.aliq_cofins_quant),
+                    schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::cod_item.eq(&self.cod_item),
+                    schema::cod_cta.eq(&self.cod_cta),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

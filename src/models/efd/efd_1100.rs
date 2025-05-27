@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -57,30 +57,30 @@ impl Model for Efd1100 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    per_apu_cred: get_field(&fields, 2),
-        orig_cred: get_field(&fields, 3),
-        cnpj_suc: get_field(&fields, 4),
-        cod_cred: get_field(&fields, 5),
-        vl_cred_apu: get_field(&fields, 6),
-        vl_cred_ext_apu: get_field(&fields, 7),
-        vl_tot_cred_apu: get_field(&fields, 8),
-        vl_cred_desc_pa_ant: get_field(&fields, 9),
-        vl_cred_per_pa_ant: get_field(&fields, 10),
-        vl_cred_dcomp_pa_ant: get_field(&fields, 11),
-        sd_cred_disp_efd: get_field(&fields, 12),
-        vl_cred_desc_efd: get_field(&fields, 13),
-        vl_cred_per_efd: get_field(&fields, 14),
-        vl_cred_dcomp_efd: get_field(&fields, 15),
-        vl_cred_trans: get_field(&fields, 16),
-        vl_cred_out: get_field(&fields, 17),
-        sld_cred_fim: get_field(&fields, 18),
+            per_apu_cred: get_field(&fields, 2),
+            orig_cred: get_field(&fields, 3),
+            cnpj_suc: get_field(&fields, 4),
+            cod_cred: get_field(&fields, 5),
+            vl_cred_apu: get_field(&fields, 6),
+            vl_cred_ext_apu: get_field(&fields, 7),
+            vl_tot_cred_apu: get_field(&fields, 8),
+            vl_cred_desc_pa_ant: get_field(&fields, 9),
+            vl_cred_per_pa_ant: get_field(&fields, 10),
+            vl_cred_dcomp_pa_ant: get_field(&fields, 11),
+            sd_cred_disp_efd: get_field(&fields, 12),
+            vl_cred_desc_efd: get_field(&fields, 13),
+            vl_cred_per_efd: get_field(&fields, 14),
+            vl_cred_dcomp_efd: get_field(&fields, 15),
+            vl_cred_trans: get_field(&fields, 16),
+            vl_cred_out: get_field(&fields, 17),
+            sld_cred_fim: get_field(&fields, 18),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd1100>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(Efd1100::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -93,23 +93,23 @@ impl Model for Efd1100 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::per_apu_cred.eq(&self.per_apu_cred),
-schema::orig_cred.eq(&self.orig_cred),
-schema::cnpj_suc.eq(&self.cnpj_suc),
-schema::cod_cred.eq(&self.cod_cred),
-schema::vl_cred_apu.eq(&self.vl_cred_apu),
-schema::vl_cred_ext_apu.eq(&self.vl_cred_ext_apu),
-schema::vl_tot_cred_apu.eq(&self.vl_tot_cred_apu),
-schema::vl_cred_desc_pa_ant.eq(&self.vl_cred_desc_pa_ant),
-schema::vl_cred_per_pa_ant.eq(&self.vl_cred_per_pa_ant),
-schema::vl_cred_dcomp_pa_ant.eq(&self.vl_cred_dcomp_pa_ant),
-schema::sd_cred_disp_efd.eq(&self.sd_cred_disp_efd),
-schema::vl_cred_desc_efd.eq(&self.vl_cred_desc_efd),
-schema::vl_cred_per_efd.eq(&self.vl_cred_per_efd),
-schema::vl_cred_dcomp_efd.eq(&self.vl_cred_dcomp_efd),
-schema::vl_cred_trans.eq(&self.vl_cred_trans),
-schema::vl_cred_out.eq(&self.vl_cred_out),
-schema::sld_cred_fim.eq(&self.sld_cred_fim),
+                    schema::per_apu_cred.eq(&self.per_apu_cred),
+                    schema::orig_cred.eq(&self.orig_cred),
+                    schema::cnpj_suc.eq(&self.cnpj_suc),
+                    schema::cod_cred.eq(&self.cod_cred),
+                    schema::vl_cred_apu.eq(&self.vl_cred_apu),
+                    schema::vl_cred_ext_apu.eq(&self.vl_cred_ext_apu),
+                    schema::vl_tot_cred_apu.eq(&self.vl_tot_cred_apu),
+                    schema::vl_cred_desc_pa_ant.eq(&self.vl_cred_desc_pa_ant),
+                    schema::vl_cred_per_pa_ant.eq(&self.vl_cred_per_pa_ant),
+                    schema::vl_cred_dcomp_pa_ant.eq(&self.vl_cred_dcomp_pa_ant),
+                    schema::sd_cred_disp_efd.eq(&self.sd_cred_disp_efd),
+                    schema::vl_cred_desc_efd.eq(&self.vl_cred_desc_efd),
+                    schema::vl_cred_per_efd.eq(&self.vl_cred_per_efd),
+                    schema::vl_cred_dcomp_efd.eq(&self.vl_cred_dcomp_efd),
+                    schema::vl_cred_trans.eq(&self.vl_cred_trans),
+                    schema::vl_cred_out.eq(&self.vl_cred_out),
+                    schema::sld_cred_fim.eq(&self.sld_cred_fim),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

@@ -52,25 +52,25 @@ impl Model for EfdM610 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_cont: get_field(&fields, 2),
-        vl_rec_brt: get_field(&fields, 3),
-        vl_bc_cont: get_field(&fields, 4),
-        aliq_cofins: get_field(&fields, 5),
-        quant_bc_cofins: get_field(&fields, 6),
-        aliq_cofins_quant: get_field(&fields, 7),
-        vl_cont_apur: get_field(&fields, 8),
-        vl_ajus_acres: get_field(&fields, 9),
-        vl_ajus_reduc: get_field(&fields, 10),
-        vl_cont_difer: get_field(&fields, 11),
-        vl_cont_difer_ant: get_field(&fields, 12),
-        vl_cont_per: get_field(&fields, 13),
+            cod_cont: get_field(&fields, 2),
+            vl_rec_brt: get_field(&fields, 3),
+            vl_bc_cont: get_field(&fields, 4),
+            aliq_cofins: get_field(&fields, 5),
+            quant_bc_cofins: get_field(&fields, 6),
+            aliq_cofins_quant: get_field(&fields, 7),
+            vl_cont_apur: get_field(&fields, 8),
+            vl_ajus_acres: get_field(&fields, 9),
+            vl_ajus_reduc: get_field(&fields, 10),
+            vl_cont_difer: get_field(&fields, 11),
+            vl_cont_difer_ant: get_field(&fields, 12),
+            vl_cont_per: get_field(&fields, 13),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdM610>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdM610::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -83,18 +83,18 @@ impl Model for EfdM610 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_cont.eq(&self.cod_cont),
-schema::vl_rec_brt.eq(&self.vl_rec_brt),
-schema::vl_bc_cont.eq(&self.vl_bc_cont),
-schema::aliq_cofins.eq(&self.aliq_cofins),
-schema::quant_bc_cofins.eq(&self.quant_bc_cofins),
-schema::aliq_cofins_quant.eq(&self.aliq_cofins_quant),
-schema::vl_cont_apur.eq(&self.vl_cont_apur),
-schema::vl_ajus_acres.eq(&self.vl_ajus_acres),
-schema::vl_ajus_reduc.eq(&self.vl_ajus_reduc),
-schema::vl_cont_difer.eq(&self.vl_cont_difer),
-schema::vl_cont_difer_ant.eq(&self.vl_cont_difer_ant),
-schema::vl_cont_per.eq(&self.vl_cont_per),
+                    schema::cod_cont.eq(&self.cod_cont),
+                    schema::vl_rec_brt.eq(&self.vl_rec_brt),
+                    schema::vl_bc_cont.eq(&self.vl_bc_cont),
+                    schema::aliq_cofins.eq(&self.aliq_cofins),
+                    schema::quant_bc_cofins.eq(&self.quant_bc_cofins),
+                    schema::aliq_cofins_quant.eq(&self.aliq_cofins_quant),
+                    schema::vl_cont_apur.eq(&self.vl_cont_apur),
+                    schema::vl_ajus_acres.eq(&self.vl_ajus_acres),
+                    schema::vl_ajus_reduc.eq(&self.vl_ajus_reduc),
+                    schema::vl_cont_difer.eq(&self.vl_cont_difer),
+                    schema::vl_cont_difer_ant.eq(&self.vl_cont_difer_ant),
+                    schema::vl_cont_per.eq(&self.vl_cont_per),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

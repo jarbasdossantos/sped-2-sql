@@ -47,20 +47,20 @@ impl Model for EfdM700 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_cont: get_field(&fields, 2),
-        vl_cont_apur_difer: get_field(&fields, 3),
-        nat_bc_cred_desc: get_field(&fields, 4),
-        vl_cred_desc_difer: get_field(&fields, 5),
-        vl_cont_difer_ant: get_field(&fields, 6),
-        per_apur: get_field(&fields, 7),
-        dt_receb: get_field(&fields, 8),
+            cod_cont: get_field(&fields, 2),
+            vl_cont_apur_difer: get_field(&fields, 3),
+            nat_bc_cred_desc: get_field(&fields, 4),
+            vl_cred_desc_difer: get_field(&fields, 5),
+            vl_cont_difer_ant: get_field(&fields, 6),
+            per_apur: get_field(&fields, 7),
+            dt_receb: get_field(&fields, 8),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdM700>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdM700::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -73,13 +73,13 @@ impl Model for EfdM700 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_cont.eq(&self.cod_cont),
-schema::vl_cont_apur_difer.eq(&self.vl_cont_apur_difer),
-schema::nat_bc_cred_desc.eq(&self.nat_bc_cred_desc),
-schema::vl_cred_desc_difer.eq(&self.vl_cred_desc_difer),
-schema::vl_cont_difer_ant.eq(&self.vl_cont_difer_ant),
-schema::per_apur.eq(&self.per_apur),
-schema::dt_receb.eq(&self.dt_receb),
+                    schema::cod_cont.eq(&self.cod_cont),
+                    schema::vl_cont_apur_difer.eq(&self.vl_cont_apur_difer),
+                    schema::nat_bc_cred_desc.eq(&self.nat_bc_cred_desc),
+                    schema::vl_cred_desc_difer.eq(&self.vl_cred_desc_difer),
+                    schema::vl_cont_difer_ant.eq(&self.vl_cont_difer_ant),
+                    schema::per_apur.eq(&self.per_apur),
+                    schema::dt_receb.eq(&self.dt_receb),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

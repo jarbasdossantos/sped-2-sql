@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -57,30 +57,30 @@ impl Model for EfdA170 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    num_item: get_field(&fields, 2),
-        cod_item: get_field(&fields, 3),
-        descr_compl: get_field(&fields, 4),
-        vl_item: get_field(&fields, 5),
-        vl_desc: get_field(&fields, 6),
-        nat_bc_cred: get_field(&fields, 7),
-        ind_orig_cred: get_field(&fields, 8),
-        cst_pis: get_field(&fields, 9),
-        vl_bc_pis: get_field(&fields, 10),
-        aliq_pis: get_field(&fields, 11),
-        vl_pis: get_field(&fields, 12),
-        cst_cofins: get_field(&fields, 13),
-        vl_bc_cofins: get_field(&fields, 14),
-        aliq_cofins: get_field(&fields, 15),
-        vl_cofins: get_field(&fields, 16),
-        cod_cta: get_field(&fields, 17),
-        cod_ccus: get_field(&fields, 18),
+            num_item: get_field(&fields, 2),
+            cod_item: get_field(&fields, 3),
+            descr_compl: get_field(&fields, 4),
+            vl_item: get_field(&fields, 5),
+            vl_desc: get_field(&fields, 6),
+            nat_bc_cred: get_field(&fields, 7),
+            ind_orig_cred: get_field(&fields, 8),
+            cst_pis: get_field(&fields, 9),
+            vl_bc_pis: get_field(&fields, 10),
+            aliq_pis: get_field(&fields, 11),
+            vl_pis: get_field(&fields, 12),
+            cst_cofins: get_field(&fields, 13),
+            vl_bc_cofins: get_field(&fields, 14),
+            aliq_cofins: get_field(&fields, 15),
+            vl_cofins: get_field(&fields, 16),
+            cod_cta: get_field(&fields, 17),
+            cod_ccus: get_field(&fields, 18),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdA170>, Error> {
         Ok(table
             .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
+            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
             .select(EfdA170::as_select())
             .load(&mut DB_POOL
                 .get().unwrap())?)
@@ -93,23 +93,23 @@ impl Model for EfdA170 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::num_item.eq(&self.num_item),
-schema::cod_item.eq(&self.cod_item),
-schema::descr_compl.eq(&self.descr_compl),
-schema::vl_item.eq(&self.vl_item),
-schema::vl_desc.eq(&self.vl_desc),
-schema::nat_bc_cred.eq(&self.nat_bc_cred),
-schema::ind_orig_cred.eq(&self.ind_orig_cred),
-schema::cst_pis.eq(&self.cst_pis),
-schema::vl_bc_pis.eq(&self.vl_bc_pis),
-schema::aliq_pis.eq(&self.aliq_pis),
-schema::vl_pis.eq(&self.vl_pis),
-schema::cst_cofins.eq(&self.cst_cofins),
-schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
-schema::aliq_cofins.eq(&self.aliq_cofins),
-schema::vl_cofins.eq(&self.vl_cofins),
-schema::cod_cta.eq(&self.cod_cta),
-schema::cod_ccus.eq(&self.cod_ccus),
+                    schema::num_item.eq(&self.num_item),
+                    schema::cod_item.eq(&self.cod_item),
+                    schema::descr_compl.eq(&self.descr_compl),
+                    schema::vl_item.eq(&self.vl_item),
+                    schema::vl_desc.eq(&self.vl_desc),
+                    schema::nat_bc_cred.eq(&self.nat_bc_cred),
+                    schema::ind_orig_cred.eq(&self.ind_orig_cred),
+                    schema::cst_pis.eq(&self.cst_pis),
+                    schema::vl_bc_pis.eq(&self.vl_bc_pis),
+                    schema::aliq_pis.eq(&self.aliq_pis),
+                    schema::vl_pis.eq(&self.vl_pis),
+                    schema::cst_cofins.eq(&self.cst_cofins),
+                    schema::vl_bc_cofins.eq(&self.vl_bc_cofins),
+                    schema::aliq_cofins.eq(&self.aliq_cofins),
+                    schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::cod_cta.eq(&self.cod_cta),
+                    schema::cod_ccus.eq(&self.cod_ccus),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 
