@@ -3,18 +3,18 @@ name = "sped-to-database"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "generate_efd_models"
+path = "scripts/generate_efd_models.rs"
+
 [dependencies]
-tokio = { version = "1.44.2", features = [
+tokio = { version = "1.45.0", features = [
     "time",
     "rt",
     "macros",
     "rt-multi-thread",
-] }
-sqlx = { version = "0.8.5", features = [
-    "sqlite",
-    "macros",
-    "runtime-tokio",
-    "chrono",
+    "fs",
+    "io-util",
 ] }
 chrono = { version = "0.4", features = ["serde"] }
 encoding_rs = "0.8.35"
@@ -23,4 +23,24 @@ futures = "0.3.31"
 anyhow = "1.0.98"
 indexmap = "2.8.0"
 async-trait = "0.1.77"
+async-recursion = "0.1.1"
 "log" = "0.4.27"
+diesel = { version = "2.2.10", features = ["sqlite", "r2d2", "64-column-tables"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+lazy_static = "1.5.0"
+
+[profile.dev]
+incremental = true
+debug = 1  # Reduz informações de debug
+opt-level = 0
+
+[profile.dev.package."*"]
+opt-level = 1  # Compila dependências com otimização básica
+
+# Para builds de release mais rápidas durante desenvolvimento
+[profile.dev-fast]
+inherits = "dev"
+opt-level = 1
+debug = false
+incremental = true

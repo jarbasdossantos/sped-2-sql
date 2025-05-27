@@ -1,0 +1,13 @@
+// @generated automatically by Diesel CLI.
+
+diesel::table! {
+    efd_1020 (id) {
+        id -> Integer,
+        file_id -> Nullable<Integer>,
+        parent_id -> Nullable<Integer>,
+        reg -> Nullable<Text>,
+        num_proc -> Nullable<Text>,
+        ind_nat_acao -> Nullable<Text>,
+        dt_dec_adm -> Nullable<Text>,
+    }
+}

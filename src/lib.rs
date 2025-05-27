@@ -1,18 +1,25 @@
 mod database;
+pub mod macros;
 mod models;
+mod schemas;
 mod sped;
 mod utils;
 
-use crate::models::files::Files;
-use crate::models::files::FilesTrait;
-use anyhow::Result;
+use crate::models::files::File;
+use crate::models::registry::register_models;
+use crate::models::traits::FilesModel;
+use crate::schemas::files::files::dsl as schema;
+use crate::schemas::files::files::table;
+use anyhow::{Error, Result};
 use database::DB_POOL;
+use diesel::dsl::sql;
+use diesel::sql_types::Integer;
+use diesel::ExpressionMethods;
+use diesel::RunQueryDsl;
 use encoding_rs::UTF_8;
 use futures::future::join_all;
-use log::error;
-use models::traits::Reg;
+use models::traits::Model;
 use sped::handle_line;
-use tokio::fs::File;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::task;
 
@@ -25,42 +32,45 @@ pub struct Load {
     pub files: Vec<LoadData>,
 }
 
+#[derive(Debug, Clone)]
 pub struct Export {
-    pub id: i64,
+    pub id: i32,
     pub registers: Option<Vec<String>>,
 }
 
-pub async fn load(data: Load) -> Result<(), anyhow::Error> {
-    let processing = task::spawn(async move { import_files(data.files).await });
+pub async fn load(data: Load) -> Result<(), Error> {
+    register_models();
+
+    let processing: task::JoinHandle<std::result::Result<(), Error>> =
+        task::spawn(async move { import_files(data.files).await });
 
     processing.await?
 }
 
-pub async fn export(data: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
-    let file_data = Files::get_data(data).await?;
+pub async fn export(data: Export) -> Result<Vec<Box<dyn Model>>, Error> {
+    register_models();
 
-    return Ok(file_data);
+    let file_data = File::get_data(data).await?;
+
+    Ok(file_data)
 }
 
-async fn import_files(files: Vec<LoadData>) -> Result<(), anyhow::Error> {
-    match database::clean().await {
-        Ok(_) => {}
-        Err(err) => {
-            error!("Failed to clean database: {}", err);
-            return Err(err);
-        }
-    };
-
-    database::migrate().await;
+async fn import_files(data: Vec<LoadData>) -> Result<(), Error> {
+    // database::migrate().await;
 
     let mut tasks = vec![];
 
-    if files.is_empty() {
+    if data.is_empty() {
         return Ok(());
     }
 
-    for data in files {
-        let extension = data.file.split('.').last().map(|s| s.to_string()).unwrap();
+    for data in data {
+        let extension = data
+            .file
+            .split('.')
+            .next_back()
+            .map(|s| s.to_string())
+            .unwrap();
 
         let file_name = data
             .file
@@ -70,7 +80,7 @@ async fn import_files(files: Vec<LoadData>) -> Result<(), anyhow::Error> {
             .to_string();
 
         let file_id = match create_file_entry(file_name.clone()).await {
-            Ok(result) => result.last_insert_rowid(),
+            Ok(file_id) => file_id,
             Err(err) => {
                 println!("Failed to create file entry: {}", err);
                 continue;
@@ -83,7 +93,6 @@ async fn import_files(files: Vec<LoadData>) -> Result<(), anyhow::Error> {
 
         let file_clone = data.file.clone();
 
-        // Run each file in an async separate task
         let task = task::spawn(async move {
             if let Err(err) = import(file_clone, data.registers, file_id).await {
                 let message = format!("Failed to process file: {}", err);
@@ -102,15 +111,15 @@ async fn import_files(files: Vec<LoadData>) -> Result<(), anyhow::Error> {
 async fn import(
     file_path: String,
     registers: Option<Vec<String>>,
-    file_id: i64,
-) -> Result<(), anyhow::Error> {
-    let file = File::open(file_path).await?;
+    file_id: i32,
+) -> Result<(), Error> {
+    let file = tokio::fs::File::open(file_path).await?;
 
     let mut reader = BufReader::new(file);
     let mut buffer = Vec::new();
 
     // Stack of (level, parent_id)
-    let mut parent_stack: Vec<(u8, i64)> = Vec::new();
+    let mut parent_stack: Vec<(u8, i32)> = Vec::new();
 
     loop {
         buffer.clear();
@@ -161,14 +170,15 @@ async fn import(
             }
         }
 
-        let parent_id = parent_stack.last().map(|&(_, id)| id).unwrap_or(0);
+        let parent_id = parent_stack
+            .last()
+            .map(|&(_, p_id)| p_id)
+            .unwrap_or_default();
+
         let inserted_line = handle_line(&line, parent_id, file_id).await;
 
         match inserted_line {
-            Ok(Some(result)) => {
-                // Add inserted id in the stack to be used for a potential child
-                parent_stack.push((level, result.last_insert_rowid()));
-            }
+            Ok(Some(result)) => parent_stack.push((level, result)),
             Err(error) => {
                 println!("Failed to insert line ({}): {}", reg_code, error);
             }
@@ -179,13 +189,13 @@ async fn import(
     Ok(())
 }
 
-async fn create_file_entry(
-    file_name: String,
-) -> Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error> {
-    sqlx::query("INSERT INTO files (name) VALUES (?)")
-        .bind(&file_name)
-        .execute(&*DB_POOL)
-        .await
+async fn create_file_entry(name: String) -> Result<i32, Error> {
+    diesel::insert_into(table)
+        .values((schema::name.eq(&name),))
+        .execute(&mut DB_POOL.get().unwrap())?;
+
+    Ok(sql::<Integer>("SELECT last_insert_rowid()")
+        .get_result::<i32>(&mut DB_POOL.get().unwrap())?)
 }
 
 pub async fn clean() -> Result<(), anyhow::Error> {
