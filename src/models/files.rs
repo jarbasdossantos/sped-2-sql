@@ -1,136 +1,107 @@
-use super::traits::Reg;
+use super::traits::Model;
 use crate::database::DB_POOL;
+use crate::models::traits::FilesModel;
+use crate::schemas::files::files::dsl as schema;
 use crate::utils::file_structure::{get_reg_children, FILE_STRUCTURE};
 use crate::Export;
-use anyhow::{Ok, Result};
-use sqlx::Row;
-use std::future::Future;
-use std::pin::Pin;
+use anyhow::Result;
 
-#[derive(Debug, Clone)]
+use async_trait::async_trait;
+use diesel::{ExpressionMethods, QueryDsl, Queryable, RunQueryDsl, Selectable};
+
+#[derive(Debug, Clone, Queryable, Selectable)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+#[diesel(table_name = crate::schemas::files::files)]
 #[allow(dead_code)]
-pub struct Files {
-    pub id: Option<i64>,
+pub struct File {
+    pub id: i32,
     pub name: Option<String>,
 }
 
-pub(crate) trait FilesTrait: Sized {
-    fn new(id: Option<i64>, name: Option<String>) -> Files;
-    async fn get(id: i64) -> Pin<Box<dyn Future<Output = Result<Self, anyhow::Error>>>>;
-    async fn get_data(file: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error>;
-}
-
-impl FilesTrait for Files {
-    fn new(id: Option<i64>, name: Option<String>) -> Files {
-        Files { id, name }
+#[async_trait]
+impl FilesModel for File {
+    async fn get(file_id: i32) -> Result<Box<File>, anyhow::Error> {
+        match crate::schemas::files::files::table
+            .filter(schema::id.eq(&file_id))
+            .first::<File>(&mut DB_POOL.get()?)
+        {
+            Ok(file) => Ok(Box::new(file)),
+            Err(err) => Err(anyhow::Error::from(err)),
+        }
     }
 
-    async fn get(id: i64) -> Pin<Box<dyn Future<Output = Result<Self, anyhow::Error>>>> {
-        Box::pin(async move {
-            let data = sqlx::query("SELECT ID, NAME FROM files WHERE ID = ?")
-                .bind(id)
-                .fetch_one(&*DB_POOL)
-                .await?;
+    async fn get_data(file_data: Export) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
+        async fn fetch_iterative(
+            initial_file_id: i32,
+            initial_register: String,
+            initial_parent_id: Option<i32>,
+            initial_registers: Option<Vec<String>>,
+        ) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
+            let mut all_data: Vec<Box<dyn Model>> = Vec::new();
+            let mut stack: Vec<(i32, String, Option<i32>, Option<Vec<String>>)> = Vec::new();
 
-            let id: i64 = data.try_get("ID")?;
-            let name: String = data.try_get("NAME")?;
+            stack.push((
+                initial_file_id,
+                initial_register,
+                initial_parent_id,
+                initial_registers.clone(),
+            ));
 
-            Ok(Self::new(Some(id), Some(name)))
-        })
-    }
+            let children_map = get_reg_children();
 
-    async fn get_data(file_data: Export) -> Result<Vec<Box<dyn Reg>>, anyhow::Error> {
-        async fn fetch_recursive<'a>(
-            file_id: i64,
-            register: &str,
-            parent_id: Option<i64>,
-            registers: Option<Vec<String>>,
-            all_data: &mut Vec<Box<dyn Reg>>,
-        ) -> Result<(), anyhow::Error> {
-            if let Some(ref reg) = registers {
-                if !reg.contains(&register.to_string()) {
-                    return Ok(());
-                }
-            }
-
-            let structure = match FILE_STRUCTURE.get(register) {
-                Some(s) => s,
-                None => return Ok(()),
-            };
-
-            let model = match structure.load_model {
-                Some(m) => m,
-                None => return Ok(()),
-            };
-
-            let rows = model(file_id, parent_id)
-                .await
-                .expect("Failed to load model data");
-
-            let children = get_reg_children();
-
-            for row in rows {
-                if let Some(ref reg) = registers {
-                    if !reg.contains(&register.to_string()) {
+            while let Some((file_id, register, parent_id, registers_opt)) = stack.pop() {
+                if let Some(ref regs_filter) = registers_opt {
+                    if !regs_filter.contains(&register) {
                         continue;
                     }
                 }
 
-                let id = row
-                    .values()
-                    .get("id")
-                    .and_then(|v| v.as_ref().unwrap().parse::<i64>().ok());
+                let structure = match FILE_STRUCTURE.get(register.as_str()) {
+                    Some(s) => s,
+                    None => continue,
+                };
 
-                all_data.push(row);
+                let load = match &structure.load_model {
+                    Some(load_fn) => load_fn,
+                    None => continue,
+                };
 
-                if let Some(child_regs) = children.get(register) {
-                    for child_reg in child_regs {
-                        if let Some(ref reg) = registers {
-                            if !reg.contains(&register.to_string()) {
-                                continue;
-                            }
+                let rows = match load(file_id, parent_id).await {
+                    Ok(r) => r,
+                    Err(e) => return Err(anyhow::anyhow!("{}", e)),
+                };
+
+                for row_box in rows {
+                    let model_file_id = row_box.get_file_id().unwrap_or(file_id);
+                    let model_id = row_box.get_id();
+
+                    all_data.push(row_box);
+
+                    if let Some(child_regs_for_current) = children_map.get(register.as_str()) {
+                        for child_reg_str in child_regs_for_current.iter().rev() {
+                            stack.push((
+                                model_file_id,
+                                child_reg_str.to_string(),
+                                model_id,
+                                registers_opt.clone(),
+                            ));
                         }
-
-                        Box::pin(fetch_recursive(
-                            file_id,
-                            child_reg,
-                            id,
-                            registers.clone(),
-                            all_data,
-                        ))
-                        .await?;
                     }
                 }
             }
-
-            Ok(())
+            Ok(all_data)
         }
 
-        let file = Self::get(file_data.id).await.await?;
-        let mut all_data: Vec<Box<dyn Reg>> = Vec::new();
+        let file = Self::get(file_data.id).await?;
 
         if let Some(ref regs) = file_data.registers {
             if let Some(ref reg) = regs.first() {
-                Box::pin(fetch_recursive(
-                    file.id.unwrap(),
-                    reg,
-                    None,
-                    file_data.registers.clone(),
-                    &mut all_data,
-                ))
-                .await?;
+                fetch_iterative(file.id, reg.to_string(), None, file_data.registers.clone()).await
+            } else {
+                Ok(Vec::new())
             }
         } else {
-            Box::pin(fetch_recursive(
-                file.id.unwrap(),
-                "0000",
-                None,
-                file_data.registers,
-                &mut all_data,
-            ))
-            .await?;
+            fetch_iterative(file.id, "0000".to_string(), None, file_data.registers).await
         }
-
-        Ok(all_data)
     }
 }

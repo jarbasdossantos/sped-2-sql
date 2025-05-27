@@ -1,5 +1,5 @@
-CREATE TABLE contribuicoes_0000 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0000 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -7,8 +7,8 @@ CREATE TABLE contribuicoes_0000 (
     tipo_escrit TEXT DEFAULT NULL,
     ind_sit_esp TEXT DEFAULT NULL,
     num_rec_anterior TEXT DEFAULT NULL,
-    dt_ini DATE DEFAULT NULL,
-    dt_fin DATE DEFAULT NULL,
+    dt_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_fin TEXT DEFAULT NULL, /* Previously DATE */
     nome TEXT DEFAULT NULL,
     cnpj TEXT DEFAULT NULL,
     uf TEXT DEFAULT NULL,
@@ -18,16 +18,16 @@ CREATE TABLE contribuicoes_0000 (
     ind_ativ TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0035 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0035 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -36,8 +36,8 @@ CREATE TABLE contribuicoes_0035 (
     inf_comp TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -56,8 +56,8 @@ email TEXT DEFAULT NULL,
 cod_mun TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0110 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0110 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -67,20 +67,20 @@ CREATE TABLE contribuicoes_0110 (
     ind_reg_cum TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0111 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0111 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
-    rec_bru_ncum_trib_mi NUMERIC DEFAULT NULL,
-    rec_bru_ncum_nt_mi NUMERIC DEFAULT NULL,
-    rec_bru_ncum_exp NUMERIC DEFAULT NULL,
-    rec_bru_cum NUMERIC DEFAULT NULL,
-    rec_bru_total NUMERIC DEFAULT NULL
+    rec_bru_ncum_trib_mi TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    rec_bru_ncum_nt_mi TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    rec_bru_ncum_exp TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    rec_bru_cum TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    rec_bru_total TEXT DEFAULT NULL /* Previosly NUMERIC */
 );
 
-CREATE TABLE contribuicoes_0120 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0120 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -88,8 +88,8 @@ CREATE TABLE contribuicoes_0120 (
     inf_comp TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0140 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0140 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -103,20 +103,20 @@ CREATE TABLE contribuicoes_0140 (
     suframa TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0145 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0145 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cod_inc_trib TEXT DEFAULT NULL,
-    vl_rec_tot NUMERIC DEFAULT NULL,
-    vl_rec_ativ NUMERIC DEFAULT NULL,
-    vl_rec_demais_ativ NUMERIC DEFAULT NULL,
+    vl_rec_tot TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_rec_ativ TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_rec_demais_ativ TEXT DEFAULT NULL, /* Previosly NUMERIC */
     info_compl TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0150 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0150 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -134,8 +134,8 @@ compl TEXT DEFAULT NULL,
 bairro TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0190 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0190 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -143,8 +143,8 @@ CREATE TABLE contribuicoes_0190 (
     descr TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0200 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0200 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -158,30 +158,30 @@ CREATE TABLE contribuicoes_0200 (
     ex_ipi TEXT DEFAULT NULL,
     cod_gen TEXT DEFAULT NULL,
     cod_lst TEXT DEFAULT NULL,
-    aliq_icms NUMERIC DEFAULT NULL
+    aliq_icms TEXT DEFAULT NULL /* Previosly NUMERIC */
 );
 
-CREATE TABLE contribuicoes_0205 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0205 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     descr_ant_item TEXT DEFAULT NULL,
-    dt_ini DATE DEFAULT NULL,
-    dt_fim DATE DEFAULT NULL,
+    dt_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_fim TEXT DEFAULT NULL, /* Previously DATE */
     cod_ant_item TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0206 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0206 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cod_comb TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0208 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0208 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -190,8 +190,8 @@ CREATE TABLE contribuicoes_0208 (
     marca_com TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0400 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0400 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -199,8 +199,8 @@ CREATE TABLE contribuicoes_0400 (
     descr_nat TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0450 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0450 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -208,12 +208,12 @@ CREATE TABLE contribuicoes_0450 (
     txt TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0500 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0500 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
-    dt_alt DATE DEFAULT NULL,
+    dt_alt TEXT DEFAULT NULL, /* Previously DATE */
     cod_nat_cc TEXT DEFAULT NULL,
     ind_cta TEXT DEFAULT NULL,
     nivel TEXT DEFAULT NULL,
@@ -223,34 +223,34 @@ CREATE TABLE contribuicoes_0500 (
     cnpj_est TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0600 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0600 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
-    dt_alt DATE DEFAULT NULL,
+    dt_alt TEXT DEFAULT NULL, /* Previously DATE */
     cod_ccus TEXT DEFAULT NULL,
     ccus TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_0990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_0990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_0 TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_1001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_1010 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1010 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -259,21 +259,21 @@ CREATE TABLE contribuicoes_1010 (
     id_vara TEXT DEFAULT NULL,
     ind_nat_acao TEXT DEFAULT NULL,
     desc_dec_jud TEXT DEFAULT NULL,
-    dt_sent_jud DATE DEFAULT NULL
+    dt_sent_jud TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_1020 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1020 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     num_proc TEXT DEFAULT NULL,
     ind_nat_acao TEXT DEFAULT NULL,
-    dt_dec_adm DATE DEFAULT NULL
+    dt_dec_adm TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_1100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -281,37 +281,37 @@ CREATE TABLE contribuicoes_1100 (
     orig_cred TEXT DEFAULT NULL,
     cnpj_suc TEXT DEFAULT NULL,
     cod_cred TEXT DEFAULT NULL,
-    vl_cred_apu NUMERIC DEFAULT NULL,
-    vl_cred_ext_apu NUMERIC DEFAULT NULL,
-    vl_tot_cred_apu NUMERIC DEFAULT NULL,
-    vl_cred_desc_pa_ant NUMERIC DEFAULT NULL,
-    vl_cred_per_pa_ant NUMERIC DEFAULT NULL,
-    vl_cred_dcomp_pa_ant NUMERIC DEFAULT NULL,
-    sd_cred_disp_efd NUMERIC DEFAULT NULL,
-    vl_cred_desc_efd NUMERIC DEFAULT NULL,
-    vl_cred_per_efd NUMERIC DEFAULT NULL,
-    vl_cred_dcomp_efd NUMERIC DEFAULT NULL,
-    vl_cred_trans NUMERIC DEFAULT NULL,
-    vl_cred_out NUMERIC DEFAULT NULL,
-    sld_cred_fim NUMERIC DEFAULT NULL
+    vl_cred_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_ext_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_tot_cred_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_desc_pa_ant TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_per_pa_ant TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_dcomp_pa_ant TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    sd_cred_disp_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_desc_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_per_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_dcomp_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_trans TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_out TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    sld_cred_fim TEXT DEFAULT NULL /* Previosly NUMERIC */
 );
 
-CREATE TABLE contribuicoes_1300 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1300 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_nat_ret TEXT DEFAULT NULL,
     pr_rec_ret TEXT DEFAULT NULL,
-    vl_ret_apu NUMERIC DEFAULT NULL,
-    vl_ret_ded NUMERIC DEFAULT NULL,
-    vl_ret_per NUMERIC DEFAULT NULL,
-    vl_ret_dcomp NUMERIC DEFAULT NULL,
-    sld_ret NUMERIC DEFAULT NULL
+    vl_ret_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_ret_ded TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_ret_per TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_ret_dcomp TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    sld_ret TEXT DEFAULT NULL /* Previosly NUMERIC */
 );
 
-CREATE TABLE contribuicoes_1500 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1500 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -319,52 +319,52 @@ CREATE TABLE contribuicoes_1500 (
     orig_cred TEXT DEFAULT NULL,
     cnpj_suc TEXT DEFAULT NULL,
     cod_cred TEXT DEFAULT NULL,
-    vl_cred_apu NUMERIC DEFAULT NULL,
-    vl_cred_ext_apu NUMERIC DEFAULT NULL,
-    vl_tot_cred_apu NUMERIC DEFAULT NULL,
-    vl_cred_desc_pa_ant NUMERIC DEFAULT NULL,
-    vl_cred_per_pa_ant NUMERIC DEFAULT NULL,
-    vl_cred_dcomp_pa_ant NUMERIC DEFAULT NULL,
-    sd_cred_disp_efd NUMERIC DEFAULT NULL,
-    vl_cred_desc_efd NUMERIC DEFAULT NULL,
-    vl_cred_per_efd NUMERIC DEFAULT NULL,
-    vl_cred_dcomp_efd NUMERIC DEFAULT NULL,
-    vl_cred_trans NUMERIC DEFAULT NULL,
-    vl_cred_out NUMERIC DEFAULT NULL,
-    sld_cred_fim NUMERIC DEFAULT NULL
+    vl_cred_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_ext_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_tot_cred_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_desc_pa_ant TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_per_pa_ant TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_dcomp_pa_ant TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    sd_cred_disp_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_desc_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_per_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_dcomp_efd TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_trans TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_cred_out TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    sld_cred_fim TEXT DEFAULT NULL /* Previosly NUMERIC */
 );
 
-CREATE TABLE contribuicoes_1700 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1700 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_nat_ret TEXT DEFAULT NULL,
     pr_rec_ret TEXT DEFAULT NULL,
-    vl_ret_apu NUMERIC DEFAULT NULL,
-    vl_ret_ded NUMERIC DEFAULT NULL,
-    vl_ret_per NUMERIC DEFAULT NULL,
-    vl_ret_dcomp NUMERIC DEFAULT NULL,
-    sld_ret NUMERIC DEFAULT NULL
+    vl_ret_apu TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_ret_ded TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_ret_per TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_ret_dcomp TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    sld_ret TEXT DEFAULT NULL /* Previosly NUMERIC */
 );
 
-CREATE TABLE contribuicoes_1800 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1800 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     inc_imob TEXT DEFAULT NULL,
-    rec_receb_ret NUMERIC DEFAULT NULL,
-    rec_fin_ret NUMERIC DEFAULT NULL,
-    bc_ret NUMERIC DEFAULT NULL,
-    aliq_ret NUMERIC DEFAULT NULL,
-    vl_rec_uni NUMERIC DEFAULT NULL,
-    dt_rec_uni DATE DEFAULT NULL,
+    rec_receb_ret TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    rec_fin_ret TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    bc_ret TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    aliq_ret TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    vl_rec_uni TEXT DEFAULT NULL, /* Previosly NUMERIC */
+    dt_rec_uni TEXT DEFAULT NULL, /* Previously DATE */
     cod_rec TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_1900 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1900 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -373,7 +373,7 @@ CREATE TABLE contribuicoes_1900 (
     ser TEXT DEFAULT NULL,
     sub_ser TEXT DEFAULT NULL,
     cod_sit TEXT DEFAULT NULL,
-    vl_tot_rec NUMERIC DEFAULT NULL,
+    vl_tot_rec TEXT DEFAULT NULL, /* Previosly NUMERIC */
     quant_doc TEXT DEFAULT NULL,
     cst_pis TEXT DEFAULT NULL,
     cst_cofins TEXT DEFAULT NULL,
@@ -382,24 +382,24 @@ CREATE TABLE contribuicoes_1900 (
     cod_cta TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_1990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_1990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_1 TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_9001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_9001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_9900 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_9900 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -407,40 +407,40 @@ CREATE TABLE contribuicoes_9900 (
     qtd_reg_blc varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_9990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_9990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_9 varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_9999 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_9999 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a010 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a010 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cnpj varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -452,8 +452,8 @@ CREATE TABLE contribuicoes_a100 (
     sub varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     chv_nfse varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
-    dt_exe_serv DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
+    dt_exe_serv TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     ind_pgto TEXT DEFAULT NULL,
     vl_desc decimal(21, 2) DEFAULT NULL,
@@ -466,8 +466,8 @@ CREATE TABLE contribuicoes_a100 (
     vl_iss decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a110 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a110 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -475,8 +475,8 @@ CREATE TABLE contribuicoes_a110 (
     txt_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a111 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a111 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -484,23 +484,23 @@ CREATE TABLE contribuicoes_a111 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a120 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a120 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     vl_tot_serv decimal(21, 2) DEFAULT NULL,
     vl_bc_pis decimal(21, 2) DEFAULT NULL,
     vl_pis_imp decimal(21, 2) DEFAULT NULL,
-    dt_pag_pis DATE DEFAULT NULL,
+    dt_pag_pis TEXT DEFAULT NULL, /* Previously DATE */
     vl_bc_cofins decimal(21, 2) DEFAULT NULL,
     vl_cofins_imp decimal(21, 2) DEFAULT NULL,
-    dt_pag_cofins DATE DEFAULT NULL,
+    dt_pag_cofins TEXT DEFAULT NULL, /* Previously DATE */
     loc_exe_serv TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a170 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a170 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -523,24 +523,24 @@ CREATE TABLE contribuicoes_a170 (
     cod_ccus varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_a990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_a990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_a varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c010 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c010 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -548,8 +548,8 @@ CREATE TABLE contribuicoes_c010 (
     ind_escri TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -561,8 +561,8 @@ CREATE TABLE contribuicoes_c100 (
     ser varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     chv_nfe varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
-    dt_e_s DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
+    dt_e_s TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     ind_pgto TEXT DEFAULT NULL,
     vl_desc decimal(21, 2) DEFAULT NULL,
@@ -583,8 +583,8 @@ CREATE TABLE contribuicoes_c100 (
     vl_cofins_st decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c110 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c110 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -592,8 +592,8 @@ CREATE TABLE contribuicoes_c110 (
     txt_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c111 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c111 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -601,8 +601,8 @@ CREATE TABLE contribuicoes_c111 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c120 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c120 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -613,8 +613,8 @@ CREATE TABLE contribuicoes_c120 (
     num_acdraw varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c170 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c170 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -656,22 +656,22 @@ CREATE TABLE contribuicoes_c170 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c180 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c180 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cod_mod varchar DEFAULT NULL,
-    dt_doc_ini DATE DEFAULT NULL,
-    dt_doc_fin DATE DEFAULT NULL,
+    dt_doc_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_doc_fin TEXT DEFAULT NULL, /* Previously DATE */
     cod_item varchar DEFAULT NULL,
     cod_ncm varchar DEFAULT NULL,
     ex_ipi varchar DEFAULT NULL,
     vl_tot_item decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c181 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c181 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -687,8 +687,8 @@ CREATE TABLE contribuicoes_c181 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c185 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c185 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -704,8 +704,8 @@ CREATE TABLE contribuicoes_c185 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c188 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c188 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -713,22 +713,22 @@ CREATE TABLE contribuicoes_c188 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c190 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c190 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cod_mod varchar DEFAULT NULL,
-    dt_ref_ini DATE DEFAULT NULL,
-    dt_ref_fin DATE DEFAULT NULL,
+    dt_ref_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_ref_fin TEXT DEFAULT NULL, /* Previously DATE */
     cod_item varchar DEFAULT NULL,
     cod_ncm varchar DEFAULT NULL,
     ex_ipi varchar DEFAULT NULL,
     vl_tot_item decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c191 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c191 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -745,8 +745,8 @@ CREATE TABLE contribuicoes_c191 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c195 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c195 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -763,8 +763,8 @@ CREATE TABLE contribuicoes_c195 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c198 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c198 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -772,8 +772,8 @@ CREATE TABLE contribuicoes_c198 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c199 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c199 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -784,22 +784,22 @@ CREATE TABLE contribuicoes_c199 (
     num_acdraw varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c380 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c380 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cod_mod varchar DEFAULT NULL,
-    dt_doc_ini DATE DEFAULT NULL,
-    dt_doc_fin DATE DEFAULT NULL,
+    dt_doc_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_doc_fin TEXT DEFAULT NULL, /* Previously DATE */
     num_doc_ini varchar DEFAULT NULL,
     num_doc_fin varchar DEFAULT NULL,
     vl_doc decimal(21, 2) DEFAULT NULL,
     vl_doc_canc decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c381 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c381 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -814,8 +814,8 @@ CREATE TABLE contribuicoes_c381 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c385 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c385 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -830,8 +830,8 @@ CREATE TABLE contribuicoes_c385 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c395 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c395 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -840,12 +840,12 @@ CREATE TABLE contribuicoes_c395 (
     ser varchar DEFAULT NULL,
     sub_ser varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c396 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c396 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -864,8 +864,8 @@ CREATE TABLE contribuicoes_c396 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c400 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c400 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -875,12 +875,12 @@ CREATE TABLE contribuicoes_c400 (
     ecf_cx varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c405 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c405 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
     cro varchar DEFAULT NULL,
     crz varchar DEFAULT NULL,
     num_coo_fin varchar DEFAULT NULL,
@@ -888,8 +888,8 @@ CREATE TABLE contribuicoes_c405 (
     vl_brt decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c481 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c481 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -904,8 +904,8 @@ CREATE TABLE contribuicoes_c481 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c485 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c485 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -920,8 +920,8 @@ CREATE TABLE contribuicoes_c485 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c489 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c489 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -929,18 +929,18 @@ CREATE TABLE contribuicoes_c489 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c490 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c490 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
-    dt_doc_ini DATE DEFAULT NULL,
-    dt_doc_fin DATE DEFAULT NULL,
+    dt_doc_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_doc_fin TEXT DEFAULT NULL, /* Previously DATE */
     cod_mod varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c491 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c491 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -956,8 +956,8 @@ CREATE TABLE contribuicoes_c491 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c495 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c495 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -973,8 +973,8 @@ CREATE TABLE contribuicoes_c495 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c499 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c499 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -982,8 +982,8 @@ CREATE TABLE contribuicoes_c499 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c500 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c500 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -993,8 +993,8 @@ CREATE TABLE contribuicoes_c500 (
     ser TEXT DEFAULT NULL,
     sub varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
-    dt_e_s DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
+    dt_e_s TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     vl_icms decimal(21, 2) DEFAULT NULL,
     cod_inf varchar DEFAULT NULL,
@@ -1002,8 +1002,8 @@ CREATE TABLE contribuicoes_c500 (
     vl_cofins decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c501 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c501 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1016,8 +1016,8 @@ CREATE TABLE contribuicoes_c501 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c505 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c505 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1030,8 +1030,8 @@ CREATE TABLE contribuicoes_c505 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c509 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c509 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1039,8 +1039,8 @@ CREATE TABLE contribuicoes_c509 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c600 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c600 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1051,7 +1051,7 @@ CREATE TABLE contribuicoes_c600 (
     cod_cons varchar DEFAULT NULL,
     qtd_cons varchar DEFAULT NULL,
     qtd_canc varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     vl_desc decimal(21, 2) DEFAULT NULL,
     cons varchar DEFAULT NULL,
@@ -1067,8 +1067,8 @@ CREATE TABLE contribuicoes_c600 (
     vl_cofins decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c601 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c601 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1080,8 +1080,8 @@ CREATE TABLE contribuicoes_c601 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c605 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c605 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1093,8 +1093,8 @@ CREATE TABLE contribuicoes_c605 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c609 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c609 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1102,32 +1102,32 @@ CREATE TABLE contribuicoes_c609 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_c990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_c990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_c varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d010 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d010 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cnpj varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1140,8 +1140,8 @@ CREATE TABLE contribuicoes_d100 (
     sub varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     chv_cte varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
-    dt_a_p DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
+    dt_a_p TEXT DEFAULT NULL, /* Previously DATE */
     tp_cte TEXT DEFAULT NULL,
     chv_cte_ref varchar DEFAULT NULL,
     vl_doc decimal(21, 2) DEFAULT NULL,
@@ -1155,8 +1155,8 @@ CREATE TABLE contribuicoes_d100 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d101 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d101 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1170,8 +1170,8 @@ CREATE TABLE contribuicoes_d101 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d105 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d105 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1185,8 +1185,8 @@ CREATE TABLE contribuicoes_d105 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d111 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d111 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1194,8 +1194,8 @@ CREATE TABLE contribuicoes_d111 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d200 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d200 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1206,13 +1206,13 @@ CREATE TABLE contribuicoes_d200 (
     num_doc_ini varchar DEFAULT NULL,
     num_doc_fin varchar DEFAULT NULL,
     cfop TEXT DEFAULT NULL,
-    dt_ref DATE DEFAULT NULL,
+    dt_ref TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     vl_desc decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d201 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d201 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1224,8 +1224,8 @@ CREATE TABLE contribuicoes_d201 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d205 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d205 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1237,8 +1237,8 @@ CREATE TABLE contribuicoes_d205 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d209 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d209 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1246,8 +1246,8 @@ CREATE TABLE contribuicoes_d209 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d300 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d300 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1257,7 +1257,7 @@ CREATE TABLE contribuicoes_d300 (
     num_doc_ini varchar DEFAULT NULL,
     num_doc_fin varchar DEFAULT NULL,
     cfop TEXT DEFAULT NULL,
-    dt_ref DATE DEFAULT NULL,
+    dt_ref TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     vl_desc decimal(21, 2) DEFAULT NULL,
     cst_pis varchar DEFAULT NULL,
@@ -1271,8 +1271,8 @@ CREATE TABLE contribuicoes_d300 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d309 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d309 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1280,15 +1280,15 @@ CREATE TABLE contribuicoes_d309 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d350 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d350 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cod_mod varchar DEFAULT NULL,
     ecf_mod varchar DEFAULT NULL,
     ecf_fab varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
     cro varchar DEFAULT NULL,
     crz varchar DEFAULT NULL,
     num_coo_fin varchar DEFAULT NULL,
@@ -1309,8 +1309,8 @@ CREATE TABLE contribuicoes_d350 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d359 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d359 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1318,8 +1318,8 @@ CREATE TABLE contribuicoes_d359 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d500 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d500 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1331,8 +1331,8 @@ CREATE TABLE contribuicoes_d500 (
     ser TEXT DEFAULT NULL,
     sub varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
-    dt_doc DATE DEFAULT NULL,
-    dt_a_p DATE DEFAULT NULL,
+    dt_doc TEXT DEFAULT NULL, /* Previously DATE */
+    dt_a_p TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     vl_desc decimal(21, 2) DEFAULT NULL,
     vl_serv decimal(21, 2) DEFAULT NULL,
@@ -1346,8 +1346,8 @@ CREATE TABLE contribuicoes_d500 (
     vl_cofins decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d501 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d501 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1360,8 +1360,8 @@ CREATE TABLE contribuicoes_d501 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d505 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d505 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1374,8 +1374,8 @@ CREATE TABLE contribuicoes_d505 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d509 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d509 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1383,8 +1383,8 @@ CREATE TABLE contribuicoes_d509 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d600 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d600 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1394,8 +1394,8 @@ CREATE TABLE contribuicoes_d600 (
     sub varchar DEFAULT NULL,
     ind_rec TEXT DEFAULT NULL,
     qtd_cons varchar DEFAULT NULL,
-    dt_doc_ini DATE DEFAULT NULL,
-    dt_doc_fin DATE DEFAULT NULL,
+    dt_doc_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_doc_fin TEXT DEFAULT NULL, /* Previously DATE */
     vl_doc decimal(21, 2) DEFAULT NULL,
     vl_desc decimal(21, 2) DEFAULT NULL,
     vl_serv decimal(21, 2) DEFAULT NULL,
@@ -1408,8 +1408,8 @@ CREATE TABLE contribuicoes_d600 (
     vl_cofins decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d601 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d601 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1423,8 +1423,8 @@ CREATE TABLE contribuicoes_d601 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d605 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d605 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1438,8 +1438,8 @@ CREATE TABLE contribuicoes_d605 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d609 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d609 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1447,39 +1447,39 @@ CREATE TABLE contribuicoes_d609 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_d990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_d990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_d varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f010 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f010 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cnpj varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_oper TEXT DEFAULT NULL,
     cod_part varchar DEFAULT NULL,
     cod_item varchar DEFAULT NULL,
-    dt_oper DATE DEFAULT NULL,
+    dt_oper TEXT DEFAULT NULL, /* Previously DATE */
     vl_oper decimal(21, 2) DEFAULT NULL,
     cst_pis varchar DEFAULT NULL,
     vl_bc_pis decimal(23, 4) DEFAULT NULL,
@@ -1496,8 +1496,8 @@ CREATE TABLE contribuicoes_f100 (
     desc_doc_oper varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f111 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f111 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1505,8 +1505,8 @@ CREATE TABLE contribuicoes_f111 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f120 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f120 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1529,8 +1529,8 @@ CREATE TABLE contribuicoes_f120 (
     desc_bem_imob varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f129 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f129 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1538,8 +1538,8 @@ CREATE TABLE contribuicoes_f129 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f130 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f130 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1565,8 +1565,8 @@ CREATE TABLE contribuicoes_f130 (
     desc_bem_imob varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f139 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f139 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1574,8 +1574,8 @@ CREATE TABLE contribuicoes_f139 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f150 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f150 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1594,8 +1594,8 @@ CREATE TABLE contribuicoes_f150 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f200 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f200 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1605,7 +1605,7 @@ CREATE TABLE contribuicoes_f200 (
     desc_unid_imob varchar DEFAULT NULL,
     num_cont varchar DEFAULT NULL,
     cpf_cnpj_adqu varchar DEFAULT NULL,
-    dt_oper DATE DEFAULT NULL,
+    dt_oper TEXT DEFAULT NULL, /* Previously DATE */
     vl_tot_vend decimal(21, 2) DEFAULT NULL,
     vl_rec_acum decimal(21, 2) DEFAULT NULL,
     vl_tot_rec decimal(21, 2) DEFAULT NULL,
@@ -1622,8 +1622,8 @@ CREATE TABLE contribuicoes_f200 (
     inf_comp varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f205 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f205 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1646,8 +1646,8 @@ CREATE TABLE contribuicoes_f205 (
     vl_cred_cofins_desc_fut decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f210 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f210 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1663,8 +1663,8 @@ CREATE TABLE contribuicoes_f210 (
     vl_cred_cofins_util decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f211 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f211 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1672,8 +1672,8 @@ CREATE TABLE contribuicoes_f211 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f500 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f500 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1694,8 +1694,8 @@ CREATE TABLE contribuicoes_f500 (
     info_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f509 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f509 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1703,8 +1703,8 @@ CREATE TABLE contribuicoes_f509 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f510 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f510 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1725,8 +1725,8 @@ CREATE TABLE contribuicoes_f510 (
     info_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f519 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f519 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1734,8 +1734,8 @@ CREATE TABLE contribuicoes_f519 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f525 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f525 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1751,8 +1751,8 @@ CREATE TABLE contribuicoes_f525 (
     cod_cta varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f550 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f550 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1773,8 +1773,8 @@ CREATE TABLE contribuicoes_f550 (
     info_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f559 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f559 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1782,8 +1782,8 @@ CREATE TABLE contribuicoes_f559 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f560 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f560 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1804,8 +1804,8 @@ CREATE TABLE contribuicoes_f560 (
     info_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f569 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f569 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1813,13 +1813,13 @@ CREATE TABLE contribuicoes_f569 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f600 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f600 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_nat_ret varchar DEFAULT NULL,
-    dt_ret DATE DEFAULT NULL,
+    dt_ret TEXT DEFAULT NULL, /* Previously DATE */
     vl_bc_ret decimal(23, 4) DEFAULT NULL,
     vl_ret decimal(21, 2) DEFAULT NULL,
     cod_rec TEXT DEFAULT NULL,
@@ -1830,8 +1830,8 @@ CREATE TABLE contribuicoes_f600 (
     ind_dec TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f700 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f700 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1844,13 +1844,13 @@ CREATE TABLE contribuicoes_f700 (
     inf_comp varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f800 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f800 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_nat_even varchar DEFAULT NULL,
-    dt_even DATE DEFAULT NULL,
+    dt_even TEXT DEFAULT NULL, /* Previously DATE */
     cnpj_suced varchar DEFAULT NULL,
     pa_cont_cred varchar DEFAULT NULL,
     cod_cred varchar DEFAULT NULL,
@@ -1859,24 +1859,24 @@ CREATE TABLE contribuicoes_f800 (
     per_cred_cis decimal(8, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_f990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_f990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_f varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i010 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i010 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1885,8 +1885,8 @@ CREATE TABLE contribuicoes_i010 (
     info_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1903,8 +1903,8 @@ CREATE TABLE contribuicoes_i100 (
     inf_comp varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i199 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i199 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1912,8 +1912,8 @@ CREATE TABLE contribuicoes_i199 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i200 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i200 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1924,8 +1924,8 @@ CREATE TABLE contribuicoes_i200 (
     inf_comp varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i299 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i299 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1933,8 +1933,8 @@ CREATE TABLE contribuicoes_i299 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i300 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i300 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1944,8 +1944,8 @@ CREATE TABLE contribuicoes_i300 (
     inf_comp varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i399 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i399 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1953,24 +1953,24 @@ CREATE TABLE contribuicoes_i399 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_i990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_i990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_i varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -1990,8 +1990,8 @@ CREATE TABLE contribuicoes_m100 (
     sld_cred decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m105 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m105 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2006,8 +2006,8 @@ CREATE TABLE contribuicoes_m105 (
     desc_cred varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m110 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m110 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2016,11 +2016,11 @@ CREATE TABLE contribuicoes_m110 (
     cod_aj varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     descr_aj varchar DEFAULT NULL,
-    dt_ref DATE DEFAULT NULL
+    dt_ref TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_m200 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m200 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2038,8 +2038,8 @@ CREATE TABLE contribuicoes_m200 (
     vl_tot_cont_rec decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m205 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m205 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2048,8 +2048,8 @@ CREATE TABLE contribuicoes_m205 (
     vl_debito decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m210 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m210 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2067,8 +2067,8 @@ CREATE TABLE contribuicoes_m210 (
     vl_cont_per decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m211 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m211 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2079,8 +2079,8 @@ CREATE TABLE contribuicoes_m211 (
     vl_bc_cont decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m220 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m220 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2089,11 +2089,11 @@ CREATE TABLE contribuicoes_m220 (
     cod_aj varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     descr_aj varchar DEFAULT NULL,
-    dt_ref DATE DEFAULT NULL
+    dt_ref TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_m230 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m230 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2105,8 +2105,8 @@ CREATE TABLE contribuicoes_m230 (
     cod_cred varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m300 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m300 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2116,11 +2116,11 @@ CREATE TABLE contribuicoes_m300 (
     vl_cred_desc_difer decimal(21, 2) DEFAULT NULL,
     vl_cont_difer_ant decimal(21, 2) DEFAULT NULL,
     per_apur varchar DEFAULT NULL,
-    dt_receb DATE DEFAULT NULL
+    dt_receb TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_m350 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m350 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2131,8 +2131,8 @@ CREATE TABLE contribuicoes_m350 (
     vl_tot_cont_fol decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m400 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m400 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2142,8 +2142,8 @@ CREATE TABLE contribuicoes_m400 (
     desc_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m410 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m410 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2153,8 +2153,8 @@ CREATE TABLE contribuicoes_m410 (
     desc_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m500 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m500 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2174,8 +2174,8 @@ CREATE TABLE contribuicoes_m500 (
     sld_cred decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m505 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m505 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2190,8 +2190,8 @@ CREATE TABLE contribuicoes_m505 (
     desc_cred varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m510 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m510 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2200,11 +2200,11 @@ CREATE TABLE contribuicoes_m510 (
     cod_aj varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     descr_aj varchar DEFAULT NULL,
-    dt_ref DATE DEFAULT NULL
+    dt_ref TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_m600 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m600 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2222,8 +2222,8 @@ CREATE TABLE contribuicoes_m600 (
     vl_tot_cont_rec decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m605 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m605 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2232,8 +2232,8 @@ CREATE TABLE contribuicoes_m605 (
     vl_debito decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m610 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m610 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2251,8 +2251,8 @@ CREATE TABLE contribuicoes_m610 (
     vl_cont_per decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m611 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m611 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2263,8 +2263,8 @@ CREATE TABLE contribuicoes_m611 (
     vl_bc_cont decimal(21, 2) DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m620 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m620 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2273,11 +2273,11 @@ CREATE TABLE contribuicoes_m620 (
     cod_aj varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     descr_aj varchar DEFAULT NULL,
-    dt_ref DATE DEFAULT NULL
+    dt_ref TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_m630 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m630 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2289,8 +2289,8 @@ CREATE TABLE contribuicoes_m630 (
     cod_cred varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m700 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m700 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2300,11 +2300,11 @@ CREATE TABLE contribuicoes_m700 (
     vl_cred_desc_difer decimal(21, 2) DEFAULT NULL,
     vl_cont_difer_ant decimal(21, 2) DEFAULT NULL,
     per_apur varchar DEFAULT NULL,
-    dt_receb DATE DEFAULT NULL
+    dt_receb TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_m800 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m800 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2314,8 +2314,8 @@ CREATE TABLE contribuicoes_m800 (
     desc_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m810 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m810 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2325,37 +2325,37 @@ CREATE TABLE contribuicoes_m810 (
     desc_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_m990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_m990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     qtd_lin_m varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_p001 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p001 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     ind_mov TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_p010 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p010 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
     cnpj varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_p100 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p100 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
-    dt_ini DATE DEFAULT NULL,
-    dt_fim DATE DEFAULT NULL,
+    dt_ini TEXT DEFAULT NULL, /* Previously DATE */
+    dt_fim TEXT DEFAULT NULL, /* Previously DATE */
     vl_rec_tot_est decimal(21, 2) DEFAULT NULL,
     cod_ativ_econ varchar DEFAULT NULL,
     vl_rec_ativ_estab decimal(21, 2) DEFAULT NULL,
@@ -2367,8 +2367,8 @@ CREATE TABLE contribuicoes_p100 (
     info_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_p110 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p110 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2378,8 +2378,8 @@ CREATE TABLE contribuicoes_p110 (
     inf_compl varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_p199 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p199 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2387,8 +2387,8 @@ CREATE TABLE contribuicoes_p199 (
     ind_proc TEXT DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_p200 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p200 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2400,8 +2400,8 @@ CREATE TABLE contribuicoes_p200 (
     cod_rec varchar DEFAULT NULL
 );
 
-CREATE TABLE contribuicoes_p210 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p210 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
@@ -2410,11 +2410,11 @@ CREATE TABLE contribuicoes_p210 (
     cod_aj varchar DEFAULT NULL,
     num_doc varchar DEFAULT NULL,
     descr_aj varchar DEFAULT NULL,
-    dt_ref DATE DEFAULT NULL
+    dt_ref TEXT DEFAULT NULL /* Previously DATE */
 );
 
-CREATE TABLE contribuicoes_p990 (
-    id INTEGER PRIMARY KEY,
+CREATE TABLE efd_p990 (
+    id INTEGER PRIMARY KEY NOT NULL,
     file_id INTEGER,
     parent_id INTEGER DEFAULT NULL,
     reg TEXT DEFAULT NULL,
