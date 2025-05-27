@@ -31,13 +31,15 @@ impl FilesModel for File {
     }
 
     async fn get_data(file_data: Export) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
+        let mut all_data: Vec<Box<dyn Model>> = Vec::new();
+
         async fn fetch_iterative(
             initial_file_id: i32,
             initial_register: String,
             initial_parent_id: Option<i32>,
             initial_registers: Option<Vec<String>>,
         ) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
-            let mut all_data: Vec<Box<dyn Model>> = Vec::new();
+            let mut data: Vec<Box<dyn Model>> = Vec::new();
             let mut stack: Vec<(i32, String, Option<i32>, Option<Vec<String>>)> = Vec::new();
 
             stack.push((
@@ -75,7 +77,7 @@ impl FilesModel for File {
                     let model_file_id = row_box.get_file_id().unwrap_or(file_id);
                     let model_id = row_box.get_id();
 
-                    all_data.push(row_box);
+                    data.push(row_box);
 
                     if let Some(child_regs_for_current) = children_map.get(register.as_str()) {
                         for child_reg_str in child_regs_for_current.iter().rev() {
@@ -89,7 +91,8 @@ impl FilesModel for File {
                     }
                 }
             }
-            Ok(all_data)
+
+            Ok(data)
         }
 
         let file = Self::get(file_data.id).await?;
@@ -101,7 +104,19 @@ impl FilesModel for File {
                 Ok(Vec::new())
             }
         } else {
-            fetch_iterative(file.id, "0000".to_string(), None, file_data.registers).await
+            for (code, reg) in FILE_STRUCTURE.iter() {
+                if reg.level <= 1 {
+                    for data in
+                        fetch_iterative(file.id, code.to_string(), Some(0), file_data.registers.clone())
+                            .await
+                            .unwrap()
+                    {
+                        all_data.push(data);
+                    }
+                }
+            }
+
+            Ok(all_data)
         }
     }
 }

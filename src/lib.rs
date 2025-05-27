@@ -34,7 +34,9 @@ pub struct Load {
 
 #[derive(Debug, Clone)]
 pub struct Export {
+    /// File id
     pub id: i32,
+    /// Registers to export
     pub registers: Option<Vec<String>>,
 }
 
