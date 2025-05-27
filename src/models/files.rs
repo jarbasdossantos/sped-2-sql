@@ -33,7 +33,7 @@ impl FilesModel for File {
     async fn get_data(file_data: Export) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
         let mut all_data: Vec<Box<dyn Model>> = Vec::new();
 
-        async fn fetch_iterative(
+        async fn fetch(
             initial_file_id: i32,
             initial_register: String,
             initial_parent_id: Option<i32>,
@@ -99,7 +99,7 @@ impl FilesModel for File {
 
         if let Some(ref regs) = file_data.registers {
             if let Some(ref reg) = regs.first() {
-                fetch_iterative(file.id, reg.to_string(), None, file_data.registers.clone()).await
+                fetch(file.id, reg.to_string(), None, file_data.registers.clone()).await
             } else {
                 Ok(Vec::new())
             }
@@ -107,7 +107,7 @@ impl FilesModel for File {
             for (code, reg) in FILE_STRUCTURE.iter() {
                 if reg.level <= 1 {
                     for data in
-                        fetch_iterative(file.id, code.to_string(), Some(0), file_data.registers.clone())
+                        fetch(file.id, code.to_string(), Some(0), file_data.registers.clone())
                             .await
                             .unwrap()
                     {
