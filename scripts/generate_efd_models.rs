@@ -2,7 +2,6 @@ use std::fs;
 use std::path::Path;
 
 fn main() -> std::io::Result<()> {
-    // Lista de todos os schemas EFD disponíveis
     let schema_files = fs::read_dir("src/schemas/")?
         .filter_map(Result::ok)
         .filter(|entry| {
@@ -18,9 +17,6 @@ fn main() -> std::io::Result<()> {
         })
         .collect::<Vec<_>>();
 
-    eprintln!("{schema_files:#?}");
-
-    // Modelos já existentes
     let existing_models = fs::read_dir("src/models/efd/")?
         .filter_map(Result::ok)
         .filter(|entry| {
@@ -36,34 +32,24 @@ fn main() -> std::io::Result<()> {
         })
         .collect::<Vec<_>>();
 
-    // Gerar modelos faltantes
     for schema in &schema_files {
         if !existing_models.contains(schema) {
             generate_model(schema)?;
         }
     }
 
-    // Atualizar mod.rs
     update_mod_file(&schema_files)?;
-
-    // Atualizar registry.rs
     update_registry_file(&schema_files)?;
-
-    // Atualizar file_structure.rs
-    // update_file_structure(&schema_files)?;
 
     Ok(())
 }
 
 fn generate_model(schema: &str) -> std::io::Result<()> {
-    // Ler o conteúdo do arquivo de schema
     let schema_path = format!("src/schemas/efd_{}.rs", schema.to_lowercase());
     let schema_content = fs::read_to_string(&schema_path)?;
 
-    // Extrair os campos do schema (exemplo simplificado)
     let fields = extract_fields_from_schema(&schema_content);
 
-    // Gerar o conteúdo do modelo com os campos extraídos
     let model_name = format!("Efd{}", schema.to_uppercase());
     let file_path = format!("src/models/efd/efd_{}.rs", schema.to_lowercase());
 
@@ -149,12 +135,20 @@ impl Model for {1} {{
     }}
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<{1}>, Error> {{
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(parent_id.expect("Invalid parent id")))
-            .select({1}::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {{
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select({1}::as_select())
+                .load(conn)?)
+        }} else {{
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select({1}::as_select())
+                .load(conn)?)
+        }}
     }}
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {{
@@ -212,9 +206,7 @@ register_model!({1}, "{0}");
     Ok(())
 }
 
-// Função auxiliar para extrair campos do schema
 fn extract_fields_from_schema(schema_content: &str) -> Vec<String> {
-    // Implementação simplificada - você precisará ajustar conforme necessário
     let mut fields = Vec::new();
     let lines: Vec<&str> = schema_content.lines().collect();
 
@@ -237,10 +229,8 @@ fn update_mod_file(schemas: &[String]) -> std::io::Result<()> {
     let mod_path = "src/models/efd/mod.rs";
     let mut mod_content = String::new();
 
-    // Adiciona o cabeçalho
     mod_content.push_str("// @generated automatically by generate_efd_models.rs\n\n");
 
-    // Adiciona os módulos em ordem alfabética
     let mut sorted_schemas = schemas.to_vec();
     sorted_schemas.sort();
 
@@ -255,21 +245,17 @@ fn update_registry_file(schemas: &[String]) -> std::io::Result<()> {
     let registry_path = "src/models/registry.rs";
     let mut registry_content = String::new();
 
-    // Lê o conteúdo atual do arquivo
     if Path::new(registry_path).exists() {
         registry_content = fs::read_to_string(registry_path)?;
     }
 
-    // Encontra a função register_models
     if let Some(idx) = registry_content.find("pub fn register_models() {") {
         let start_idx = registry_content[..idx].rfind('}').unwrap_or(0);
         let mut new_content = registry_content[..start_idx + 1].to_string();
 
-        // Adiciona os registros em ordem alfabética
         let mut sorted_schemas = schemas.to_vec();
         sorted_schemas.sort();
 
-        new_content.push_str("\n    // Registra os modelos EFD\n");
         for schema in &sorted_schemas {
             new_content.push_str(&format!(
                 "    crate::models::efd::efd_{}::register();\n",
@@ -279,48 +265,9 @@ fn update_registry_file(schemas: &[String]) -> std::io::Result<()> {
 
         new_content.push_str("}");
 
-        // Substitui o conteúdo antigo pelo novo
         if let Some(end_idx) = registry_content[start_idx..].find('}') {
             new_content.push_str(&registry_content[start_idx + end_idx + 1..]);
             fs::write(registry_path, new_content)?;
-        }
-    }
-
-    Ok(())
-}
-
-fn update_file_structure(schemas: &[String]) -> std::io::Result<()> {
-    let file_structure_path = "src/utils/file_structure.rs";
-    let content = fs::read_to_string(file_structure_path)?;
-
-    // Encontra o início e o fim do bloco FILE_STRUCTURE
-    if let Some(start_idx) = content
-        .find("pub static FILE_STRUCTURE: Lazy<IndexMap<&str, RegistryEntry>> = Lazy::new(|| {")
-    {
-        let start_block = start_idx + content[start_idx..].find('{').unwrap_or(0);
-        let end_block = start_block + 1;
-
-        let mut new_content = content[..start_block + 1].to_string();
-
-        // Adiciona as entradas em ordem alfabética
-        let mut sorted_schemas = schemas.to_vec();
-        sorted_schemas.sort();
-
-        for schema in &sorted_schemas {
-            let model_name = format!("Efd{}", schema.to_uppercase());
-            new_content.push_str(&format!(
-                "\n        (\n            \"{}\",\n            RegistryEntry {{\n                level: 1,\n                load_model: create_loader!(crate::models::efd::efd_{}::{}),\n            }},\n        ),",
-                schema.to_uppercase(),
-                schema.to_lowercase(),
-                model_name
-            ));
-        }
-
-        // Adiciona o restante do conteúdo
-        if let Some(end_idx) = content[end_block..].find("])") {
-            new_content.push_str("\n    ]");
-            new_content.push_str(&content[end_block + end_idx + 2..]);
-            fs::write(file_structure_path, new_content)?;
         }
     }
 
