@@ -46,22 +46,30 @@ impl Model for EfdM220 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-            ind_aj: get_field(&fields, 2),
-            vl_aj: get_field(&fields, 3),
-            cod_aj: get_field(&fields, 4),
-            num_doc: get_field(&fields, 5),
-            descr_aj: get_field(&fields, 6),
-            dt_ref: get_field(&fields, 7),
+                    ind_aj: get_field(&fields, 2),
+        vl_aj: get_field(&fields, 3),
+        cod_aj: get_field(&fields, 4),
+        num_doc: get_field(&fields, 5),
+        descr_aj: get_field(&fields, 6),
+        dt_ref: get_field(&fields, 7),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdM220>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdM220::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdM220::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdM220::as_select())
+                .load(&mut conn)?)
+        }
     }
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
@@ -71,12 +79,12 @@ impl Model for EfdM220 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-                    schema::ind_aj.eq(&self.ind_aj),
-                    schema::vl_aj.eq(&self.vl_aj),
-                    schema::cod_aj.eq(&self.cod_aj),
-                    schema::num_doc.eq(&self.num_doc),
-                    schema::descr_aj.eq(&self.descr_aj),
-                    schema::dt_ref.eq(&self.dt_ref),
+            schema::ind_aj.eq(&self.ind_aj),
+schema::vl_aj.eq(&self.vl_aj),
+schema::cod_aj.eq(&self.cod_aj),
+schema::num_doc.eq(&self.num_doc),
+schema::descr_aj.eq(&self.descr_aj),
+schema::dt_ref.eq(&self.dt_ref),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

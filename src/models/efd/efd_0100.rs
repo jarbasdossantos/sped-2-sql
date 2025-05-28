@@ -70,37 +70,42 @@ impl Model for Efd0100 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0100>, Error> {
-        let conn = &mut DB_POOL
-            .get()
-            .expect("Failed to get DB connection from pool");
+        let mut conn = DB_POOL.get().unwrap();
 
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(Efd0100::as_select())
-            .load(conn)?)
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(Efd0100::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(Efd0100::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
-                    schema::file_id.eq(self.file_id),
-                    schema::parent_id.eq(self.parent_id),
-                    schema::reg.eq(self.reg.clone()),
-                    schema::nome.eq(self.nome.clone()),
-                    schema::cpf.eq(self.cpf.clone()),
-                    schema::crc.eq(self.crc.clone()),
-                    schema::cnpj.eq(self.cnpj.clone()),
-                    schema::cep.eq(self.cep.clone()),
-                    schema::end.eq(self.end.clone()),
-                    schema::num.eq(self.num.clone()),
-                    schema::compl.eq(self.compl.clone()),
-                    schema::bairro.eq(self.bairro.clone()),
-                    schema::fone.eq(self.fone.clone()),
-                    schema::fax.eq(self.fax.clone()),
-                    schema::email.eq(self.email.clone()),
-                    schema::cod_mun.eq(self.cod_mun.clone()),
+                    schema::file_id.eq(&self.file_id),
+                    schema::parent_id.eq(&self.parent_id),
+                    schema::reg.eq(&self.reg.clone()),
+                    schema::nome.eq(&self.nome.clone()),
+                    schema::cpf.eq(&self.cpf.clone()),
+                    schema::crc.eq(&self.crc.clone()),
+                    schema::cnpj.eq(&self.cnpj.clone()),
+                    schema::cep.eq(&self.cep.clone()),
+                    schema::end.eq(&self.end.clone()),
+                    schema::num.eq(&self.num.clone()),
+                    schema::compl.eq(&self.compl.clone()),
+                    schema::bairro.eq(&self.bairro.clone()),
+                    schema::fone.eq(&self.fone.clone()),
+                    schema::fax.eq(&self.fax.clone()),
+                    schema::email.eq(&self.email.clone()),
+                    schema::cod_mun.eq(&self.cod_mun.clone()),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

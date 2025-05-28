@@ -1,6 +1,6 @@
 mod database;
 pub mod macros;
-mod models;
+pub mod models;
 mod schemas;
 mod sped;
 mod utils;

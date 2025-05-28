@@ -52,28 +52,33 @@ impl Model for Efd0110 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0110>, Error> {
-        let conn = &mut DB_POOL
-            .get()
-            .expect("Failed to get DB connection from pool");
+        let mut conn = DB_POOL.get().unwrap();
 
-        Ok(table
-            .filter(schema::file_id.eq(file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(Efd0110::as_select())
-            .load(conn)?)
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(Efd0110::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(Efd0110::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
-                    schema::file_id.eq(self.file_id),
-                    schema::parent_id.eq(self.parent_id),
-                    schema::reg.eq(self.reg.clone()),
-                    schema::cod_inc_trib.eq(self.cod_inc_trib.clone()),
-                    schema::ind_apro_cred.eq(self.ind_apro_cred.clone()),
-                    schema::cod_tipo_cont.eq(self.cod_tipo_cont.clone()),
-                    schema::ind_reg_cum.eq(self.ind_reg_cum.clone()),
+                    schema::file_id.eq(&self.file_id),
+                    schema::parent_id.eq(&self.parent_id),
+                    schema::reg.eq(&self.reg.clone()),
+                    schema::cod_inc_trib.eq(&self.cod_inc_trib.clone()),
+                    schema::ind_apro_cred.eq(&self.ind_apro_cred.clone()),
+                    schema::cod_tipo_cont.eq(&self.cod_tipo_cont.clone()),
+                    schema::ind_reg_cum.eq(&self.ind_reg_cum.clone()),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

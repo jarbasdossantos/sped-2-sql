@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -86,15 +86,23 @@ impl Model for EfdD500 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdD500>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdD500::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdD500::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdD500::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -153,5 +161,12 @@ impl fmt::Display for EfdD500 {
     }
 }
 
-impl_display_fields!(EfdD500, [reg, ind_oper, ind_emit, cod_part, cod_mod, cod_sit, ser, sub, num_doc, dt_doc, dt_a_p, vl_doc, vl_desc, vl_serv, vl_serv_nt, vl_terc, vl_da, vl_bc_icms, vl_icms, cod_inf, vl_pis, vl_cofins]);
+impl_display_fields!(
+    EfdD500,
+    [
+        reg, ind_oper, ind_emit, cod_part, cod_mod, cod_sit, ser, sub, num_doc, dt_doc, dt_a_p,
+        vl_doc, vl_desc, vl_serv, vl_serv_nt, vl_terc, vl_da, vl_bc_icms, vl_icms, cod_inf, vl_pis,
+        vl_cofins
+    ]
+);
 register_model!(EfdD500, "d500");

@@ -71,32 +71,31 @@ impl Model for Efd0000 {
 
     async fn get(file_id: i32, _parent: Option<i32>) -> Result<Vec<Efd0000>, Error> {
         Ok(table
-            .filter(schema::file_id.eq(file_id))
             .filter(schema::file_id.eq(&file_id))
             .select(Efd0000::as_select())
             .load(&mut DB_POOL.get().unwrap())?)
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
-                    schema::file_id.eq(self.file_id),
-                    schema::parent_id.eq(self.parent_id),
-                    schema::reg.eq(self.reg.clone()),
-                    schema::cod_ver.eq(self.cod_ver.clone()),
-                    schema::tipo_escrit.eq(self.tipo_escrit.clone()),
-                    schema::ind_sit_esp.eq(self.ind_sit_esp.clone()),
-                    schema::num_rec_anterior.eq(self.num_rec_anterior.clone()),
-                    schema::dt_ini.eq(self.dt_ini.clone()),
-                    schema::dt_fin.eq(self.dt_fin.clone()),
-                    schema::nome.eq(self.nome.clone()),
-                    schema::cnpj.eq(self.cnpj.clone()),
-                    schema::uf.eq(self.uf.clone()),
-                    schema::cod_mun.eq(self.cod_mun.clone()),
-                    schema::suframa.eq(self.suframa.clone()),
-                    schema::ind_nat_pj.eq(self.ind_nat_pj.clone()),
-                    schema::ind_ativ.eq(self.ind_ativ.clone()),
+                    schema::file_id.eq(&self.file_id),
+                    schema::parent_id.eq(&self.parent_id),
+                    schema::reg.eq(&self.reg.clone()),
+                    schema::cod_ver.eq(&self.cod_ver.clone()),
+                    schema::tipo_escrit.eq(&self.tipo_escrit.clone()),
+                    schema::ind_sit_esp.eq(&self.ind_sit_esp.clone()),
+                    schema::num_rec_anterior.eq(&self.num_rec_anterior.clone()),
+                    schema::dt_ini.eq(&self.dt_ini.clone()),
+                    schema::dt_fin.eq(&self.dt_fin.clone()),
+                    schema::nome.eq(&self.nome.clone()),
+                    schema::cnpj.eq(&self.cnpj.clone()),
+                    schema::uf.eq(&self.uf.clone()),
+                    schema::cod_mun.eq(&self.cod_mun.clone()),
+                    schema::suframa.eq(&self.suframa.clone()),
+                    schema::ind_nat_pj.eq(&self.ind_nat_pj.clone()),
+                    schema::ind_ativ.eq(&self.ind_ativ.clone()),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

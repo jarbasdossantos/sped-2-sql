@@ -86,15 +86,23 @@ impl Model for EfdC600 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC600>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdC600::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdC600::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdC600::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -153,5 +161,31 @@ impl fmt::Display for EfdC600 {
     }
 }
 
-impl_display_fields!(EfdC600, [reg, cod_mod, cod_mun, ser, sub, cod_cons, qtd_cons, qtd_canc, dt_doc, vl_doc, vl_desc, cons, vl_forn, vl_serv_nt, vl_terc, vl_da, vl_bc_icms, vl_icms, vl_bc_icms_st, vl_icms_st, vl_pis, vl_cofins]);
+impl_display_fields!(
+    EfdC600,
+    [
+        reg,
+        cod_mod,
+        cod_mun,
+        ser,
+        sub,
+        cod_cons,
+        qtd_cons,
+        qtd_canc,
+        dt_doc,
+        vl_doc,
+        vl_desc,
+        cons,
+        vl_forn,
+        vl_serv_nt,
+        vl_terc,
+        vl_da,
+        vl_bc_icms,
+        vl_icms,
+        vl_bc_icms_st,
+        vl_icms_st,
+        vl_pis,
+        vl_cofins
+    ]
+);
 register_model!(EfdC600, "c600");

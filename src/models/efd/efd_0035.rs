@@ -50,27 +50,32 @@ impl Model for Efd0035 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0035>, Error> {
-        let conn = &mut DB_POOL
-            .get()
-            .expect("Failed to get DB connection from pool");
+        let mut conn = DB_POOL.get().unwrap();
 
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(Efd0035::as_select())
-            .load(conn)?)
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(Efd0035::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(Efd0035::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
-                    schema::file_id.eq(self.file_id),
-                    schema::parent_id.eq(self.parent_id),
-                    schema::reg.eq(self.reg.clone()),
-                    schema::cod_scp.eq(self.cod_scp.clone()),
-                    schema::nome_scp.eq(self.nome_scp.clone()),
-                    schema::inf_comp.eq(self.inf_comp.clone()),
+                    schema::file_id.eq(&self.file_id),
+                    schema::parent_id.eq(&self.parent_id),
+                    schema::reg.eq(&self.reg.clone()),
+                    schema::cod_scp.eq(&self.cod_scp.clone()),
+                    schema::nome_scp.eq(&self.nome_scp.clone()),
+                    schema::inf_comp.eq(&self.inf_comp.clone()),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

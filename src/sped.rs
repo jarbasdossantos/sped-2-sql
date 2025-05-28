@@ -17,7 +17,12 @@ pub async fn handle_line(
     let fields = line.split("|").collect::<Vec<&str>>();
     let reg_code = fields.get(1).unwrap_or(&"");
 
-    if let Some(factory) = create_registry_model(reg_code.to_lowercase().as_str(), fields, Some(parent_id), file_id) {
+    if let Some(factory) = create_registry_model(
+        reg_code.to_lowercase().as_str(),
+        fields,
+        Some(parent_id),
+        file_id,
+    ) {
         let reg: Box<dyn Model> = factory;
 
         match reg.save().await {

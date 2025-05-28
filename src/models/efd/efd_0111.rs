@@ -54,15 +54,23 @@ impl Model for Efd0111 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0111>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(Efd0111::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(Efd0111::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(Efd0111::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -105,5 +113,15 @@ impl fmt::Display for Efd0111 {
     }
 }
 
-impl_display_fields!(Efd0111, [reg, rec_bru_ncum_trib_mi, rec_bru_ncum_nt_mi, rec_bru_ncum_exp, rec_bru_cum, rec_bru_total]);
+impl_display_fields!(
+    Efd0111,
+    [
+        reg,
+        rec_bru_ncum_trib_mi,
+        rec_bru_ncum_nt_mi,
+        rec_bru_ncum_exp,
+        rec_bru_cum,
+        rec_bru_total
+    ]
+);
 register_model!(Efd0111, "0111");

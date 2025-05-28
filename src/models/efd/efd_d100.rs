@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -88,15 +88,23 @@ impl Model for EfdD100 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdD100>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdD100::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdD100::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdD100::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -156,5 +164,32 @@ impl fmt::Display for EfdD100 {
     }
 }
 
-impl_display_fields!(EfdD100, [reg, ind_oper, ind_emit, cod_part, cod_mod, cod_sit, ser, sub, num_doc, chv_cte, dt_doc, dt_a_p, tp_cte, chv_cte_ref, vl_doc, vl_desc, ind_frt, vl_serv, vl_bc_icms, vl_icms, vl_nt, cod_inf, cod_cta]);
+impl_display_fields!(
+    EfdD100,
+    [
+        reg,
+        ind_oper,
+        ind_emit,
+        cod_part,
+        cod_mod,
+        cod_sit,
+        ser,
+        sub,
+        num_doc,
+        chv_cte,
+        dt_doc,
+        dt_a_p,
+        tp_cte,
+        chv_cte_ref,
+        vl_doc,
+        vl_desc,
+        ind_frt,
+        vl_serv,
+        vl_bc_icms,
+        vl_icms,
+        vl_nt,
+        cod_inf,
+        cod_cta
+    ]
+);
 register_model!(EfdD100, "d100");

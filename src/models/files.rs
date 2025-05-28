@@ -99,17 +99,26 @@ impl FilesModel for File {
 
         if let Some(ref regs) = file_data.registers {
             if let Some(ref reg) = regs.first() {
-                fetch(file.id, reg.to_string(), None, file_data.registers.clone()).await
-            } else {
-                Ok(Vec::new())
+                for data in fetch(file.id, reg.to_string(), None, file_data.registers.clone())
+                    .await
+                    .unwrap()
+                {
+                    all_data.push(data);
+                }
             }
+
+            Ok(all_data)
         } else {
             for (code, reg) in FILE_STRUCTURE.iter() {
                 if reg.level <= 1 {
-                    for data in
-                        fetch(file.id, code.to_string(), Some(0), file_data.registers.clone())
-                            .await
-                            .unwrap()
+                    for data in fetch(
+                        file.id,
+                        code.to_string(),
+                        Some(0),
+                        file_data.registers.clone(),
+                    )
+                    .await
+                    .unwrap()
                     {
                         all_data.push(data);
                     }

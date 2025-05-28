@@ -1,17 +1,17 @@
 use crate::database::DB_POOL;
+use crate::impl_display_fields;
+use crate::models::schema::reg_0001::dsl as schema;
+use crate::models::schema::reg_0001::table;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_0001::efd_0001::dsl as schema;
-use crate::schemas::efd_0001::efd_0001::table;
-use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
 use diesel::prelude::Queryable;
 use diesel::result::Error;
 use diesel::sql_types::Integer;
+use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
-use diesel::{QueryDsl, SelectableHelper};
 use serde::Serialize;
 use std::fmt;
 use std::future::Future;
@@ -19,8 +19,8 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_0001::efd_0001::dsl)]
-pub struct Efd0001 {
+#[diesel(table_name = crate::models::schema::reg_0001)]
+pub struct Reg0001 {
     pub id: i32,
     pub file_id: Option<i32>,
     pub parent_id: Option<i32>,
@@ -29,14 +29,14 @@ pub struct Efd0001 {
 }
 
 #[async_trait]
-impl Model for Efd0001 {
+impl Model for Reg0001 {
     fn new(
         fields: Vec<&str>,
         new_id: Option<i32>,
         new_parent_id: Option<i32>,
         new_file_id: i32,
     ) -> Self {
-        Efd0001 {
+        Reg0001 {
             id: new_id.unwrap_or(0),
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
@@ -45,37 +45,43 @@ impl Model for Efd0001 {
         }
     }
 
-    async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0001>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+    async fn get(id: i32, parent: Option<i32>) -> Result<Box<Reg0001>, Error> {
+        let conn = &mut DB_POOL
+            .get()
+            .expect("Failed to get DB connection from pool");
 
-        if let Some(id) = parent_id {
-            Ok(table
-                .filter(schema::file_id.eq(&file_id))
-                .filter(schema::parent_id.eq(&id))
-                .select(Efd0001::as_select())
-                .load(&mut conn)?)
-        } else {
-            Ok(table
-                .filter(schema::file_id.eq(&file_id))
-                .select(Efd0001::as_select())
-                .load(&mut conn)?)
+        if let Some(parent_id) = parent {
+            let result = table
+                .filter(schema::id.eq(id))
+                .filter(schema::parent_id.eq(parent_id))
+                .first::<Reg0001>(conn)?;
+
+            return Ok(Box::new(result));
         }
+
+        Ok(Box::new(
+            table.filter(schema::id.eq(id)).first::<Reg0001>(conn)?,
+        ))
     }
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
-                    schema::file_id.eq(&self.file_id),
-                    schema::parent_id.eq(&self.parent_id),
-                    schema::reg.eq(&self.reg.clone()),
-                    schema::ind_mov.eq(&self.ind_mov.clone()),
+                    schema::file_id.eq(self.file_id),
+                    schema::parent_id.eq(self.parent_id),
+                    schema::reg.eq(self.reg.clone()),
+                    schema::ind_mov.eq(self.ind_mov.clone()),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 
-            sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+            Ok(sql::<Integer>("SELECT last_insert_rowid()")
+                .get_result::<i32>(&mut DB_POOL.get().unwrap())?)
         })
+    }
+
+    fn get_entity_name(&self) -> String {
+        "Reg0001".to_string()
     }
 
     fn get_id(&self) -> Option<i32> {
@@ -86,20 +92,21 @@ impl Model for Efd0001 {
         self.file_id
     }
 
-    fn get_entity_name(&self) -> String {
-        "Reg0001".to_string()
-    }
-
     fn get_display_fields(&self) -> Vec<(String, String)> {
         self.generate_display_fields()
     }
 }
 
-impl fmt::Display for Efd0001 {
+impl fmt::Display for Reg0001 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.display_format(f)
     }
 }
 
-impl_display_fields!(Efd0001, [reg, ind_mov]);
-register_model!(Efd0001, "0001");
+impl_display_fields!(
+    Reg0001,
+    [
+        reg,
+        ind_mov
+    ]
+);

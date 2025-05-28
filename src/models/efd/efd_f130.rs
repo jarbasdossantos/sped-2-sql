@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -84,15 +84,23 @@ impl Model for EfdF130 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdF130>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdF130::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdF130::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdF130::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -150,5 +158,30 @@ impl fmt::Display for EfdF130 {
     }
 }
 
-impl_display_fields!(EfdF130, [reg, nat_bc_cred, ident_bem_imob, ind_orig_cred, ind_util_bem_imob, mes_oper_aquis, vl_oper_aquis, parc_oper_nao_bc_cred, vl_bc_cred, ind_nr_parc, cst_pis, vl_bc_pis, aliq_pis, vl_pis, cst_cofins, vl_bc_cofins, aliq_cofins, vl_cofins, cod_cta, cod_ccus, desc_bem_imob]);
+impl_display_fields!(
+    EfdF130,
+    [
+        reg,
+        nat_bc_cred,
+        ident_bem_imob,
+        ind_orig_cred,
+        ind_util_bem_imob,
+        mes_oper_aquis,
+        vl_oper_aquis,
+        parc_oper_nao_bc_cred,
+        vl_bc_cred,
+        ind_nr_parc,
+        cst_pis,
+        vl_bc_pis,
+        aliq_pis,
+        vl_pis,
+        cst_cofins,
+        vl_bc_cofins,
+        aliq_cofins,
+        vl_cofins,
+        cod_cta,
+        cod_ccus,
+        desc_bem_imob
+    ]
+);
 register_model!(EfdF130, "f130");

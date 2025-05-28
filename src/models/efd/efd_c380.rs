@@ -58,15 +58,23 @@ impl Model for EfdC380 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC380>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdC380::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdC380::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdC380::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -111,5 +119,17 @@ impl fmt::Display for EfdC380 {
     }
 }
 
-impl_display_fields!(EfdC380, [reg, cod_mod, dt_doc_ini, dt_doc_fin, num_doc_ini, num_doc_fin, vl_doc, vl_doc_canc]);
+impl_display_fields!(
+    EfdC380,
+    [
+        reg,
+        cod_mod,
+        dt_doc_ini,
+        dt_doc_fin,
+        num_doc_ini,
+        num_doc_fin,
+        vl_doc,
+        vl_doc_canc
+    ]
+);
 register_model!(EfdC380, "c380");

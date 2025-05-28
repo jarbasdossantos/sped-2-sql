@@ -78,15 +78,23 @@ impl Model for Efd1100 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd1100>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(Efd1100::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(Efd1100::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(Efd1100::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -141,5 +149,27 @@ impl fmt::Display for Efd1100 {
     }
 }
 
-impl_display_fields!(Efd1100, [reg, per_apu_cred, orig_cred, cnpj_suc, cod_cred, vl_cred_apu, vl_cred_ext_apu, vl_tot_cred_apu, vl_cred_desc_pa_ant, vl_cred_per_pa_ant, vl_cred_dcomp_pa_ant, sd_cred_disp_efd, vl_cred_desc_efd, vl_cred_per_efd, vl_cred_dcomp_efd, vl_cred_trans, vl_cred_out, sld_cred_fim]);
+impl_display_fields!(
+    Efd1100,
+    [
+        reg,
+        per_apu_cred,
+        orig_cred,
+        cnpj_suc,
+        cod_cred,
+        vl_cred_apu,
+        vl_cred_ext_apu,
+        vl_tot_cred_apu,
+        vl_cred_desc_pa_ant,
+        vl_cred_per_pa_ant,
+        vl_cred_dcomp_pa_ant,
+        sd_cred_disp_efd,
+        vl_cred_desc_efd,
+        vl_cred_per_efd,
+        vl_cred_dcomp_efd,
+        vl_cred_trans,
+        vl_cred_out,
+        sld_cred_fim
+    ]
+);
 register_model!(Efd1100, "1100");

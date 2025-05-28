@@ -44,20 +44,28 @@ impl Model for EfdI300 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-            cod_comp: get_field(&fields, 2),
-            vl_comp: get_field(&fields, 3),
-            cod_cta: get_field(&fields, 4),
-            inf_comp: get_field(&fields, 5),
+                    cod_comp: get_field(&fields, 2),
+        vl_comp: get_field(&fields, 3),
+        cod_cta: get_field(&fields, 4),
+        inf_comp: get_field(&fields, 5),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdI300>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdI300::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdI300::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdI300::as_select())
+                .load(&mut conn)?)
+        }
     }
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
@@ -67,10 +75,10 @@ impl Model for EfdI300 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-                    schema::cod_comp.eq(&self.cod_comp),
-                    schema::vl_comp.eq(&self.vl_comp),
-                    schema::cod_cta.eq(&self.cod_cta),
-                    schema::inf_comp.eq(&self.inf_comp),
+            schema::cod_comp.eq(&self.cod_comp),
+schema::vl_comp.eq(&self.vl_comp),
+schema::cod_cta.eq(&self.cod_cta),
+schema::inf_comp.eq(&self.inf_comp),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

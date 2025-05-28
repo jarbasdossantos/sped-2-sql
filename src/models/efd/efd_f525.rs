@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -64,15 +64,23 @@ impl Model for EfdF525 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdF525>, Error> {
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .filter(schema::parent_id.eq(&parent_id.expect("Invalid parent id")))
-            .select(EfdF525::as_select())
-            .load(&mut DB_POOL
-                .get().unwrap())?)
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(EfdF525::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(EfdF525::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -120,5 +128,11 @@ impl fmt::Display for EfdF525 {
     }
 }
 
-impl_display_fields!(EfdF525, [reg, vl_rec, ind_rec, cnpj_cpf, num_doc, cod_item, vl_rec_det, cst_pis, cst_cofins, info_compl, cod_cta]);
+impl_display_fields!(
+    EfdF525,
+    [
+        reg, vl_rec, ind_rec, cnpj_cpf, num_doc, cod_item, vl_rec_det, cst_pis, cst_cofins,
+        info_compl, cod_cta
+    ]
+);
 register_model!(EfdF525, "f525");
