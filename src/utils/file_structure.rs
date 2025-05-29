@@ -11,11 +11,11 @@ type LoadModelFn = Box<
     ) -> Pin<
         Box<
             dyn std::future::Future<
-                Output=Result<
-                    Vec<Box<dyn Model + Send>>,
-                    Box<dyn std::error::Error + Send + Sync>,
-                >,
-            > + Send,
+                    Output = Result<
+                        Vec<Box<dyn Model + Send>>,
+                        Box<dyn std::error::Error + Send + Sync>,
+                    >,
+                > + Send,
         >,
     >,
 >;
