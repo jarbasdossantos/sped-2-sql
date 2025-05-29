@@ -1,33 +1,44 @@
 use std::fs;
 use std::path::Path;
+use std::process::exit;
+
+static MODELS_NAME_PREFIX: &str = "reg_";
+static MODELS_FOLDER: &str = "src/models/icms_ipi/";
+static MODEL_PREFIX: &str = "Reg";
 
 fn main() -> std::io::Result<()> {
-    let schema_files = fs::read_dir("src/schemas/")?
+    let schema_files = fs::read_dir("src/schemas/")
+        .expect("Failed to read schemas folder")
         .filter_map(Result::ok)
         .filter(|entry| {
             let file_name = entry.file_name();
             let file_name = file_name.to_string_lossy();
-            file_name.starts_with("efd_") && file_name.ends_with(".rs")
+            file_name.starts_with(MODELS_NAME_PREFIX) && file_name.ends_with(".rs")
         })
         .map(|entry| {
             let file_name = entry.file_name();
             let file_name = file_name.to_string_lossy();
-            let model_name = file_name.trim_start_matches("efd_").trim_end_matches(".rs");
+            let model_name = file_name
+                .trim_start_matches(MODELS_NAME_PREFIX)
+                .trim_end_matches(".rs");
             model_name.to_string()
         })
         .collect::<Vec<_>>();
 
-    let existing_models = fs::read_dir("src/models/efd/")?
+    let existing_models = fs::read_dir(MODELS_FOLDER)
+        .expect("Failed to read models folder")
         .filter_map(Result::ok)
         .filter(|entry| {
             let file_name = entry.file_name();
             let file_name = file_name.to_string_lossy();
-            file_name.starts_with("efd_") && file_name.ends_with(".rs")
+            file_name.starts_with(MODELS_NAME_PREFIX) && file_name.ends_with(".rs")
         })
         .map(|entry| {
             let file_name = entry.file_name();
             let file_name = file_name.to_string_lossy();
-            let model_name = file_name.trim_start_matches("efd_").trim_end_matches(".rs");
+            let model_name = file_name
+                .trim_start_matches(MODELS_NAME_PREFIX)
+                .trim_end_matches(".rs");
             model_name.to_string()
         })
         .collect::<Vec<_>>();
@@ -39,19 +50,28 @@ fn main() -> std::io::Result<()> {
     }
 
     update_mod_file(&schema_files)?;
-    update_registry_file(&schema_files)?;
+    // update_registry_file(&schema_files)?;
 
     Ok(())
 }
 
 fn generate_model(schema: &str) -> std::io::Result<()> {
-    let schema_path = format!("src/schemas/efd_{}.rs", schema.to_lowercase());
-    let schema_content = fs::read_to_string(&schema_path)?;
+    let schema_path = format!(
+        "src/schemas/{}{}.rs",
+        MODELS_NAME_PREFIX,
+        schema.to_lowercase()
+    );
+    let schema_content = fs::read_to_string(&schema_path).expect("Failed to load schema file");
 
     let fields = extract_fields_from_schema(&schema_content);
 
-    let model_name = format!("Efd{}", schema.to_uppercase());
-    let file_path = format!("src/models/efd/efd_{}.rs", schema.to_lowercase());
+    let model_name = format!("{}{}", MODEL_PREFIX, schema.to_uppercase());
+    let file_path = format!(
+        "{}{}{}.rs",
+        MODELS_FOLDER,
+        MODELS_NAME_PREFIX,
+        schema.to_lowercase()
+    );
 
     if Path::new(&file_path).exists() {
         return Ok(());
@@ -90,8 +110,8 @@ fn generate_model(schema: &str) -> std::io::Result<()> {
         r#"use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_{0}::efd_{0}::dsl as schema;
-use crate::schemas::efd_{0}::efd_{0}::table;
+use crate::schemas::{6}{0}::{6}{0}::dsl as schema;
+use crate::schemas::{6}{0}::{6}{0}::table;
 use crate::{{impl_display_fields, register_model}};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -108,7 +128,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_{0}::efd_{0}::dsl)]
+#[diesel(table_name = crate::schemas::{6}{0}::{6}{0}::dsl)]
 pub struct {1} {{
     pub id: i32,
     pub file_id: Option<i32>,
@@ -142,12 +162,12 @@ impl Model for {1} {{
                 .filter(schema::file_id.eq(&file_id))
                 .filter(schema::parent_id.eq(&id))
                 .select({1}::as_select())
-                .load(conn)?)
+                .load(&mut conn)?)
         }} else {{
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
                 .select({1}::as_select())
-                .load(conn)?)
+                .load(&mut conn)?)
         }}
     }}
 
@@ -198,7 +218,8 @@ register_model!({1}, "{0}");
         struct_fields,
         new_fields,
         save_fields,
-        display_fields
+        display_fields,
+        MODELS_NAME_PREFIX
     );
 
     fs::write(&file_path, content)?;
@@ -225,51 +246,41 @@ fn extract_fields_from_schema(schema_content: &str) -> Vec<String> {
     fields
 }
 
-fn update_mod_file(schemas: &[String]) -> std::io::Result<()> {
-    let mod_path = "src/models/efd/mod.rs";
-    let mut mod_content = String::new();
-
-    mod_content.push_str("// @generated automatically by generate_efd_models.rs\n\n");
-
-    let mut sorted_schemas = schemas.to_vec();
-    sorted_schemas.sort();
-
-    for schema in &sorted_schemas {
-        mod_content.push_str(&format!("pub mod efd_{};\n", schema.to_lowercase()));
-    }
-
-    fs::write(mod_path, mod_content)
+fn get_field(fields: &Vec<&str>, index: usize) -> Option<String> {
+    fields.get(index).map(|s| s.to_string())
 }
 
-fn update_registry_file(schemas: &[String]) -> std::io::Result<()> {
-    let registry_path = "src/models/registry.rs";
-    let mut registry_content = String::new();
+fn update_mod_file(schema_files: &Vec<String>) -> std::io::Result<()> {
+    let mut mod_file_content = String::new();
+    for schema in schema_files {
+        mod_file_content.push_str(&format!(
+            "pub mod {}{};\n",
+            MODELS_NAME_PREFIX,
+            schema.to_lowercase()
+        ));
+    }
+    fs::write(format!("{}mod.rs", MODELS_FOLDER), mod_file_content)
+}
 
-    if Path::new(registry_path).exists() {
-        registry_content = fs::read_to_string(registry_path)?;
+fn update_registry_file(schema_files: &Vec<String>) -> std::io::Result<()> {
+    let mut registry_content = String::from("use super::traits::Model;\n\n");
+    registry_content.push_str("pub fn register_models() -> Vec<Box<dyn Model>> {\n");
+    registry_content.push_str("    let mut models: Vec<Box<dyn Model>> = Vec::new();\n");
+
+    for schema in schema_files {
+        registry_content.push_str(&format!(
+            "    crate::models::{}::{}{}::register();\n",
+            MODELS_NAME_PREFIX[..3].to_string(),
+            MODELS_NAME_PREFIX,
+            schema.to_lowercase()
+        ));
     }
 
-    if let Some(idx) = registry_content.find("pub fn register_models() {") {
-        let start_idx = registry_content[..idx].rfind('}').unwrap_or(0);
-        let mut new_content = registry_content[..start_idx + 1].to_string();
+    registry_content.push_str("    models\n");
+    registry_content.push_str("}\n");
 
-        let mut sorted_schemas = schemas.to_vec();
-        sorted_schemas.sort();
-
-        for schema in &sorted_schemas {
-            new_content.push_str(&format!(
-                "    crate::models::efd::efd_{}::register();\n",
-                schema.to_lowercase()
-            ));
-        }
-
-        new_content.push_str("}");
-
-        if let Some(end_idx) = registry_content[start_idx..].find('}') {
-            new_content.push_str(&registry_content[start_idx + end_idx + 1..]);
-            fs::write(registry_path, new_content)?;
-        }
-    }
-
-    Ok(())
+    fs::write(
+        format!("src/models/{}registry.rs", MODELS_NAME_PREFIX),
+        registry_content,
+    )
 }
