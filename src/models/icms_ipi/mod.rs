@@ -1,4 +1,5 @@
 pub mod reg_0000;
+pub mod reg_0001;
 pub mod reg_0005;
 pub mod reg_0015;
 pub mod reg_0100;

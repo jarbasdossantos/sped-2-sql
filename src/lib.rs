@@ -6,7 +6,7 @@ mod sped;
 mod utils;
 
 use crate::models::files::File;
-use crate::models::registry::register_models;
+use crate::models::registry::{register_efd_models, register_icms_ipi_models};
 use crate::models::traits::FilesModel;
 use crate::schemas::files::files::dsl as schema;
 use crate::schemas::files::files::table;
@@ -23,13 +23,18 @@ use sped::handle_line;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::task;
 
-pub struct LoadData {
-    pub file: String,
-    pub registers: Option<Vec<String>>,
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub enum SpedType {
+    Efd,
+    IcmsIpi,
 }
 
-pub struct Load {
-    pub files: Vec<LoadData>,
+pub struct LoadData {
+    /// File path
+    pub file: String,
+    /// Registers to import
+    pub registers: Option<Vec<String>>,
+    pub sped_type: SpedType,
 }
 
 #[derive(Debug, Clone)]
@@ -38,11 +43,15 @@ pub struct Export {
     pub id: i32,
     /// Registers to export
     pub registers: Option<Vec<String>>,
+    /// Sped type
+    pub sped_type: SpedType,
+}
+
+pub struct Load {
+    pub files: Vec<LoadData>,
 }
 
 pub async fn load(data: Load) -> Result<(), Error> {
-    register_models();
-
     let processing: task::JoinHandle<std::result::Result<(), Error>> =
         task::spawn(async move { import_files(data.files).await });
 
@@ -50,7 +59,11 @@ pub async fn load(data: Load) -> Result<(), Error> {
 }
 
 pub async fn export(data: Export) -> Result<Vec<Box<dyn Model>>, Error> {
-    register_models();
+    if matches!(data.sped_type, SpedType::Efd) {
+        register_efd_models();
+    } else {
+        register_icms_ipi_models();
+    };
 
     let file_data = File::get_data(data).await?;
 
@@ -60,7 +73,7 @@ pub async fn export(data: Export) -> Result<Vec<Box<dyn Model>>, Error> {
 async fn import_files(data: Vec<LoadData>) -> Result<(), Error> {
     // database::migrate().await;
 
-    let mut tasks = vec![];
+    // let mut tasks = vec![];
 
     if data.is_empty() {
         return Ok(());
@@ -95,17 +108,22 @@ async fn import_files(data: Vec<LoadData>) -> Result<(), Error> {
 
         let file_clone = data.file.clone();
 
-        let task = task::spawn(async move {
-            if let Err(err) = import(file_clone, data.registers, file_id).await {
-                let message = format!("Failed to process file: {}", err);
-                eprintln!("{message}");
-            }
-        });
+        if let Err(err) = import(file_clone, data.registers, file_id, data.sped_type).await {
+            let message = format!("Failed to process file: {}", err);
+            eprintln!("{message}");
+        }
 
-        tasks.push(task);
+        // let task = task::spawn(async move {
+        //     if let Err(err) = import(file_clone, data.registers, file_id, data.sped_type).await {
+        //         let message = format!("Failed to process file: {}", err);
+        //         eprintln!("{message}");
+        //     }
+        // });
+        //
+        // tasks.push(task);
     }
 
-    join_all(tasks).await;
+    // join_all(tasks).await;
 
     Ok(())
 }
@@ -114,6 +132,7 @@ async fn import(
     file_path: String,
     registers: Option<Vec<String>>,
     file_id: i32,
+    sped_type: SpedType,
 ) -> Result<(), Error> {
     let file = tokio::fs::File::open(file_path).await?;
 
@@ -122,6 +141,12 @@ async fn import(
 
     // Stack of (level, parent_id)
     let mut parent_stack: Vec<(u8, i32)> = Vec::new();
+
+    if matches!(sped_type, SpedType::Efd) {
+        register_efd_models();
+    } else {
+        register_icms_ipi_models();
+    };
 
     loop {
         buffer.clear();
@@ -157,9 +182,14 @@ async fn import(
             }
         }
 
-        let hierarchy = utils::file_structure::FILE_STRUCTURE.get(&reg_code.as_str());
-        let level = match hierarchy.is_some() {
-            true => hierarchy.unwrap().level,
+        let structure = if matches!(sped_type, SpedType::Efd) {
+            utils::file_structure::efd::FILE_STRUCTURE.get(&reg_code.as_str())
+        } else {
+            utils::file_structure::icms_ipi::FILE_STRUCTURE.get(&reg_code.as_str())
+        };
+
+        let level = match structure.is_some() {
+            true => structure.unwrap().level,
             false => 1,
         };
 
@@ -177,7 +207,7 @@ async fn import(
             .map(|&(_, p_id)| p_id)
             .unwrap_or_default();
 
-        let inserted_line = handle_line(&line, parent_id, file_id).await;
+        let inserted_line = handle_line(&line, parent_id, file_id, sped_type).await;
 
         match inserted_line {
             Ok(Some(result)) => parent_stack.push((level, result)),

@@ -58,7 +58,7 @@ pub trait FilesModel: Send + Sync {
     async fn get_data(file: Export) -> Result<Vec<Box<dyn Model>>, anyhow::Error>;
 }
 
-pub(crate) trait ModelFactory {
+pub(crate) trait ModelFactory: Debug {
     fn handle_reg(&self) -> &'static str;
     fn create_model(
         &self,

@@ -22,6 +22,7 @@ macro_rules! impl_display_fields {
 #[macro_export]
 macro_rules! register_model {
     ($model:ty, $reg:expr) => {
+        #[derive(Debug)]
         pub struct ModelFactoryImpl;
 
         impl $crate::models::traits::ModelFactory for ModelFactoryImpl {

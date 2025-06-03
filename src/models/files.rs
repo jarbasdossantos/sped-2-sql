@@ -2,8 +2,8 @@ use super::traits::Model;
 use crate::database::DB_POOL;
 use crate::models::traits::FilesModel;
 use crate::schemas::files::files::dsl as schema;
-use crate::utils::file_structure::{get_reg_children, FILE_STRUCTURE};
-use crate::Export;
+use crate::utils::file_structure::{efd::FILE_STRUCTURE, get_reg_children};
+use crate::{utils, Export, SpedType};
 use anyhow::Result;
 
 use async_trait::async_trait;
@@ -38,6 +38,7 @@ impl FilesModel for File {
             initial_register: String,
             initial_parent_id: Option<i32>,
             initial_registers: Option<Vec<String>>,
+            sped_type: SpedType,
         ) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
             let mut data: Vec<Box<dyn Model>> = Vec::new();
             let mut stack: Vec<(i32, String, Option<i32>, Option<Vec<String>>)> = Vec::new();
@@ -49,7 +50,7 @@ impl FilesModel for File {
                 initial_registers.clone(),
             ));
 
-            let children_map = get_reg_children();
+            let children_map = get_reg_children(sped_type);
 
             while let Some((file_id, register, parent_id, registers_opt)) = stack.pop() {
                 if let Some(ref regs_filter) = registers_opt {
@@ -58,14 +59,23 @@ impl FilesModel for File {
                     }
                 }
 
-                let structure = match FILE_STRUCTURE.get(register.as_str()) {
+                let sped_structure = if matches!(sped_type, SpedType::Efd) {
+                    FILE_STRUCTURE.get(register.as_str())
+                } else {
+                    utils::file_structure::icms_ipi::FILE_STRUCTURE.get(register.as_str())
+                };
+
+                let structure = match sped_structure {
                     Some(s) => s,
                     None => continue,
                 };
 
                 let load = match &structure.load_model {
                     Some(load_fn) => load_fn,
-                    None => continue,
+                    None => {
+                        log::warn!("No load function for register {}", register);
+                        continue;
+                    }
                 };
 
                 let rows = match load(file_id, parent_id).await {
@@ -99,7 +109,13 @@ impl FilesModel for File {
 
         if let Some(ref regs) = file_data.registers {
             if let Some(ref reg) = regs.first() {
-                for data in fetch(file.id, reg.to_string(), None, file_data.registers.clone())
+                for data in fetch(
+                    file.id,
+                    reg.to_string(),
+                    None,
+                    file_data.registers.clone(),
+                    file_data.sped_type,
+                )
                     .await
                     .unwrap()
                 {
@@ -116,9 +132,10 @@ impl FilesModel for File {
                         code.to_string(),
                         Some(0),
                         file_data.registers.clone(),
+                        file_data.sped_type,
                     )
-                    .await
-                    .unwrap()
+                        .await
+                        .unwrap()
                     {
                         all_data.push(data);
                     }
