@@ -39,7 +39,7 @@ O projeto utiliza SQLite por padrão. As configurações do banco de dados são 
 
 Para configurar o banco de dados e aplicar as migrações:
 
-1. Certifique-se de que o arquivo `diesel.toml` esteja configurado corretamente para o seu banco de dados (SQLite, PostgreSQL, MySQL, etc.).
+1. Certifique-se de que o arquivo `diesel.toml` esteja configurado corretamente para o seu banco de dados SQLite.
 2. Execute as migrações para criar as tabelas necessárias:
 
 ```bash
