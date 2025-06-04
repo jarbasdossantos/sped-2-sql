@@ -1,5 +1,5 @@
 use crate::models::files::File;
-use crate::Export;
+use crate::{ExportFile, SpedType};
 use anyhow::Result;
 use async_trait::async_trait;
 use diesel::result::Error;
@@ -22,7 +22,7 @@ pub trait Model: Debug + Display + Send + Sync {
 
     fn save<'a>(
         &'a self,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<i32, Error>> + Send + 'a>>;
+    ) -> Pin<Box<dyn Future<Output=std::result::Result<i32, Error>> + Send + 'a>>;
 
     fn get_id(&self) -> Option<i32>;
     fn get_file_id(&self) -> Option<i32>;
@@ -53,9 +53,8 @@ pub trait Model: Debug + Display + Send + Sync {
 
 #[async_trait]
 pub trait FilesModel: Send + Sync {
-    async fn get(file_id: i32) -> Result<Box<File>, anyhow::Error>;
-
-    async fn get_data(file: Export) -> Result<Vec<Box<dyn Model>>, anyhow::Error>;
+    async fn get_file(file_id: i32, sped_type: Option<SpedType>) -> Result<File, anyhow::Error>;
+    async fn get_file_data(file: ExportFile) -> Result<Vec<Box<dyn Model>>, anyhow::Error>;
 }
 
 pub(crate) trait ModelFactory: Debug {

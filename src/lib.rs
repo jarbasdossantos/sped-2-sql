@@ -20,6 +20,7 @@ use encoding_rs::UTF_8;
 use futures::future::join_all;
 use models::traits::Model;
 use sped::handle_line;
+use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::task;
 
@@ -29,7 +30,7 @@ pub enum SpedType {
     IcmsIpi,
 }
 
-pub struct LoadData {
+pub struct ImportFilesData {
     /// File path
     pub file: String,
     /// Registers to import
@@ -37,8 +38,12 @@ pub struct LoadData {
     pub sped_type: SpedType,
 }
 
+pub struct ImportFiles {
+    pub files: Vec<ImportFilesData>,
+}
+
 #[derive(Debug, Clone)]
-pub struct Export {
+pub struct ExportFile {
     /// File id
     pub id: i32,
     /// Registers to export
@@ -47,54 +52,38 @@ pub struct Export {
     pub sped_type: SpedType,
 }
 
-pub struct Load {
-    pub files: Vec<LoadData>,
-}
-
-pub async fn load(data: Load) -> Result<(), Error> {
-    let processing: task::JoinHandle<std::result::Result<(), Error>> =
-        task::spawn(async move { import_files(data.files).await });
-
-    processing.await?
-}
-
-pub async fn export(data: Export) -> Result<Vec<Box<dyn Model>>, Error> {
+pub async fn export(data: ExportFile) -> Result<Vec<Box<dyn Model>>, Error> {
     if matches!(data.sped_type, SpedType::Efd) {
         register_efd_models();
     } else {
         register_icms_ipi_models();
     };
 
-    let file_data = File::get_data(data).await?;
+    let file_data = File::get_file_data(data).await?;
 
     Ok(file_data)
 }
 
-async fn import_files(data: Vec<LoadData>) -> Result<(), Error> {
-    // database::migrate().await;
+pub async fn import_files(data: ImportFiles) -> Result<(), Error> {
+    let mut tasks = vec![];
+    let semaphore = Arc::new(tokio::sync::Semaphore::new(1));
 
-    // let mut tasks = vec![];
+    for file_data in data.files {
+        let file_path = std::path::Path::new(&file_data.file);
 
-    if data.is_empty() {
-        return Ok(());
-    }
-
-    for data in data {
-        let extension = data
-            .file
-            .split('.')
-            .next_back()
-            .map(|s| s.to_string())
-            .unwrap();
-
-        let file_name = data
-            .file
-            .split(std::path::MAIN_SEPARATOR_STR)
-            .last()
+        let extension = file_path
+            .extension()
+            .and_then(|ext| ext.to_str())
             .unwrap_or("")
             .to_string();
 
-        let file_id = match create_file_entry(file_name.clone()).await {
+        let file_name = file_path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("")
+            .to_string();
+
+        let file_id = match create_file_entry(file_name.clone(), file_data.sped_type).await {
             Ok(file_id) => file_id,
             Err(err) => {
                 println!("Failed to create file entry: {}", err);
@@ -106,29 +95,34 @@ async fn import_files(data: Vec<LoadData>) -> Result<(), Error> {
             continue;
         }
 
-        let file_clone = data.file.clone();
+        let file_clone = file_data.file.clone();
+        let semaphore_clone = semaphore.clone();
 
-        if let Err(err) = import(file_clone, data.registers, file_id, data.sped_type).await {
-            let message = format!("Failed to process file: {}", err);
-            eprintln!("{message}");
-        }
+        let task = task::spawn(async move {
+            let _permit = semaphore_clone.acquire().await;
 
-        // let task = task::spawn(async move {
-        //     if let Err(err) = import(file_clone, data.registers, file_id, data.sped_type).await {
-        //         let message = format!("Failed to process file: {}", err);
-        //         eprintln!("{message}");
-        //     }
-        // });
-        //
-        // tasks.push(task);
+            if let Err(err) = do_import(
+                file_clone,
+                file_data.registers,
+                file_id,
+                file_data.sped_type,
+            )
+            .await
+            {
+                let message = format!("Failed to process file: {}", err);
+                eprintln!("{message}");
+            }
+        });
+
+        tasks.push(task);
     }
 
-    // join_all(tasks).await;
+    join_all(tasks).await;
 
     Ok(())
 }
 
-async fn import(
+async fn do_import(
     file_path: String,
     registers: Option<Vec<String>>,
     file_id: i32,
@@ -221,9 +215,14 @@ async fn import(
     Ok(())
 }
 
-async fn create_file_entry(name: String) -> Result<i32, Error> {
+async fn create_file_entry(name: String, sped_type: SpedType) -> Result<i32, Error> {
+    let sped = match sped_type {
+        SpedType::Efd => "efd",
+        SpedType::IcmsIpi => "icms_ipi",
+    };
+
     diesel::insert_into(table)
-        .values((schema::name.eq(&name),))
+        .values((schema::name.eq(&name), schema::sped_type.eq(&sped)))
         .execute(&mut DB_POOL.get().unwrap())?;
 
     Ok(sql::<Integer>("SELECT last_insert_rowid()")

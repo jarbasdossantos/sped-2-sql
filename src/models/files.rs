@@ -1,13 +1,15 @@
+#[allow(clippy::all)]
 use super::traits::Model;
 use crate::database::DB_POOL;
 use crate::models::traits::FilesModel;
 use crate::schemas::files::files::dsl as schema;
 use crate::utils::file_structure::{efd::FILE_STRUCTURE, get_reg_children};
-use crate::{utils, Export, SpedType};
+use crate::{utils, ExportFile, SpedType};
 use anyhow::Result;
 
+use crate::schemas::files::files::table;
 use async_trait::async_trait;
-use diesel::{ExpressionMethods, QueryDsl, Queryable, RunQueryDsl, Selectable};
+use diesel::{ExpressionMethods, QueryDsl, Queryable, RunQueryDsl, Selectable, SelectableHelper};
 
 #[derive(Debug, Clone, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -15,22 +17,35 @@ use diesel::{ExpressionMethods, QueryDsl, Queryable, RunQueryDsl, Selectable};
 #[allow(dead_code)]
 pub struct File {
     pub id: i32,
-    pub name: Option<String>,
+    pub name: String,
+    pub sped_type: String,
 }
 
 #[async_trait]
 impl FilesModel for File {
-    async fn get(file_id: i32) -> Result<Box<File>, anyhow::Error> {
-        match crate::schemas::files::files::table
-            .filter(schema::id.eq(&file_id))
-            .first::<File>(&mut DB_POOL.get()?)
-        {
-            Ok(file) => Ok(Box::new(file)),
-            Err(err) => Err(anyhow::Error::from(err)),
+    async fn get_file(file_id: i32, sped_type: Option<SpedType>) -> Result<File, anyhow::Error> {
+        let mut conn = DB_POOL.get().unwrap();
+
+        if let Some(sped) = sped_type {
+            let sped = match sped {
+                SpedType::Efd => "efd",
+                SpedType::IcmsIpi => "icms_ipi",
+            };
+
+            Ok(table
+                .filter(schema::sped_type.eq(&sped))
+                .filter(schema::id.eq(&file_id))
+                .select(File::as_select())
+                .first::<File>(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::id.eq(&file_id))
+                .select(File::as_select())
+                .first::<File>(&mut conn)?)
         }
     }
 
-    async fn get_data(file_data: Export) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
+    async fn get_file_data(file_data: ExportFile) -> Result<Vec<Box<dyn Model>>, anyhow::Error> {
         let mut all_data: Vec<Box<dyn Model>> = Vec::new();
 
         async fn fetch(
@@ -105,7 +120,7 @@ impl FilesModel for File {
             Ok(data)
         }
 
-        let file = Self::get(file_data.id).await?;
+        let file = Self::get_file(file_data.id, Some(file_data.sped_type)).await?;
 
         if let Some(ref regs) = file_data.registers {
             if let Some(ref reg) = regs.first() {
@@ -116,8 +131,8 @@ impl FilesModel for File {
                     file_data.registers.clone(),
                     file_data.sped_type,
                 )
-                    .await
-                    .unwrap()
+                .await
+                .unwrap()
                 {
                     all_data.push(data);
                 }
@@ -134,8 +149,8 @@ impl FilesModel for File {
                         file_data.registers.clone(),
                         file_data.sped_type,
                     )
-                        .await
-                        .unwrap()
+                    .await
+                    .unwrap()
                     {
                         all_data.push(data);
                     }

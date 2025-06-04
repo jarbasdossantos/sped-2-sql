@@ -3,6 +3,7 @@
 diesel::table! {
     files (id) {
         id -> Integer,
-        name -> Nullable<Text>,
+        name -> Text,
+        sped_type -> Text
     }
 }
