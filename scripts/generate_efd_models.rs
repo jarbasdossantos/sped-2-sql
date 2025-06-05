@@ -1,6 +1,5 @@
 use std::fs;
 use std::path::Path;
-use std::process::exit;
 
 static MODELS_NAME_PREFIX: &str = "reg_";
 static MODELS_FOLDER: &str = "src/models/icms_ipi/";
@@ -79,7 +78,7 @@ fn generate_model(schema: &str) -> std::io::Result<()> {
 
     let struct_fields = fields
         .iter()
-        .map(|f| format!("    pub {}: Option<String>,", f))
+        .map(|f| format!("    pub {f}: Option<String>,"))
         .collect::<Vec<_>>()
         .join("\n");
 
@@ -89,20 +88,20 @@ fn generate_model(schema: &str) -> std::io::Result<()> {
         .iter()
         .map(|f| {
             i += 1;
-            format!("        {}: get_field(&fields, {}),", f, i)
+            format!("        {f}: get_field(&fields, {i}),")
         })
         .collect::<Vec<_>>()
         .join("\n");
 
     let save_fields = fields
         .iter()
-        .map(|f| format!("schema::{}.eq(&self.{}),", f, f))
+        .map(|f| format!("schema::{f}.eq(&self.{f}),"))
         .collect::<Vec<_>>()
         .join("\n");
 
     let display_fields = fields
         .iter()
-        .map(|f| format!("{}", f))
+        .map(|f| f.to_string())
         .collect::<Vec<_>>()
         .join(", ");
 
@@ -223,7 +222,7 @@ register_model!({1}, "{0}");
     );
 
     fs::write(&file_path, content)?;
-    println!("Modelo gerado: {}", file_path);
+    println!("Modelo gerado: {file_path}");
     Ok(())
 }
 
@@ -246,10 +245,6 @@ fn extract_fields_from_schema(schema_content: &str) -> Vec<String> {
     fields
 }
 
-fn get_field(fields: &Vec<&str>, index: usize) -> Option<String> {
-    fields.get(index).map(|s| s.to_string())
-}
-
 fn update_mod_file(schema_files: &Vec<String>) -> std::io::Result<()> {
     let mut mod_file_content = String::new();
     for schema in schema_files {
@@ -259,9 +254,10 @@ fn update_mod_file(schema_files: &Vec<String>) -> std::io::Result<()> {
             schema.to_lowercase()
         ));
     }
-    fs::write(format!("{}mod.rs", MODELS_FOLDER), mod_file_content)
+    fs::write(format!("{MODELS_FOLDER}mod.rs"), mod_file_content)
 }
 
+#[allow(dead_code)]
 fn update_registry_file(schema_files: &Vec<String>) -> std::io::Result<()> {
     let mut registry_content = String::from("use super::traits::Model;\n\n");
     registry_content.push_str("pub fn register_models() -> Vec<Box<dyn Model>> {\n");
@@ -270,7 +266,7 @@ fn update_registry_file(schema_files: &Vec<String>) -> std::io::Result<()> {
     for schema in schema_files {
         registry_content.push_str(&format!(
             "    crate::models::{}::{}{}::register();\n",
-            MODELS_NAME_PREFIX[..3].to_string(),
+            &MODELS_NAME_PREFIX[..3],
             MODELS_NAME_PREFIX,
             schema.to_lowercase()
         ));
@@ -280,7 +276,7 @@ fn update_registry_file(schema_files: &Vec<String>) -> std::io::Result<()> {
     registry_content.push_str("}\n");
 
     fs::write(
-        format!("src/models/{}registry.rs", MODELS_NAME_PREFIX),
+        format!("src/models/{MODELS_NAME_PREFIX}registry.rs"),
         registry_content,
     )
 }
