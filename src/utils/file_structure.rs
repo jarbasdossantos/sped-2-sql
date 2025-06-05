@@ -1,7 +1,7 @@
 use crate::models::traits::Model;
 use efd::FILE_STRUCTURE;
 use std::{collections::HashMap, pin::Pin};
-use crate::{utils, SpedType};
+use crate::SpedType;
 
 type LoadModelFn = Box<
     dyn Fn(
@@ -1552,7 +1552,7 @@ pub fn get_reg_children(sped_type: SpedType) -> HashMap<&'static str, Vec<&'stat
             if structure.level == parent_stack.last().unwrap().1 + 1 {
                 children
                     .entry(parent_reg)
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(reg);
             }
         }
