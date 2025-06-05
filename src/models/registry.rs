@@ -1,5 +1,4 @@
 use crate::models::traits::{Model, ModelFactory};
-use crate::SpedType;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -21,8 +20,7 @@ pub fn create_model(
     fields: Vec<&str>,
     id: Option<i32>,
     parent_id: Option<i32>,
-    file_id: i32,
-    sped_type: SpedType,
+    file_id: i32
 ) -> Option<Box<dyn Model>> {
     let registry = REGISTRY.lock().unwrap();
 

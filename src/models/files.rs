@@ -88,7 +88,7 @@ impl FilesModel for File {
                 let load = match &structure.load_model {
                     Some(load_fn) => load_fn,
                     None => {
-                        log::warn!("No load function for register {}", register);
+                        log::warn!("No load function for register {register}");
                         continue;
                     }
                 };

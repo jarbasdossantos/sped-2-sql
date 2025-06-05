@@ -39,9 +39,9 @@ pub trait Model: Debug + Display + Send + Sync {
             .collect::<Vec<String>>()
             .join("|");
 
-        let string = format!("|{}|", string);
+        let string = format!("|{string}|");
 
-        writeln!(f, "{}", string)?;
+        writeln!(f, "{string}")?;
 
         Ok(())
     }
