@@ -100,8 +100,8 @@ impl Model for Efd0000 {
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 
-            Ok(sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())?)
+            sql::<Integer>("SELECT last_insert_rowid()")
+                .get_result::<i32>(&mut DB_POOL.get().unwrap())
         })
     }
 
