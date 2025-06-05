@@ -1,21 +1,18 @@
 use crate::models::traits::Model;
-use crate::SpedType;
 
 pub fn create_registry_model(
     reg: &str,
     fields: Vec<&str>,
     parent_id: Option<i32>,
-    file_id: i32,
-    sped_type: SpedType
+    file_id: i32
 ) -> Option<Box<dyn Model>> {
-    crate::models::registry::create_model(reg, fields, None, parent_id, file_id, sped_type)
+    crate::models::registry::create_model(reg, fields, None, parent_id, file_id)
 }
 
 pub async fn handle_line(
     line: &str,
     parent_id: i32,
-    file_id: i32,
-    sped_type: SpedType
+    file_id: i32
 ) -> Result<Option<i32>, diesel::result::Error> {
     let fields = line.split("|").collect::<Vec<&str>>();
     let reg_code = fields.get(1).unwrap_or(&"");
@@ -25,7 +22,6 @@ pub async fn handle_line(
         fields,
         Some(parent_id),
         file_id,
-        sped_type
     ) {
         let model: Box<dyn Model> = factory;
 

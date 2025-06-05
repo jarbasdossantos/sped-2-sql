@@ -18,10 +18,12 @@ use diesel::ExpressionMethods;
 use diesel::RunQueryDsl;
 use encoding_rs::UTF_8;
 use futures::future::join_all;
+use log::{error, info, warn};
 use models::traits::Model;
 use sped::handle_line;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::sync::mpsc::Sender;
 use tokio::task;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -40,6 +42,7 @@ pub struct ImportFilesData {
 
 pub struct ImportFiles {
     pub files: Vec<ImportFilesData>,
+    pub progress_tx: Option<Sender<Progress>>,
 }
 
 #[derive(Debug, Clone)]
@@ -50,6 +53,19 @@ pub struct ExportFile {
     pub registers: Option<Vec<String>>,
     /// Sped type
     pub sped_type: SpedType,
+}
+
+#[derive(Debug, Clone)]
+pub enum Status {
+    Skipped { reason: String },
+    ProcessingFailed { error: String },
+    ProcessingSuccessful,
+}
+
+#[derive(Debug, Clone)]
+pub struct Progress {
+    pub file_path: String,
+    pub status: Status,
 }
 
 pub async fn export(data: ExportFile) -> Result<Vec<Box<dyn Model>>, Error> {
@@ -64,7 +80,7 @@ pub async fn export(data: ExportFile) -> Result<Vec<Box<dyn Model>>, Error> {
     Ok(file_data)
 }
 
-pub async fn import_files(data: ImportFiles) -> Result<(), Error> {
+pub async fn import_files(mut data: ImportFiles) -> Result<(), Error> {
     let mut tasks = vec![];
     let semaphore = Arc::new(tokio::sync::Semaphore::new(1));
 
@@ -75,7 +91,7 @@ pub async fn import_files(data: ImportFiles) -> Result<(), Error> {
             .extension()
             .and_then(|ext| ext.to_str())
             .unwrap_or("")
-            .to_string();
+            .to_lowercase();
 
         let file_name = file_path
             .file_name()
@@ -86,31 +102,53 @@ pub async fn import_files(data: ImportFiles) -> Result<(), Error> {
         let file_id = match create_file_entry(file_name.clone(), file_data.sped_type).await {
             Ok(file_id) => file_id,
             Err(err) => {
-                println!("Failed to create file entry: {}", err);
+                let error_message = format!("Failed to create file entry: {err}");
+
+                send_status(&mut data.progress_tx, file_data.file.clone(), Status::Skipped {
+                    reason: error_message.to_string(),
+                }).await;
+
+                error!("{error_message}");
                 continue;
             }
         };
 
         if extension != "txt" {
+            let error_message = "Invalid file extension. Only .txt is allowed";
+
+            send_status(&mut data.progress_tx, file_data.file.clone(), Status::Skipped {
+                reason: error_message.to_string(),
+            }).await;
+
             continue;
         }
 
         let file_clone = file_data.file.clone();
         let semaphore_clone = semaphore.clone();
+        // let send_status_clone = send_status;
+        let task_file_path = file_clone.clone();
+        let mut task_progress_tx = data.progress_tx.clone();
 
         let task = task::spawn(async move {
             let _permit = semaphore_clone.acquire().await;
+
+            info!("Importing file: {file_clone}");
 
             if let Err(err) = do_import(
                 file_clone,
                 file_data.registers,
                 file_id,
                 file_data.sped_type,
-            )
-            .await
-            {
-                let message = format!("Failed to process file: {}", err);
-                eprintln!("{message}");
+            ).await {
+                let error_message = format!("Failed to process file: {err}");
+
+                send_status(&mut task_progress_tx, task_file_path, Status::ProcessingFailed {
+                    error: error_message.to_string(),
+                }).await;
+
+                error!("{error_message}");
+            } else {
+                send_status(&mut task_progress_tx, file_data.file.clone(), Status::ProcessingSuccessful).await;
             }
         });
 
@@ -164,7 +202,7 @@ async fn do_import(
 
         let (line, _, _) = UTF_8.decode(&buffer);
 
-        if !line.ends_with("|") {
+        if !line.starts_with("|") || !line.ends_with("|") {
             continue;
         }
 
@@ -201,12 +239,12 @@ async fn do_import(
             .map(|&(_, p_id)| p_id)
             .unwrap_or_default();
 
-        let inserted_line = handle_line(&line, parent_id, file_id, sped_type).await;
+        let inserted_line = handle_line(&line, parent_id, file_id).await;
 
         match inserted_line {
             Ok(Some(result)) => parent_stack.push((level, result)),
             Err(error) => {
-                println!("Failed to insert line ({}): {}", reg_code, error);
+                println!("Failed to insert line ({reg_code}): {error}");
             }
             _ => {}
         };
@@ -230,5 +268,18 @@ async fn create_file_entry(name: String, sped_type: SpedType) -> Result<i32, Err
 }
 
 pub async fn clean() -> Result<(), anyhow::Error> {
-    Ok(database::clean().await?)
+    database::clean().await
+}
+
+pub async fn send_status(tx: &mut Option<Sender<Progress>>, file_path: String, status: Status) {
+    if let Some(tx) = tx {
+        let event = Progress {
+            file_path,
+            status,
+        };
+
+        tx.send(event).await.expect("Failed to send status message");
+    } else {
+        warn!("Notification channel not available");
+    }
 }
