@@ -7,17 +7,17 @@ use std::env;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/migrations");
 
 pub static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
     let use_memory_env = env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());
-    let db_file = env::var("DB_FILE").unwrap_or_else(|_| "jarbas.sqlite".to_string());
+    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "db.sqlite".to_string());
     let use_memory = use_memory_env.eq_ignore_ascii_case("true");
 
     let database_url = if use_memory {
         ":memory:".to_string()
     } else {
-        db_file.to_string()
+        database_url.to_string()
     };
 
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);
@@ -28,13 +28,6 @@ pub static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
         .expect("Failed to create database pool")
 });
 
-/// Runs all database migrations located in the "./migrations" directory.
-/// This function should be called during application startup to ensure
-/// the database schema is up to date.
-///
-/// # Panics
-///
-/// This function will panic if migrations fail to execute.
 pub(crate) async fn migrate() {
     info!("Migrating database");
 
@@ -47,9 +40,17 @@ pub(crate) async fn migrate() {
 }
 
 pub(crate) async fn clean() -> Result<(), anyhow::Error> {
+    let use_memory_env = env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());
+
+    if use_memory_env == "true" {
+        migrate().await;
+
+        return Ok(());
+    }
+
     info!("Cleaning database");
 
-    let db_file = std::env::var("DB_FILE").unwrap_or("jarbas.sqlite".to_string());
+    let db_file = std::env::var("DATABASE_URL").unwrap_or("db.sqlite".to_string());
 
     let _ = std::fs::remove_file(db_file.clone());
     std::fs::File::create(db_file)?;

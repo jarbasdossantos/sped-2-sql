@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_1800::reg_1800::dsl as schema;
-use crate::schemas::reg_1800::reg_1800::table;
+use crate::schemas::reg_1800::dsl as schema;
+use crate::schemas::reg_1800::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_1800::reg_1800::dsl)]
+#[diesel(table_name = crate::schemas::reg_1800::dsl)]
 pub struct Reg1800 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -79,7 +78,7 @@ impl Model for Reg1800 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -126,19 +125,5 @@ impl fmt::Display for Reg1800 {
     }
 }
 
-impl_display_fields!(
-    Reg1800,
-    [
-        reg,
-        vl_carga,
-        vl_pass,
-        vl_fat,
-        ind_rat,
-        vl_icms_ant,
-        vl_bc_icms,
-        vl_icms_apur,
-        vl_bc_icms_apur,
-        vl_dif
-    ]
-);
+impl_display_fields!(Reg1800, [reg, vl_carga, vl_pass, vl_fat, ind_rat, vl_icms_ant, vl_bc_icms, vl_icms_apur, vl_bc_icms_apur, vl_dif]);
 register_model!(Reg1800, "1800");

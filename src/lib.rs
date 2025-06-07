@@ -8,8 +8,8 @@ mod utils;
 use crate::models::files::File;
 use crate::models::registry::{register_efd_models, register_icms_ipi_models};
 use crate::models::traits::FilesModel;
-use crate::schemas::files::files::dsl as schema;
-use crate::schemas::files::files::table;
+use crate::schemas::files::dsl as schema;
+use crate::schemas::files::table;
 use anyhow::{Error, Result};
 use database::DB_POOL;
 use diesel::dsl::sql;
@@ -57,6 +57,7 @@ pub struct ExportFile {
 
 #[derive(Debug, Clone)]
 pub enum Status {
+    Processing,
     Skipped { reason: String },
     ProcessingFailed { error: String },
     ProcessingSuccessful,
@@ -87,6 +88,13 @@ pub async fn import_files(mut data: ImportFiles) -> Result<(), Error> {
     for file_data in data.files {
         let file_path = std::path::Path::new(&file_data.file);
 
+        send_status(
+            &mut data.progress_tx,
+            file_data.file.clone(),
+            Status::Processing,
+        )
+        .await;
+
         let extension = file_path
             .extension()
             .and_then(|ext| ext.to_str())
@@ -104,9 +112,14 @@ pub async fn import_files(mut data: ImportFiles) -> Result<(), Error> {
             Err(err) => {
                 let error_message = format!("Failed to create file entry: {err}");
 
-                send_status(&mut data.progress_tx, file_data.file.clone(), Status::Skipped {
-                    reason: error_message.to_string(),
-                }).await;
+                send_status(
+                    &mut data.progress_tx,
+                    file_data.file.clone(),
+                    Status::Skipped {
+                        reason: error_message.to_string(),
+                    },
+                )
+                .await;
 
                 error!("{error_message}");
                 continue;
@@ -116,16 +129,20 @@ pub async fn import_files(mut data: ImportFiles) -> Result<(), Error> {
         if extension != "txt" {
             let error_message = "Invalid file extension. Only .txt is allowed";
 
-            send_status(&mut data.progress_tx, file_data.file.clone(), Status::Skipped {
-                reason: error_message.to_string(),
-            }).await;
+            send_status(
+                &mut data.progress_tx,
+                file_data.file.clone(),
+                Status::Skipped {
+                    reason: error_message.to_string(),
+                },
+            )
+            .await;
 
             continue;
         }
 
         let file_clone = file_data.file.clone();
         let semaphore_clone = semaphore.clone();
-        // let send_status_clone = send_status;
         let task_file_path = file_clone.clone();
         let mut task_progress_tx = data.progress_tx.clone();
 
@@ -139,16 +156,28 @@ pub async fn import_files(mut data: ImportFiles) -> Result<(), Error> {
                 file_data.registers,
                 file_id,
                 file_data.sped_type,
-            ).await {
+            )
+            .await
+            {
                 let error_message = format!("Failed to process file: {err}");
 
-                send_status(&mut task_progress_tx, task_file_path, Status::ProcessingFailed {
-                    error: error_message.to_string(),
-                }).await;
+                send_status(
+                    &mut task_progress_tx,
+                    task_file_path,
+                    Status::ProcessingFailed {
+                        error: error_message.to_string(),
+                    },
+                )
+                .await;
 
                 error!("{error_message}");
             } else {
-                send_status(&mut task_progress_tx, file_data.file.clone(), Status::ProcessingSuccessful).await;
+                send_status(
+                    &mut task_progress_tx,
+                    file_data.file.clone(),
+                    Status::ProcessingSuccessful,
+                )
+                .await;
             }
         });
 
@@ -273,10 +302,7 @@ pub async fn clean() -> Result<(), anyhow::Error> {
 
 pub async fn send_status(tx: &mut Option<Sender<Progress>>, file_path: String, status: Status) {
     if let Some(tx) = tx {
-        let event = Progress {
-            file_path,
-            status,
-        };
+        let event = Progress { file_path, status };
 
         tx.send(event).await.expect("Failed to send status message");
     } else {

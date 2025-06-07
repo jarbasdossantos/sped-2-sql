@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_f200::efd_f200::dsl as schema;
-use crate::schemas::efd_f200::efd_f200::table;
+use crate::schemas::efd_f200::dsl as schema;
+use crate::schemas::efd_f200::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_f200::efd_f200::dsl)]
+#[diesel(table_name = crate::schemas::efd_f200::dsl)]
 pub struct EfdF200 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -28,7 +27,6 @@ pub struct EfdF200 {
     pub reg: Option<String>,
     pub ind_oper: Option<String>,
     pub unid_imob: Option<String>,
-    pub ident_emp: Option<String>,
     pub desc_unid_imob: Option<String>,
     pub num_cont: Option<String>,
     pub cpf_cnpj_adqu: Option<String>,
@@ -64,25 +62,24 @@ impl Model for EfdF200 {
             reg: fields.get(1).map(|s| s.to_string()),
             ind_oper: get_field(&fields, 2),
             unid_imob: get_field(&fields, 3),
-            ident_emp: get_field(&fields, 4),
-            desc_unid_imob: get_field(&fields, 5),
-            num_cont: get_field(&fields, 6),
-            cpf_cnpj_adqu: get_field(&fields, 7),
-            dt_oper: get_field(&fields, 8),
-            vl_tot_vend: get_field(&fields, 9),
-            vl_rec_acum: get_field(&fields, 10),
-            vl_tot_rec: get_field(&fields, 11),
-            cst_pis: get_field(&fields, 12),
-            vl_bc_pis: get_field(&fields, 13),
-            aliq_pis: get_field(&fields, 14),
-            vl_pis: get_field(&fields, 15),
-            cst_cofins: get_field(&fields, 16),
-            vl_bc_cofins: get_field(&fields, 17),
-            aliq_cofins: get_field(&fields, 18),
-            vl_cofins: get_field(&fields, 19),
-            perc_rec_receb: get_field(&fields, 20),
-            ind_nat_emp: get_field(&fields, 21),
-            inf_comp: get_field(&fields, 22),
+            desc_unid_imob: get_field(&fields, 4),
+            num_cont: get_field(&fields, 5),
+            cpf_cnpj_adqu: get_field(&fields, 6),
+            dt_oper: get_field(&fields, 7),
+            vl_tot_vend: get_field(&fields, 8),
+            vl_rec_acum: get_field(&fields, 9),
+            vl_tot_rec: get_field(&fields, 10),
+            cst_pis: get_field(&fields, 11),
+            vl_bc_pis: get_field(&fields, 12),
+            aliq_pis: get_field(&fields, 13),
+            vl_pis: get_field(&fields, 14),
+            cst_cofins: get_field(&fields, 15),
+            vl_bc_cofins: get_field(&fields, 16),
+            aliq_cofins: get_field(&fields, 17),
+            vl_cofins: get_field(&fields, 18),
+            perc_rec_receb: get_field(&fields, 19),
+            ind_nat_emp: get_field(&fields, 20),
+            inf_comp: get_field(&fields, 21),
         }
     }
 
@@ -103,7 +100,7 @@ impl Model for EfdF200 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -112,7 +109,6 @@ impl Model for EfdF200 {
                     schema::reg.eq(&self.reg.clone()),
                     schema::ind_oper.eq(&self.ind_oper),
                     schema::unid_imob.eq(&self.unid_imob),
-                    schema::ident_emp.eq(&self.ident_emp),
                     schema::desc_unid_imob.eq(&self.desc_unid_imob),
                     schema::num_cont.eq(&self.num_cont),
                     schema::cpf_cnpj_adqu.eq(&self.cpf_cnpj_adqu),
@@ -162,31 +158,5 @@ impl fmt::Display for EfdF200 {
     }
 }
 
-impl_display_fields!(
-    EfdF200,
-    [
-        reg,
-        ind_oper,
-        unid_imob,
-        ident_emp,
-        desc_unid_imob,
-        num_cont,
-        cpf_cnpj_adqu,
-        dt_oper,
-        vl_tot_vend,
-        vl_rec_acum,
-        vl_tot_rec,
-        cst_pis,
-        vl_bc_pis,
-        aliq_pis,
-        vl_pis,
-        cst_cofins,
-        vl_bc_cofins,
-        aliq_cofins,
-        vl_cofins,
-        perc_rec_receb,
-        ind_nat_emp,
-        inf_comp
-    ]
-);
+impl_display_fields!(EfdF200, [reg, ind_oper, unid_imob, desc_unid_imob, num_cont, cpf_cnpj_adqu, dt_oper, vl_tot_vend, vl_rec_acum, vl_tot_rec, cst_pis, vl_bc_pis, aliq_pis, vl_pis, cst_cofins, vl_bc_cofins, aliq_cofins, vl_cofins, perc_rec_receb, ind_nat_emp, inf_comp]);
 register_model!(EfdF200, "f200");

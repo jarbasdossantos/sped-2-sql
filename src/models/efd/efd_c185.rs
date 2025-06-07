@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_c185::efd_c185::dsl as schema;
-use crate::schemas::efd_c185::efd_c185::table;
+use crate::schemas::efd_c185::dsl as schema;
+use crate::schemas::efd_c185::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_c185::efd_c185::dsl)]
+#[diesel(table_name = crate::schemas::efd_c185::dsl)]
 pub struct EfdC185 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -81,7 +80,7 @@ impl Model for EfdC185 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -129,20 +128,5 @@ impl fmt::Display for EfdC185 {
     }
 }
 
-impl_display_fields!(
-    EfdC185,
-    [
-        reg,
-        cst_cofins,
-        cfop,
-        vl_item,
-        vl_desc,
-        vl_bc_cofins,
-        aliq_cofins,
-        quant_bc_cofins,
-        aliq_cofins_quant,
-        vl_cofins,
-        cod_cta
-    ]
-);
+impl_display_fields!(EfdC185, [reg, cst_cofins, cfop, vl_item, vl_desc, vl_bc_cofins, aliq_cofins, quant_bc_cofins, aliq_cofins_quant, vl_cofins, cod_cta]);
 register_model!(EfdC185, "c185");

@@ -1,5 +1,3 @@
-// @generated automatically by generate_efd_models.rs
-
 pub mod efd_0000;
 pub mod efd_0001;
 pub mod efd_0035;

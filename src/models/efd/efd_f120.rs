@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_f120::efd_f120::dsl as schema;
-use crate::schemas::efd_f120::efd_f120::table;
+use crate::schemas::efd_f120::dsl as schema;
+use crate::schemas::efd_f120::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,21 +12,20 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_f120::efd_f120::dsl)]
+#[diesel(table_name = crate::schemas::efd_f120::dsl)]
 pub struct EfdF120 {
     pub id: i32,
     pub file_id: Option<i32>,
     pub parent_id: Option<i32>,
     pub reg: Option<String>,
     pub nat_bc_cred: Option<String>,
-    pub ident_bem_imob: Option<String>,
     pub ind_orig_cred: Option<String>,
     pub ind_util_bem_imob: Option<String>,
     pub vl_oper_dep: Option<String>,
@@ -59,22 +57,21 @@ impl Model for EfdF120 {
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
             nat_bc_cred: get_field(&fields, 2),
-            ident_bem_imob: get_field(&fields, 3),
-            ind_orig_cred: get_field(&fields, 4),
-            ind_util_bem_imob: get_field(&fields, 5),
-            vl_oper_dep: get_field(&fields, 6),
-            parc_oper_nao_bc_cred: get_field(&fields, 7),
-            cst_pis: get_field(&fields, 8),
-            vl_bc_pis: get_field(&fields, 9),
-            aliq_pis: get_field(&fields, 10),
-            vl_pis: get_field(&fields, 11),
-            cst_cofins: get_field(&fields, 12),
-            vl_bc_cofins: get_field(&fields, 13),
-            aliq_cofins: get_field(&fields, 14),
-            vl_cofins: get_field(&fields, 15),
-            cod_cta: get_field(&fields, 16),
-            cod_ccus: get_field(&fields, 17),
-            desc_bem_imob: get_field(&fields, 18),
+            ind_orig_cred: get_field(&fields, 3),
+            ind_util_bem_imob: get_field(&fields, 4),
+            vl_oper_dep: get_field(&fields, 5),
+            parc_oper_nao_bc_cred: get_field(&fields, 6),
+            cst_pis: get_field(&fields, 7),
+            vl_bc_pis: get_field(&fields, 8),
+            aliq_pis: get_field(&fields, 9),
+            vl_pis: get_field(&fields, 10),
+            cst_cofins: get_field(&fields, 11),
+            vl_bc_cofins: get_field(&fields, 12),
+            aliq_cofins: get_field(&fields, 13),
+            vl_cofins: get_field(&fields, 14),
+            cod_cta: get_field(&fields, 15),
+            cod_ccus: get_field(&fields, 16),
+            desc_bem_imob: get_field(&fields, 17),
         }
     }
 
@@ -95,7 +92,7 @@ impl Model for EfdF120 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -103,7 +100,6 @@ impl Model for EfdF120 {
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
                     schema::nat_bc_cred.eq(&self.nat_bc_cred),
-                    schema::ident_bem_imob.eq(&self.ident_bem_imob),
                     schema::ind_orig_cred.eq(&self.ind_orig_cred),
                     schema::ind_util_bem_imob.eq(&self.ind_util_bem_imob),
                     schema::vl_oper_dep.eq(&self.vl_oper_dep),
@@ -150,27 +146,5 @@ impl fmt::Display for EfdF120 {
     }
 }
 
-impl_display_fields!(
-    EfdF120,
-    [
-        reg,
-        nat_bc_cred,
-        ident_bem_imob,
-        ind_orig_cred,
-        ind_util_bem_imob,
-        vl_oper_dep,
-        parc_oper_nao_bc_cred,
-        cst_pis,
-        vl_bc_pis,
-        aliq_pis,
-        vl_pis,
-        cst_cofins,
-        vl_bc_cofins,
-        aliq_cofins,
-        vl_cofins,
-        cod_cta,
-        cod_ccus,
-        desc_bem_imob
-    ]
-);
+impl_display_fields!(EfdF120, [reg, nat_bc_cred, ind_orig_cred, ind_util_bem_imob, vl_oper_dep, parc_oper_nao_bc_cred, cst_pis, vl_bc_pis, aliq_pis, vl_pis, cst_cofins, vl_bc_cofins, aliq_cofins, vl_cofins, cod_cta, cod_ccus, desc_bem_imob]);
 register_model!(EfdF120, "f120");

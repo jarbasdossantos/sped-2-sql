@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_1010::efd_1010::dsl as schema;
-use crate::schemas::efd_1010::efd_1010::table;
+use crate::schemas::efd_1010::dsl as schema;
+use crate::schemas::efd_1010::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,22 +12,20 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_1010::efd_1010::dsl)]
+#[diesel(table_name = crate::schemas::efd_1010::dsl)]
 pub struct Efd1010 {
     pub id: i32,
     pub file_id: Option<i32>,
     pub parent_id: Option<i32>,
     pub reg: Option<String>,
     pub num_proc: Option<String>,
-    pub id_sec_jud: Option<String>,
-    pub id_vara: Option<String>,
     pub ind_nat_acao: Option<String>,
     pub desc_dec_jud: Option<String>,
     pub dt_sent_jud: Option<String>,
@@ -48,11 +45,9 @@ impl Model for Efd1010 {
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
             num_proc: get_field(&fields, 2),
-            id_sec_jud: get_field(&fields, 3),
-            id_vara: get_field(&fields, 4),
-            ind_nat_acao: get_field(&fields, 5),
-            desc_dec_jud: get_field(&fields, 6),
-            dt_sent_jud: get_field(&fields, 7),
+            ind_nat_acao: get_field(&fields, 3),
+            desc_dec_jud: get_field(&fields, 4),
+            dt_sent_jud: get_field(&fields, 5),
         }
     }
 
@@ -73,7 +68,7 @@ impl Model for Efd1010 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -81,8 +76,6 @@ impl Model for Efd1010 {
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
                     schema::num_proc.eq(&self.num_proc),
-                    schema::id_sec_jud.eq(&self.id_sec_jud),
-                    schema::id_vara.eq(&self.id_vara),
                     schema::ind_nat_acao.eq(&self.ind_nat_acao),
                     schema::desc_dec_jud.eq(&self.desc_dec_jud),
                     schema::dt_sent_jud.eq(&self.dt_sent_jud),
@@ -117,16 +110,5 @@ impl fmt::Display for Efd1010 {
     }
 }
 
-impl_display_fields!(
-    Efd1010,
-    [
-        reg,
-        num_proc,
-        id_sec_jud,
-        id_vara,
-        ind_nat_acao,
-        desc_dec_jud,
-        dt_sent_jud
-    ]
-);
+impl_display_fields!(Efd1010, [reg, num_proc, ind_nat_acao, desc_dec_jud, dt_sent_jud]);
 register_model!(Efd1010, "1010");

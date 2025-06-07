@@ -1,9 +1,9 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_0000::reg_0000::dsl as schema;
-use crate::schemas::reg_0000::reg_0000::table;
+use crate::models::utils::to_date;
+use crate::schemas::reg_0000::dsl as schema;
+use crate::schemas::reg_0000::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -20,7 +20,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_0000::reg_0000::dsl)]
+#[diesel(table_name = crate::schemas::reg_0000::dsl)]
 pub struct Reg0000 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -57,8 +57,8 @@ impl Model for Reg0000 {
             reg: fields.get(1).map(|s| s.to_string()),
             cod_ver: get_field(&fields, 2),
             cod_fin: get_field(&fields, 3),
-            dt_ini: get_field(&fields, 4),
-            dt_fin: get_field(&fields, 5),
+            dt_ini: to_date(get_field(&fields, 4)),
+            dt_fin: to_date(get_field(&fields, 5)),
             nome: get_field(&fields, 6),
             cnpj: get_field(&fields, 7),
             cpf: get_field(&fields, 8),
@@ -72,11 +72,13 @@ impl Model for Reg0000 {
         }
     }
 
-    async fn get(file_id: i32, _parent_id: Option<i32>) -> Result<Vec<Reg0000>, Error> {
+    async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Reg0000>, Error> {
+        let mut conn = DB_POOL.get().unwrap();
+
         Ok(table
             .filter(schema::file_id.eq(&file_id))
             .select(Reg0000::as_select())
-            .load(&mut DB_POOL.get().unwrap())?)
+            .load(&mut conn)?)
     }
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {

@@ -1,12 +1,38 @@
-/*
- * Get a field from a vector of strings
- *
- * @param fields: &Vec<&str> - The vector of strings
- * @param field: usize - The index of the field to get
- * @return Option<String> - The field as a string, or None if the index is out of bounds
- */
 pub(crate) fn get_field(fields: &Vec<&str>, field: usize) -> Option<String> {
     fields.get(field).map(|s| s.to_string())
+}
+
+pub(crate) fn to_date(date: Option<String>) -> Option<String> {
+    date.and_then(|date_str| {
+        if date_str.contains('/') {
+            if date_str.len() != 10 {
+                return None;
+            }
+
+            let parts: Vec<&str> = date_str.split('/').collect();
+            if parts.len() != 3 {
+                return None;
+            }
+
+            let day = parts[0];
+            let month = parts[1];
+            let year = parts[2];
+
+            if day.len() != 2 || month.len() != 2 || year.len() != 4 {
+                return None;
+            }
+
+            Some(format!("{}-{}-{}", year, month, day))
+        } else if date_str.len() == 8 {
+            let day = &date_str[0..2];
+            let month = &date_str[2..4];
+            let year = &date_str[4..8];
+
+            Some(format!("{}-{}-{}", year, month, day))
+        } else {
+            None
+        }
+    })
 }
 
 #[cfg(test)]
@@ -32,5 +58,37 @@ mod tests {
     fn test_get_field_empty_vec() {
         let fields: Vec<&str> = vec![];
         assert_eq!(get_field(&fields, 0), None);
+    }
+
+    #[test]
+    fn test_convert_date_to_sqlite_format_valid() {
+        // Test with separator format
+        assert_eq!(
+            to_date(Some("01/02/2023".to_string())),
+            Some("2023-02-01".to_string())
+        );
+        assert_eq!(
+            to_date(Some("31/12/2022".to_string())),
+            Some("2022-12-31".to_string())
+        );
+
+        // Test without separator format
+        assert_eq!(
+            to_date(Some("01062020".to_string())),
+            Some("2020-06-01".to_string())
+        );
+        assert_eq!(
+            to_date(Some("31122022".to_string())),
+            Some("2022-12-31".to_string())
+        );
+    }
+
+    #[test]
+    fn test_convert_date_to_sqlite_format_invalid() {
+        assert_eq!(to_date(Some("2023-01-01".to_string())), None); // Wrong format
+        assert_eq!(to_date(Some("01-02-2023".to_string())), None); // Wrong separator
+        assert_eq!(to_date(Some("1/2/2023".to_string())), None); // Wrong length
+        assert_eq!(to_date(Some("0106202".to_string())), None); // Wrong length without separator
+        assert_eq!(to_date(None), None); // None input
     }
 }

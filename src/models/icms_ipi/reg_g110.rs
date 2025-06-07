@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_g110::reg_g110::dsl as schema;
-use crate::schemas::reg_g110::reg_g110::table;
+use crate::schemas::reg_g110::dsl as schema;
+use crate::schemas::reg_g110::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -20,7 +19,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_g110::reg_g110::dsl)]
+#[diesel(table_name = crate::schemas::reg_g110::dsl)]
 pub struct RegG110 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -50,15 +49,15 @@ impl Model for RegG110 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    dt_ini: get_field(&fields, 2),
-        dt_fin: get_field(&fields, 3),
-        saldo_in_icms: get_field(&fields, 4),
-        som_parc: get_field(&fields, 5),
-        vl_trib_exp: get_field(&fields, 6),
-        vl_total: get_field(&fields, 7),
-        ind_per_sai: get_field(&fields, 8),
-        icms_aprop: get_field(&fields, 9),
-        som_icms_oc: get_field(&fields, 10),
+            dt_ini: get_field(&fields, 2),
+            dt_fin: get_field(&fields, 3),
+            saldo_in_icms: get_field(&fields, 4),
+            som_parc: get_field(&fields, 5),
+            vl_trib_exp: get_field(&fields, 6),
+            vl_total: get_field(&fields, 7),
+            ind_per_sai: get_field(&fields, 8),
+            icms_aprop: get_field(&fields, 9),
+            som_icms_oc: get_field(&fields, 10),
         }
     }
 
@@ -86,15 +85,15 @@ impl Model for RegG110 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::dt_ini.eq(&self.dt_ini),
-schema::dt_fin.eq(&self.dt_fin),
-schema::saldo_in_icms.eq(&self.saldo_in_icms),
-schema::som_parc.eq(&self.som_parc),
-schema::vl_trib_exp.eq(&self.vl_trib_exp),
-schema::vl_total.eq(&self.vl_total),
-schema::ind_per_sai.eq(&self.ind_per_sai),
-schema::icms_aprop.eq(&self.icms_aprop),
-schema::som_icms_oc.eq(&self.som_icms_oc),
+                    schema::dt_ini.eq(&self.dt_ini),
+                    schema::dt_fin.eq(&self.dt_fin),
+                    schema::saldo_in_icms.eq(&self.saldo_in_icms),
+                    schema::som_parc.eq(&self.som_parc),
+                    schema::vl_trib_exp.eq(&self.vl_trib_exp),
+                    schema::vl_total.eq(&self.vl_total),
+                    schema::ind_per_sai.eq(&self.ind_per_sai),
+                    schema::icms_aprop.eq(&self.icms_aprop),
+                    schema::som_icms_oc.eq(&self.som_icms_oc),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

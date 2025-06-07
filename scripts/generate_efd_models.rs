@@ -1,26 +1,44 @@
+use regex::Regex;
 use std::fs;
+use std::io::Read;
 use std::path::Path;
 
-static MODELS_NAME_PREFIX: &str = "reg_";
-static MODELS_FOLDER: &str = "src/models/icms_ipi/";
-static MODEL_PREFIX: &str = "Reg";
+static REG_MODELS_PREFIX: &str = "reg_";
+static EFD_MODELS_PREFIX: &str = "efd_";
+static MODELS_FOLDER: &str = "src/models/";
+static REG_MODEL_PREFIX: &str = "Reg";
+static EFD_MODEL_PREFIX: &str = "Efd";
 
 fn main() -> std::io::Result<()> {
-    let schema_files = fs::read_dir("src/schemas/")
-        .expect("Failed to read schemas folder")
-        .filter_map(Result::ok)
-        .filter(|entry| {
-            let file_name = entry.file_name();
-            let file_name = file_name.to_string_lossy();
-            file_name.starts_with(MODELS_NAME_PREFIX) && file_name.ends_with(".rs")
+    // Ler o conteúdo do arquivo schemas.rs
+    let mut schemas_content = String::new();
+    fs::File::open("src/schemas.rs")
+        .expect("Failed to open schemas.rs file")
+        .read_to_string(&mut schemas_content)
+        .expect("Failed to read schemas.rs file");
+
+    // Extrair os nomes dos schemas usando regex
+    let reg_re = Regex::new(r"diesel::table!\s*\{\s*(reg_[a-z0-9_]+)\s*\(")
+        .expect("Failed to create regex for reg_");
+
+    let efd_re = Regex::new(r"diesel::table!\s*\{\s*(efd_[a-z0-9_]+)\s*\(")
+        .expect("Failed to create regex for efd_");
+
+    // Extrair schemas que começam com reg_
+    let reg_schemas = reg_re
+        .captures_iter(&schemas_content)
+        .map(|cap| {
+            let full_name = cap[1].to_string();
+            full_name.trim_start_matches(REG_MODELS_PREFIX).to_string()
         })
-        .map(|entry| {
-            let file_name = entry.file_name();
-            let file_name = file_name.to_string_lossy();
-            let model_name = file_name
-                .trim_start_matches(MODELS_NAME_PREFIX)
-                .trim_end_matches(".rs");
-            model_name.to_string()
+        .collect::<Vec<_>>();
+
+    // Extrair schemas que começam com efd_
+    let efd_schemas = efd_re
+        .captures_iter(&schemas_content)
+        .map(|cap| {
+            let full_name = cap[1].to_string();
+            full_name.trim_start_matches(EFD_MODELS_PREFIX).to_string()
         })
         .collect::<Vec<_>>();
 
@@ -30,45 +48,70 @@ fn main() -> std::io::Result<()> {
         .filter(|entry| {
             let file_name = entry.file_name();
             let file_name = file_name.to_string_lossy();
-            file_name.starts_with(MODELS_NAME_PREFIX) && file_name.ends_with(".rs")
+            file_name.starts_with(REG_MODELS_PREFIX) && file_name.ends_with(".rs")
         })
         .map(|entry| {
             let file_name = entry.file_name();
             let file_name = file_name.to_string_lossy();
             let model_name = file_name
-                .trim_start_matches(MODELS_NAME_PREFIX)
+                .trim_start_matches(REG_MODELS_PREFIX)
                 .trim_end_matches(".rs");
             model_name.to_string()
         })
         .collect::<Vec<_>>();
 
-    for schema in &schema_files {
+    for schema in &efd_schemas {
         if !existing_models.contains(schema) {
-            generate_model(schema)?;
+            generate_model(schema, "efd_")?;
         }
     }
 
-    update_mod_file(&schema_files)?;
-    // update_registry_file(&schema_files)?;
+    for schema in &reg_schemas {
+        if !existing_models.contains(schema) {
+            generate_model(schema, "reg_")?;
+        }
+    }
+
+    update_mod_file(&efd_schemas, "efd_");
+    update_mod_file(&reg_schemas, "reg_");
+
+    print!("EFD\n");
+    print_models_registry(efd_schemas, "efd_");
+    print!("ICMS IPI\n");
+    print_models_registry(reg_schemas, "reg_");
 
     Ok(())
 }
 
-fn generate_model(schema: &str) -> std::io::Result<()> {
-    let schema_path = format!(
-        "src/schemas/{}{}.rs",
-        MODELS_NAME_PREFIX,
-        schema.to_lowercase()
-    );
-    let schema_content = fs::read_to_string(&schema_path).expect("Failed to load schema file");
+fn generate_model(schema: &str, schema_prefix: &str) -> std::io::Result<()> {
+    // Ler o conteúdo do arquivo schemas.rs
+    let mut schemas_content = String::new();
+    fs::File::open("src/schemas.rs")
+        .expect("Failed to open schemas.rs file")
+        .read_to_string(&mut schemas_content)
+        .expect("Failed to read schemas.rs file");
 
-    let fields = extract_fields_from_schema(&schema_content);
+    let fields =
+        extract_fields_from_schema(&schemas_content, &format!("{}{}", schema_prefix, schema));
 
-    let model_name = format!("{}{}", MODEL_PREFIX, schema.to_uppercase());
+    let folder = if schema_prefix == "efd_" {
+        "efd/"
+    } else {
+        "icms_ipi/"
+    };
+
+    let prefix = if schema_prefix == "efd_" {
+        EFD_MODEL_PREFIX
+    } else {
+        REG_MODEL_PREFIX
+    };
+
+    let model_name = format!("{}{}", prefix, schema.to_uppercase());
     let file_path = format!(
-        "{}{}{}.rs",
+        "{}{}{}{}.rs",
         MODELS_FOLDER,
-        MODELS_NAME_PREFIX,
+        folder,
+        schema_prefix,
         schema.to_lowercase()
     );
 
@@ -109,8 +152,8 @@ fn generate_model(schema: &str) -> std::io::Result<()> {
         r#"use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::{6}{0}::{6}{0}::dsl as schema;
-use crate::schemas::{6}{0}::{6}{0}::table;
+use crate::schemas::{6}{0}::dsl as schema;
+use crate::schemas::{6}{0}::table;
 use crate::{{impl_display_fields, register_model}};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -127,7 +170,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::{6}{0}::{6}{0}::dsl)]
+#[diesel(table_name = crate::schemas::{6}{0}::dsl)]
 pub struct {1} {{
     pub id: i32,
     pub file_id: Option<i32>,
@@ -218,7 +261,7 @@ register_model!({1}, "{0}");
         new_fields,
         save_fields,
         display_fields,
-        MODELS_NAME_PREFIX
+        schema_prefix
     );
 
     fs::write(&file_path, content)?;
@@ -226,17 +269,37 @@ register_model!({1}, "{0}");
     Ok(())
 }
 
-fn extract_fields_from_schema(schema_content: &str) -> Vec<String> {
+fn extract_fields_from_schema(schema_content: &str, schema_name: &str) -> Vec<String> {
     let mut fields = Vec::new();
+    let mut in_target_schema = false;
     let lines: Vec<&str> = schema_content.lines().collect();
 
+    // Procurar pelo início da definição do schema
+    let schema_start = format!("{schema_name} (id) {{");
+
     for line in lines {
-        if line.trim().starts_with("//") || !line.contains("->") {
+        let trimmed = line.trim();
+
+        // Verificar se estamos entrando na definição do schema alvo
+        if !in_target_schema && line.contains(&schema_start) {
+            in_target_schema = true;
             continue;
         }
 
-        if let Some(field) = line.split_whitespace().next() {
-            if !["id", "file_id", "parent_id", "reg"].contains(&field) {
+        // Se encontrarmos o fechamento do bloco e estávamos no schema alvo, saímos
+        if in_target_schema && trimmed == "}" {
+            break;
+        }
+
+        // Se estamos no schema alvo e a linha contém uma definição de campo
+        if in_target_schema
+            && trimmed.contains("->")
+            && (!trimmed.starts_with("id")
+            && !trimmed.starts_with("file_id")
+            && !trimmed.starts_with("parent_id")
+            && !trimmed.starts_with("reg"))
+        {
+            if let Some(field) = trimmed.split_whitespace().next() {
                 fields.push(field.to_string());
             }
         }
@@ -245,38 +308,38 @@ fn extract_fields_from_schema(schema_content: &str) -> Vec<String> {
     fields
 }
 
-fn update_mod_file(schema_files: &Vec<String>) -> std::io::Result<()> {
+fn update_mod_file(schema_files: &Vec<String>, model_prefix: &str) {
     let mut mod_file_content = String::new();
+
+    let folder = if model_prefix == "efd_" {
+        "efd/"
+    } else {
+        "icms_ipi/"
+    };
+
     for schema in schema_files {
         mod_file_content.push_str(&format!(
             "pub mod {}{};\n",
-            MODELS_NAME_PREFIX,
+            REG_MODELS_PREFIX,
             schema.to_lowercase()
         ));
     }
-    fs::write(format!("{MODELS_FOLDER}mod.rs"), mod_file_content)
+
+    fs::write(format!("{MODELS_FOLDER}{folder}mod.rs"), mod_file_content);
 }
 
 #[allow(dead_code)]
-fn update_registry_file(schema_files: &Vec<String>) -> std::io::Result<()> {
-    let mut registry_content = String::from("use super::traits::Model;\n\n");
-    registry_content.push_str("pub fn register_models() -> Vec<Box<dyn Model>> {\n");
-    registry_content.push_str("    let mut models: Vec<Box<dyn Model>> = Vec::new();\n");
+fn print_models_registry(schema_files: Vec<String>, model_prefix: &str) {
+    let mut registry_content = String::new();
 
     for schema in schema_files {
         registry_content.push_str(&format!(
             "    crate::models::{}::{}{}::register();\n",
-            &MODELS_NAME_PREFIX[..3],
-            MODELS_NAME_PREFIX,
+            &model_prefix[0..3],
+            model_prefix,
             schema.to_lowercase()
         ));
     }
 
-    registry_content.push_str("    models\n");
-    registry_content.push_str("}\n");
-
-    fs::write(
-        format!("src/models/{MODELS_NAME_PREFIX}registry.rs"),
-        registry_content,
-    )
+    println!("{}", registry_content);
 }

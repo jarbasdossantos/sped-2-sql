@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_d100::reg_d100::dsl as schema;
-use crate::schemas::reg_d100::reg_d100::table;
+use crate::schemas::reg_d100::dsl as schema;
+use crate::schemas::reg_d100::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_d100::reg_d100::dsl)]
+#[diesel(table_name = crate::schemas::reg_d100::dsl)]
 pub struct RegD100 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -105,7 +104,7 @@ impl Model for RegD100 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -165,32 +164,5 @@ impl fmt::Display for RegD100 {
     }
 }
 
-impl_display_fields!(
-    RegD100,
-    [
-        reg,
-        ind_oper,
-        ind_emit,
-        cod_part,
-        cod_mod,
-        cod_sit,
-        ser,
-        sub,
-        num_doc,
-        chv_cte,
-        dt_doc,
-        dt_a_p,
-        tp_ct_e,
-        chv_cte_ref,
-        vl_doc,
-        vl_desc,
-        ind_frt,
-        vl_serv,
-        vl_bc_icms,
-        vl_icms,
-        vl_nt,
-        cod_inf,
-        cod_cta
-    ]
-);
+impl_display_fields!(RegD100, [reg, ind_oper, ind_emit, cod_part, cod_mod, cod_sit, ser, sub, num_doc, chv_cte, dt_doc, dt_a_p, tp_ct_e, chv_cte_ref, vl_doc, vl_desc, ind_frt, vl_serv, vl_bc_icms, vl_icms, vl_nt, cod_inf, cod_cta]);
 register_model!(RegD100, "d100");

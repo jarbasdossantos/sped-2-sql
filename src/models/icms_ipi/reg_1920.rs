@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_1920::reg_1920::dsl as schema;
-use crate::schemas::reg_1920::reg_1920::table;
+use crate::schemas::reg_1920::dsl as schema;
+use crate::schemas::reg_1920::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_1920::reg_1920::dsl)]
+#[diesel(table_name = crate::schemas::reg_1920::dsl)]
 pub struct Reg1920 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -85,7 +84,7 @@ impl Model for Reg1920 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -135,22 +134,5 @@ impl fmt::Display for Reg1920 {
     }
 }
 
-impl_display_fields!(
-    Reg1920,
-    [
-        reg,
-        vl_tot_transf_debitos_oa,
-        vl_tot_aj_debitos_oa,
-        vl_estornos_cred_oa,
-        vl_tot_transf_creditos_oa,
-        vl_tot_aj_creditos_oa,
-        vl_estornos_deb_oa,
-        vl_sld_credor_ant_oa,
-        vl_sld_apurado_oa,
-        vl_tot_ded,
-        vl_icms_recolher_oa,
-        vl_sld_credor_transp_oa,
-        deb_esp_oa
-    ]
-);
+impl_display_fields!(Reg1920, [reg, vl_tot_transf_debitos_oa, vl_tot_aj_debitos_oa, vl_estornos_cred_oa, vl_tot_transf_creditos_oa, vl_tot_aj_creditos_oa, vl_estornos_deb_oa, vl_sld_credor_ant_oa, vl_sld_apurado_oa, vl_tot_ded, vl_icms_recolher_oa, vl_sld_credor_transp_oa, deb_esp_oa]);
 register_model!(Reg1920, "1920");

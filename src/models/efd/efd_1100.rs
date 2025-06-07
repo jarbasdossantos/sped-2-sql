@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_1100::efd_1100::dsl as schema;
-use crate::schemas::efd_1100::efd_1100::table;
+use crate::schemas::efd_1100::dsl as schema;
+use crate::schemas::efd_1100::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_1100::efd_1100::dsl)]
+#[diesel(table_name = crate::schemas::efd_1100::dsl)]
 pub struct Efd1100 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -95,7 +94,7 @@ impl Model for Efd1100 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -150,27 +149,5 @@ impl fmt::Display for Efd1100 {
     }
 }
 
-impl_display_fields!(
-    Efd1100,
-    [
-        reg,
-        per_apu_cred,
-        orig_cred,
-        cnpj_suc,
-        cod_cred,
-        vl_cred_apu,
-        vl_cred_ext_apu,
-        vl_tot_cred_apu,
-        vl_cred_desc_pa_ant,
-        vl_cred_per_pa_ant,
-        vl_cred_dcomp_pa_ant,
-        sd_cred_disp_efd,
-        vl_cred_desc_efd,
-        vl_cred_per_efd,
-        vl_cred_dcomp_efd,
-        vl_cred_trans,
-        vl_cred_out,
-        sld_cred_fim
-    ]
-);
+impl_display_fields!(Efd1100, [reg, per_apu_cred, orig_cred, cnpj_suc, cod_cred, vl_cred_apu, vl_cred_ext_apu, vl_tot_cred_apu, vl_cred_desc_pa_ant, vl_cred_per_pa_ant, vl_cred_dcomp_pa_ant, sd_cred_disp_efd, vl_cred_desc_efd, vl_cred_per_efd, vl_cred_dcomp_efd, vl_cred_trans, vl_cred_out, sld_cred_fim]);
 register_model!(Efd1100, "1100");

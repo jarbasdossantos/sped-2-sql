@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_m600::efd_m600::dsl as schema;
-use crate::schemas::efd_m600::efd_m600::table;
+use crate::schemas::efd_m600::dsl as schema;
+use crate::schemas::efd_m600::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -20,7 +19,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_m600::efd_m600::dsl)]
+#[diesel(table_name = crate::schemas::efd_m600::dsl)]
 pub struct EfdM600 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -53,18 +52,18 @@ impl Model for EfdM600 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    vl_tot_cont_nc_per: get_field(&fields, 2),
-        vl_tot_cred_desc: get_field(&fields, 3),
-        vl_tot_cred_desc_ant: get_field(&fields, 4),
-        vl_tot_cont_nc_dev: get_field(&fields, 5),
-        vl_ret_nc: get_field(&fields, 6),
-        vl_out_ded_nc: get_field(&fields, 7),
-        vl_cont_nc_rec: get_field(&fields, 8),
-        vl_tot_cont_cum_per: get_field(&fields, 9),
-        vl_ret_cum: get_field(&fields, 10),
-        vl_out_ded_cum: get_field(&fields, 11),
-        vl_cont_cum_rec: get_field(&fields, 12),
-        vl_tot_cont_rec: get_field(&fields, 13),
+            vl_tot_cont_nc_per: get_field(&fields, 2),
+            vl_tot_cred_desc: get_field(&fields, 3),
+            vl_tot_cred_desc_ant: get_field(&fields, 4),
+            vl_tot_cont_nc_dev: get_field(&fields, 5),
+            vl_ret_nc: get_field(&fields, 6),
+            vl_out_ded_nc: get_field(&fields, 7),
+            vl_cont_nc_rec: get_field(&fields, 8),
+            vl_tot_cont_cum_per: get_field(&fields, 9),
+            vl_ret_cum: get_field(&fields, 10),
+            vl_out_ded_cum: get_field(&fields, 11),
+            vl_cont_cum_rec: get_field(&fields, 12),
+            vl_tot_cont_rec: get_field(&fields, 13),
         }
     }
 
@@ -92,18 +91,18 @@ impl Model for EfdM600 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::vl_tot_cont_nc_per.eq(&self.vl_tot_cont_nc_per),
-schema::vl_tot_cred_desc.eq(&self.vl_tot_cred_desc),
-schema::vl_tot_cred_desc_ant.eq(&self.vl_tot_cred_desc_ant),
-schema::vl_tot_cont_nc_dev.eq(&self.vl_tot_cont_nc_dev),
-schema::vl_ret_nc.eq(&self.vl_ret_nc),
-schema::vl_out_ded_nc.eq(&self.vl_out_ded_nc),
-schema::vl_cont_nc_rec.eq(&self.vl_cont_nc_rec),
-schema::vl_tot_cont_cum_per.eq(&self.vl_tot_cont_cum_per),
-schema::vl_ret_cum.eq(&self.vl_ret_cum),
-schema::vl_out_ded_cum.eq(&self.vl_out_ded_cum),
-schema::vl_cont_cum_rec.eq(&self.vl_cont_cum_rec),
-schema::vl_tot_cont_rec.eq(&self.vl_tot_cont_rec),
+                    schema::vl_tot_cont_nc_per.eq(&self.vl_tot_cont_nc_per),
+                    schema::vl_tot_cred_desc.eq(&self.vl_tot_cred_desc),
+                    schema::vl_tot_cred_desc_ant.eq(&self.vl_tot_cred_desc_ant),
+                    schema::vl_tot_cont_nc_dev.eq(&self.vl_tot_cont_nc_dev),
+                    schema::vl_ret_nc.eq(&self.vl_ret_nc),
+                    schema::vl_out_ded_nc.eq(&self.vl_out_ded_nc),
+                    schema::vl_cont_nc_rec.eq(&self.vl_cont_nc_rec),
+                    schema::vl_tot_cont_cum_per.eq(&self.vl_tot_cont_cum_per),
+                    schema::vl_ret_cum.eq(&self.vl_ret_cum),
+                    schema::vl_out_ded_cum.eq(&self.vl_out_ded_cum),
+                    schema::vl_cont_cum_rec.eq(&self.vl_cont_cum_rec),
+                    schema::vl_tot_cont_rec.eq(&self.vl_tot_cont_rec),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 
