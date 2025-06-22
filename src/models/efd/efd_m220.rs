@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_m220::efd_m220::dsl as schema;
-use crate::schemas::efd_m220::efd_m220::table;
+use crate::schemas::efd_m220::dsl as schema;
+use crate::schemas::efd_m220::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -20,7 +19,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_m220::efd_m220::dsl)]
+#[diesel(table_name = crate::schemas::efd_m220::dsl)]
 pub struct EfdM220 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -47,12 +46,12 @@ impl Model for EfdM220 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    ind_aj: get_field(&fields, 2),
-        vl_aj: get_field(&fields, 3),
-        cod_aj: get_field(&fields, 4),
-        num_doc: get_field(&fields, 5),
-        descr_aj: get_field(&fields, 6),
-        dt_ref: get_field(&fields, 7),
+            ind_aj: get_field(&fields, 2),
+            vl_aj: get_field(&fields, 3),
+            cod_aj: get_field(&fields, 4),
+            num_doc: get_field(&fields, 5),
+            descr_aj: get_field(&fields, 6),
+            dt_ref: get_field(&fields, 7),
         }
     }
 
@@ -80,12 +79,12 @@ impl Model for EfdM220 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::ind_aj.eq(&self.ind_aj),
-schema::vl_aj.eq(&self.vl_aj),
-schema::cod_aj.eq(&self.cod_aj),
-schema::num_doc.eq(&self.num_doc),
-schema::descr_aj.eq(&self.descr_aj),
-schema::dt_ref.eq(&self.dt_ref),
+                    schema::ind_aj.eq(&self.ind_aj),
+                    schema::vl_aj.eq(&self.vl_aj),
+                    schema::cod_aj.eq(&self.cod_aj),
+                    schema::num_doc.eq(&self.num_doc),
+                    schema::descr_aj.eq(&self.descr_aj),
+                    schema::dt_ref.eq(&self.dt_ref),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

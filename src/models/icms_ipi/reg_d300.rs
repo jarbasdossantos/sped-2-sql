@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_d300::reg_d300::dsl as schema;
-use crate::schemas::reg_d300::reg_d300::table;
+use crate::schemas::reg_d300::dsl as schema;
+use crate::schemas::reg_d300::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_d300::reg_d300::dsl)]
+#[diesel(table_name = crate::schemas::reg_d300::dsl)]
 pub struct RegD300 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -99,7 +98,7 @@ impl Model for RegD300 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -156,29 +155,5 @@ impl fmt::Display for RegD300 {
     }
 }
 
-impl_display_fields!(
-    RegD300,
-    [
-        reg,
-        cod_mod,
-        ser,
-        sub,
-        num_doc_ini,
-        num_doc_fin,
-        cst_icms,
-        cfop,
-        aliq_icms,
-        dt_doc,
-        vl_opr,
-        vl_desc,
-        vl_serv,
-        vl_seg,
-        vl_out_desp,
-        vl_bc_icms,
-        vl_icms,
-        vl_red_bc,
-        cod_obs,
-        cod_cta
-    ]
-);
+impl_display_fields!(RegD300, [reg, cod_mod, ser, sub, num_doc_ini, num_doc_fin, cst_icms, cfop, aliq_icms, dt_doc, vl_opr, vl_desc, vl_serv, vl_seg, vl_out_desp, vl_bc_icms, vl_icms, vl_red_bc, cod_obs, cod_cta]);
 register_model!(RegD300, "d300");

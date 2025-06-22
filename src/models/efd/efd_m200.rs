@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_m200::efd_m200::dsl as schema;
-use crate::schemas::efd_m200::efd_m200::table;
+use crate::schemas::efd_m200::dsl as schema;
+use crate::schemas::efd_m200::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_m200::efd_m200::dsl)]
+#[diesel(table_name = crate::schemas::efd_m200::dsl)]
 pub struct EfdM200 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -85,7 +84,7 @@ impl Model for EfdM200 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -135,22 +134,5 @@ impl fmt::Display for EfdM200 {
     }
 }
 
-impl_display_fields!(
-    EfdM200,
-    [
-        reg,
-        vl_tot_cont_nc_per,
-        vl_tot_cred_desc,
-        vl_tot_cred_desc_ant,
-        vl_tot_cont_nc_dev,
-        vl_ret_nc,
-        vl_out_ded_nc,
-        vl_cont_nc_rec,
-        vl_tot_cont_cum_per,
-        vl_ret_cum,
-        vl_out_ded_cum,
-        vl_cont_cum_rec,
-        vl_tot_cont_rec
-    ]
-);
+impl_display_fields!(EfdM200, [reg, vl_tot_cont_nc_per, vl_tot_cred_desc, vl_tot_cred_desc_ant, vl_tot_cont_nc_dev, vl_ret_nc, vl_out_ded_nc, vl_cont_nc_rec, vl_tot_cont_cum_per, vl_ret_cum, vl_out_ded_cum, vl_cont_cum_rec, vl_tot_cont_rec]);
 register_model!(EfdM200, "m200");

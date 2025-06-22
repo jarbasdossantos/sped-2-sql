@@ -1,26 +1,25 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_0000::efd_0000::dsl as schema;
-use crate::schemas::efd_0000::efd_0000::table;
+use crate::schemas::efd_0000::dsl as schema;
+use crate::schemas::efd_0000::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
-use diesel::prelude::*;
+use diesel::prelude::Queryable;
 use diesel::result::Error;
 use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
-#[derive(Debug, Clone, Serialize, Queryable, Selectable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_0000::efd_0000)]
+#[diesel(table_name = crate::schemas::efd_0000::dsl)]
 pub struct Efd0000 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -53,7 +52,7 @@ impl Model for Efd0000 {
             id: new_id.unwrap_or(0),
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
-            reg: get_field(&fields, 1),
+            reg: fields.get(1).map(|s| s.to_string()),
             cod_ver: get_field(&fields, 2),
             tipo_escrit: get_field(&fields, 3),
             ind_sit_esp: get_field(&fields, 4),
@@ -70,11 +69,13 @@ impl Model for Efd0000 {
         }
     }
 
-    async fn get(file_id: i32, _parent: Option<i32>) -> Result<Vec<Efd0000>, Error> {
+    async fn get(file_id: i32, _parent_id: Option<i32>) -> Result<Vec<Efd0000>, Error> {
+        let mut conn = DB_POOL.get().unwrap();
+
         Ok(table
             .filter(schema::file_id.eq(&file_id))
             .select(Efd0000::as_select())
-            .load(&mut DB_POOL.get().unwrap())?)
+            .load(&mut conn)?)
     }
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
@@ -84,19 +85,19 @@ impl Model for Efd0000 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-                    schema::cod_ver.eq(&self.cod_ver.clone()),
-                    schema::tipo_escrit.eq(&self.tipo_escrit.clone()),
-                    schema::ind_sit_esp.eq(&self.ind_sit_esp.clone()),
-                    schema::num_rec_anterior.eq(&self.num_rec_anterior.clone()),
-                    schema::dt_ini.eq(&self.dt_ini.clone()),
-                    schema::dt_fin.eq(&self.dt_fin.clone()),
-                    schema::nome.eq(&self.nome.clone()),
-                    schema::cnpj.eq(&self.cnpj.clone()),
-                    schema::uf.eq(&self.uf.clone()),
-                    schema::cod_mun.eq(&self.cod_mun.clone()),
-                    schema::suframa.eq(&self.suframa.clone()),
-                    schema::ind_nat_pj.eq(&self.ind_nat_pj.clone()),
-                    schema::ind_ativ.eq(&self.ind_ativ.clone()),
+                    schema::cod_ver.eq(&self.cod_ver),
+                    schema::tipo_escrit.eq(&self.tipo_escrit),
+                    schema::ind_sit_esp.eq(&self.ind_sit_esp),
+                    schema::num_rec_anterior.eq(&self.num_rec_anterior),
+                    schema::dt_ini.eq(&self.dt_ini),
+                    schema::dt_fin.eq(&self.dt_fin),
+                    schema::nome.eq(&self.nome),
+                    schema::cnpj.eq(&self.cnpj),
+                    schema::uf.eq(&self.uf),
+                    schema::cod_mun.eq(&self.cod_mun),
+                    schema::suframa.eq(&self.suframa),
+                    schema::ind_nat_pj.eq(&self.ind_nat_pj),
+                    schema::ind_ativ.eq(&self.ind_ativ),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 
@@ -114,7 +115,7 @@ impl Model for Efd0000 {
     }
 
     fn get_entity_name(&self) -> String {
-        "Reg0000".to_string()
+        "Efd0000".to_string()
     }
 
     fn get_display_fields(&self) -> Vec<(String, String)> {

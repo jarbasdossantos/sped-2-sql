@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_0100::efd_0100::dsl as schema;
-use crate::schemas::efd_0100::efd_0100::table;
+use crate::schemas::efd_0100::dsl as schema;
+use crate::schemas::efd_0100::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
-#[derive(Debug, Clone, Serialize, Queryable, Selectable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_0100::efd_0100)]
+#[diesel(table_name = crate::schemas::efd_0100::dsl)]
 pub struct Efd0100 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -53,7 +52,7 @@ impl Model for Efd0100 {
             id: new_id.unwrap_or(0),
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
-            reg: get_field(&fields, 1),
+            reg: fields.get(1).map(|s| s.to_string()),
             nome: get_field(&fields, 2),
             cpf: get_field(&fields, 3),
             crc: get_field(&fields, 4),
@@ -87,26 +86,26 @@ impl Model for Efd0100 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-                    schema::nome.eq(&self.nome.clone()),
-                    schema::cpf.eq(&self.cpf.clone()),
-                    schema::crc.eq(&self.crc.clone()),
-                    schema::cnpj.eq(&self.cnpj.clone()),
-                    schema::cep.eq(&self.cep.clone()),
-                    schema::end.eq(&self.end.clone()),
-                    schema::num.eq(&self.num.clone()),
-                    schema::compl.eq(&self.compl.clone()),
-                    schema::bairro.eq(&self.bairro.clone()),
-                    schema::fone.eq(&self.fone.clone()),
-                    schema::fax.eq(&self.fax.clone()),
-                    schema::email.eq(&self.email.clone()),
-                    schema::cod_mun.eq(&self.cod_mun.clone()),
+                    schema::nome.eq(&self.nome),
+                    schema::cpf.eq(&self.cpf),
+                    schema::crc.eq(&self.crc),
+                    schema::cnpj.eq(&self.cnpj),
+                    schema::cep.eq(&self.cep),
+                    schema::end.eq(&self.end),
+                    schema::num.eq(&self.num),
+                    schema::compl.eq(&self.compl),
+                    schema::bairro.eq(&self.bairro),
+                    schema::fone.eq(&self.fone),
+                    schema::fax.eq(&self.fax),
+                    schema::email.eq(&self.email),
+                    schema::cod_mun.eq(&self.cod_mun),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 
@@ -124,7 +123,7 @@ impl Model for Efd0100 {
     }
 
     fn get_entity_name(&self) -> String {
-        "Reg0100".to_string()
+        "Efd0100".to_string()
     }
 
     fn get_display_fields(&self) -> Vec<(String, String)> {
@@ -138,8 +137,5 @@ impl fmt::Display for Efd0100 {
     }
 }
 
-impl_display_fields!(
-    Efd0100,
-    [reg, nome, cpf, crc, cnpj, cep, end, num, compl, bairro, fone, fax, email, cod_mun]
-);
+impl_display_fields!(Efd0100, [reg, nome, cpf, crc, cnpj, cep, end, num, compl, bairro, fone, fax, email, cod_mun]);
 register_model!(Efd0100, "0100");

@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_e110::reg_e110::dsl as schema;
-use crate::schemas::reg_e110::reg_e110::table;
+use crate::schemas::reg_e110::dsl as schema;
+use crate::schemas::reg_e110::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_e110::reg_e110::dsl)]
+#[diesel(table_name = crate::schemas::reg_e110::dsl)]
 pub struct RegE110 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -89,7 +88,7 @@ impl Model for RegE110 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -141,24 +140,5 @@ impl fmt::Display for RegE110 {
     }
 }
 
-impl_display_fields!(
-    RegE110,
-    [
-        reg,
-        vl_tot_debitos,
-        vl_aj_debitos,
-        vl_tot_aj_debitos,
-        vl_estornos_cred,
-        vl_tot_creditos,
-        vl_aj_creditos,
-        vl_tot_aj_creditos,
-        vl_estornos_deb,
-        vl_sld_credor_ant,
-        vl_sld_apurado,
-        vl_tot_ded,
-        vl_icms_recolher,
-        vl_sld_credor_transportar,
-        deb_esp
-    ]
-);
+impl_display_fields!(RegE110, [reg, vl_tot_debitos, vl_aj_debitos, vl_tot_aj_debitos, vl_estornos_cred, vl_tot_creditos, vl_aj_creditos, vl_tot_aj_creditos, vl_estornos_deb, vl_sld_credor_ant, vl_sld_apurado, vl_tot_ded, vl_icms_recolher, vl_sld_credor_transportar, deb_esp]);
 register_model!(RegE110, "e110");

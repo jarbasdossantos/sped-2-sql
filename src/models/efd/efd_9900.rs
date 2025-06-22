@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_9900::efd_9900::dsl as schema;
-use crate::schemas::efd_9900::efd_9900::table;
+use crate::schemas::efd_9900::dsl as schema;
+use crate::schemas::efd_9900::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_9900::efd_9900::dsl)]
+#[diesel(table_name = crate::schemas::efd_9900::dsl)]
 pub struct Efd9900 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -65,14 +64,14 @@ impl Model for Efd9900 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-                    schema::reg_blc.eq(&self.reg_blc),
+                    schema::reg_blc.eq(&self.reg_blc.clone()),
                     schema::qtd_reg_blc.eq(&self.qtd_reg_blc),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;

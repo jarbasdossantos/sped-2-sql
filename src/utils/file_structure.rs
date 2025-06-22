@@ -554,28 +554,28 @@ pub mod efd {
                 "C860",
                 RegistryEntry {
                     level: 3,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c860::EfdC860),
                 },
             ),
             (
                 "C870",
                 RegistryEntry {
                     level: 4,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c870::EfdC870),
                 },
             ),
             (
                 "C880",
                 RegistryEntry {
                     level: 4,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c880::EfdC880),
                 },
             ),
             (
                 "C890",
                 RegistryEntry {
                     level: 4,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c890::EfdC890),
                 },
             ),
             (
@@ -1505,10 +1505,24 @@ pub mod icms_ipi {
                 },
             ),
             (
+                "0002",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0002::Reg0002),
+                },
+            ),
+            (
                 "0005",
                 RegistryEntry {
                     level: 2,
                     load_model: create_loader!(crate::models::icms_ipi::reg_0005::Reg0005),
+                },
+            ),
+            (
+                "0015",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0015::Reg0015),
                 },
             ),
             (
@@ -1525,13 +1539,1371 @@ pub mod icms_ipi {
                     load_model: create_loader!(crate::models::icms_ipi::reg_0150::Reg0150),
                 },
             ),
+            (
+                "0175",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0175::Reg0175),
+                },
+            ),
+            (
+                "0190",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0190::Reg0190),
+                },
+            ),
+            (
+                "0200",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0200::Reg0200),
+                },
+            ),
+            (
+                "0205",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0205::Reg0205),
+                },
+            ),
+            (
+                "0206",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0206::Reg0206),
+                },
+            ),
+            (
+                "0210",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0210::Reg0210),
+                },
+            ),
+            (
+                "0220",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0220::Reg0220),
+                },
+            ),
+            (
+                "0300",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0300::Reg0300),
+                },
+            ),
+            (
+                "0305",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0305::Reg0305),
+                },
+            ),
+            (
+                "0400",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0400::Reg0400),
+                },
+            ),
+            (
+                "0450",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0450::Reg0450),
+                },
+            ),
+            (
+                "0460",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0460::Reg0460),
+                },
+            ),
+            (
+                "0500",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0500::Reg0500),
+                },
+            ),
+            (
+                "0600",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0600::Reg0600),
+                },
+            ),
+            (
+                "0990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_0990::Reg0990),
+                },
+            ),
+            (
+                "B001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: None,
+                },
+            ),
+            (
+                "B990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: None,
+                },
+            ),
+            (
+                "C001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c001::RegC001),
+                },
+            ),
+            (
+                "C100",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c100::RegC100),
+                },
+            ),
+            (
+                "C101",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c101::RegC101),
+                },
+            ),
+            (
+                "C105",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c105::RegC105),
+                },
+            ),
+            (
+                "C110",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c110::RegC110),
+                },
+            ),
+            (
+                "C111",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c111::RegC111),
+                },
+            ),
+            (
+                "C112",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c112::RegC112),
+                },
+            ),
+            (
+                "C113",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c113::RegC113),
+                },
+            ),
+            (
+                "C114",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c114::RegC114),
+                },
+            ),
+            (
+                "C115",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c115::RegC115),
+                },
+            ),
+            (
+                "C116",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c116::RegC116),
+                },
+            ),
+            (
+                "C120",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c120::RegC120),
+                },
+            ),
+            (
+                "C130",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c130::RegC130),
+                },
+            ),
+            (
+                "C140",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c140::RegC140),
+                },
+            ),
+            (
+                "C141",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c141::RegC141),
+                },
+            ),
+            (
+                "C160",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c160::RegC160),
+                },
+            ),
+            (
+                "C165",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c165::RegC165),
+                },
+            ),
+            (
+                "C170",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c170::RegC170),
+                },
+            ),
+            (
+                "C171",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c171::RegC171),
+                },
+            ),
+            (
+                "C172",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c172::RegC172),
+                },
+            ),
+            (
+                "C173",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c173::RegC173),
+                },
+            ),
+            (
+                "C174",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c174::RegC174),
+                },
+            ),
+            (
+                "C175",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c175::RegC175),
+                },
+            ),
+            (
+                "C176",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c176::RegC176),
+                },
+            ),
+            (
+                "C177",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c177::RegC177),
+                },
+            ),
+            (
+                "C178",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c178::RegC178),
+                },
+            ),
+            (
+                "C179",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c179::RegC179),
+                },
+            ),
+            (
+                "C190",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c190::RegC190),
+                },
+            ),
+            (
+                "C195",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c195::RegC195),
+                },
+            ),
+            (
+                "C197",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c197::RegC197),
+                },
+            ),
+            (
+                "C300",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c300::RegC300),
+                },
+            ),
+            (
+                "C310",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c310::RegC310),
+                },
+            ),
+            (
+                "C320",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c320::RegC320),
+                },
+            ),
+            (
+                "C321",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c321::RegC321),
+                },
+            ),
+            (
+                "C350",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c350::RegC350),
+                },
+            ),
+            (
+                "C370",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c370::RegC370),
+                },
+            ),
+            (
+                "C390",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c390::RegC390),
+                },
+            ),
+            (
+                "C400",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c400::RegC400),
+                },
+            ),
+            (
+                "C405",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c405::RegC405),
+                },
+            ),
+            (
+                "C410",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c410::RegC410),
+                },
+            ),
+            (
+                "C420",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c420::RegC420),
+                },
+            ),
+            (
+                "C425",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c425::RegC425),
+                },
+            ),
+            (
+                "C460",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c460::RegC460),
+                },
+            ),
+            (
+                "C465",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c465::RegC465),
+                },
+            ),
+            (
+                "C470",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c470::RegC470),
+                },
+            ),
+            (
+                "C490",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c490::RegC490),
+                },
+            ),
+            (
+                "C495",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c495::RegC495),
+                },
+            ),
+            (
+                "C500",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c500::RegC500),
+                },
+            ),
+            (
+                "C510",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c510::RegC510),
+                },
+            ),
+            (
+                "C590",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c590::RegC590),
+                },
+            ),
+            (
+                "C600",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c600::RegC600),
+                },
+            ),
+            (
+                "C601",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c601::RegC601),
+                },
+            ),
+            (
+                "C610",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c610::RegC610),
+                },
+            ),
+            (
+                "C690",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c690::RegC690),
+                },
+            ),
+            (
+                "C700",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c700::RegC700),
+                },
+            ),
+            (
+                "C790",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c790::RegC790),
+                },
+            ),
+            (
+                "C791",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c791::RegC791),
+                },
+            ),
+            (
+                "C800",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c800::RegC800),
+                },
+            ),
+            (
+                "C850",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c850::RegC850),
+                },
+            ),
+            (
+                "C860",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c860::RegC860),
+                },
+            ),
+            (
+                "C890",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c890::RegC890),
+                },
+            ),
+            (
+                "C990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_c990::RegC990),
+                },
+            ),
+            (
+                "D001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d001::RegD001),
+                },
+            ),
+            (
+                "D100",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d100::RegD100),
+                },
+            ),
+            (
+                "D101",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d101::RegD101),
+                },
+            ),
+            (
+                "D110",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d110::RegD110),
+                },
+            ),
+            (
+                "D120",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d120::RegD120),
+                },
+            ),
+            (
+                "D130",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d130::RegD130),
+                },
+            ),
+            (
+                "D140",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d140::RegD140),
+                },
+            ),
+            (
+                "D150",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d150::RegD150),
+                },
+            ),
+            (
+                "D160",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d160::RegD160),
+                },
+            ),
+            (
+                "D161",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d161::RegD161),
+                },
+            ),
+            (
+                "D162",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d162::RegD162),
+                },
+            ),
+            (
+                "D170",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d170::RegD170),
+                },
+            ),
+            (
+                "D180",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d180::RegD180),
+                },
+            ),
+            (
+                "D190",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d190::RegD190),
+                },
+            ),
+            (
+                "D195",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d195::RegD195),
+                },
+            ),
+            (
+                "D197",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d197::RegD197),
+                },
+            ),
+            (
+                "D300",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d300::RegD300),
+                },
+            ),
+            (
+                "D301",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d301::RegD301),
+                },
+            ),
+            (
+                "D310",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d310::RegD310),
+                },
+            ),
+            (
+                "D350",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d350::RegD350),
+                },
+            ),
+            (
+                "D355",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d355::RegD355),
+                },
+            ),
+            (
+                "D360",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d360::RegD360),
+                },
+            ),
+            (
+                "D365",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d365::RegD365),
+                },
+            ),
+            (
+                "D370",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d370::RegD370),
+                },
+            ),
+            (
+                "D390",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d390::RegD390),
+                },
+            ),
+            (
+                "D400",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d400::RegD400),
+                },
+            ),
+            (
+                "D410",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d410::RegD410),
+                },
+            ),
+            (
+                "D411",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d411::RegD411),
+                },
+            ),
+            (
+                "D420",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d420::RegD420),
+                },
+            ),
+            (
+                "D500",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d500::RegD500),
+                },
+            ),
+            (
+                "D510",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d510::RegD510),
+                },
+            ),
+            (
+                "D530",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d530::RegD530),
+                },
+            ),
+            (
+                "D590",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d590::RegD590),
+                },
+            ),
+            (
+                "D600",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d600::RegD600),
+                },
+            ),
+            (
+                "D610",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d610::RegD610),
+                },
+            ),
+            (
+                "D690",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d690::RegD690),
+                },
+            ),
+            (
+                "D695",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d695::RegD695),
+                },
+            ),
+            (
+                "D696",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d696::RegD696),
+                },
+            ),
+            (
+                "D697",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d697::RegD697),
+                },
+            ),
+            (
+                "D990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_d990::RegD990),
+                },
+            ),
+            (
+                "E001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e001::RegE001),
+                },
+            ),
+            (
+                "E100",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e100::RegE100),
+                },
+            ),
+            (
+                "E110",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e110::RegE110),
+                },
+            ),
+            (
+                "E111",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e111::RegE111),
+                },
+            ),
+            (
+                "E112",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e112::RegE112),
+                },
+            ),
+            (
+                "E113",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e113::RegE113),
+                },
+            ),
+            (
+                "E115",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e115::RegE115),
+                },
+            ),
+            (
+                "E116",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e116::RegE116),
+                },
+            ),
+            (
+                "E200",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e200::RegE200),
+                },
+            ),
+            (
+                "E210",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e210::RegE210),
+                },
+            ),
+            (
+                "E220",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e220::RegE220),
+                },
+            ),
+            (
+                "E230",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e230::RegE230),
+                },
+            ),
+            (
+                "E240",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e240::RegE240),
+                },
+            ),
+            (
+                "E250",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e250::RegE250),
+                },
+            ),
+            (
+                "E500",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e500::RegE500),
+                },
+            ),
+            (
+                "E510",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e510::RegE510),
+                },
+            ),
+            (
+                "E520",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e520::RegE520),
+                },
+            ),
+            (
+                "E530",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e530::RegE530),
+                },
+            ),
+            (
+                "E990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_e990::RegE990),
+                },
+            ),
+            (
+                "G001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_g001::RegG001),
+                },
+            ),
+            (
+                "G110",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_g110::RegG110),
+                },
+            ),
+            (
+                "G125",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_g125::RegG125),
+                },
+            ),
+            (
+                "G126",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_g126::RegG126),
+                },
+            ),
+            (
+                "G130",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_g130::RegG130),
+                },
+            ),
+            (
+                "G140",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_g140::RegG140),
+                },
+            ),
+            (
+                "G990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_g990::RegG990),
+                },
+            ),
+            (
+                "H001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_h001::RegH001),
+                },
+            ),
+            (
+                "H005",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_h005::RegH005),
+                },
+            ),
+            (
+                "H010",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_h010::RegH010),
+                },
+            ),
+            (
+                "H020",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_h020::RegH020),
+                },
+            ),
+            (
+                "H990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_h990::RegH990),
+                },
+            ),
+            (
+                "K001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k001::RegK001),
+                },
+            ),
+            (
+                "K100",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k100::RegK100),
+                },
+            ),
+            (
+                "K200",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k200::RegK200),
+                },
+            ),
+            (
+                "K220",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k220::RegK220),
+                },
+            ),
+            (
+                "K230",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k230::RegK230),
+                },
+            ),
+            (
+                "K235",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k235::RegK235),
+                },
+            ),
+            (
+                "K250",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k250::RegK250),
+                },
+            ),
+            (
+                "K255",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k255::RegK255),
+                },
+            ),
+            (
+                "K990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_k990::RegK990),
+                },
+            ),
+            (
+                "1001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: None,
+                },
+            ),
+            (
+                "1010",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1010::Reg1010),
+                },
+            ),
+            (
+                "1100",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1100::Reg1100),
+                },
+            ),
+            (
+                "1105",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1105::Reg1105),
+                },
+            ),
+            (
+                "1110",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1110::Reg1110),
+                },
+            ),
+            (
+                "1200",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1200::Reg1200),
+                },
+            ),
+            (
+                "1210",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1210::Reg1210),
+                },
+            ),
+            (
+                "1300",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1300::Reg1300),
+                },
+            ),
+            (
+                "1310",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1310::Reg1310),
+                },
+            ),
+            (
+                "1320",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1320::Reg1320),
+                },
+            ),
+            (
+                "1350",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1350::Reg1350),
+                },
+            ),
+            (
+                "1360",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1360::Reg1360),
+                },
+            ),
+            (
+                "1370",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1370::Reg1370),
+                },
+            ),
+            (
+                "1390",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1390::Reg1390),
+                },
+            ),
+            (
+                "1391",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1391::Reg1391),
+                },
+            ),
+            (
+                "1400",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1400::Reg1400),
+                },
+            ),
+            (
+                "1500",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1500::Reg1500),
+                },
+            ),
+            (
+                "1510",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1510::Reg1510),
+                },
+            ),
+            (
+                "1600",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1600::Reg1600),
+                },
+            ),
+            (
+                "1700",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1700::Reg1700),
+                },
+            ),
+            (
+                "1710",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1710::Reg1710),
+                },
+            ),
+            (
+                "1800",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1800::Reg1800),
+                },
+            ),
+            (
+                "1900",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1900::Reg1900),
+                },
+            ),
+            (
+                "1910",
+                RegistryEntry {
+                    level: 3,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1910::Reg1910),
+                },
+            ),
+            (
+                "1920",
+                RegistryEntry {
+                    level: 4,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1920::Reg1920),
+                },
+            ),
+            (
+                "1921",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1921::Reg1921),
+                },
+            ),
+            (
+                "1922",
+                RegistryEntry {
+                    level: 6,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1922::Reg1922),
+                },
+            ),
+            (
+                "1923",
+                RegistryEntry {
+                    level: 6,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1923::Reg1923),
+                },
+            ),
+            (
+                "1925",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1925::Reg1925),
+                },
+            ),
+            (
+                "1926",
+                RegistryEntry {
+                    level: 5,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1926::Reg1926),
+                },
+            ),
+            (
+                "1990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_1990::Reg1990),
+                },
+            ),
+            (
+                "9001",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_9001::Reg9001),
+                },
+            ),
+            (
+                "9900",
+                RegistryEntry {
+                    level: 2,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_9900::Reg9900),
+                },
+            ),
+            (
+                "9990",
+                RegistryEntry {
+                    level: 1,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_9990::Reg9990),
+                },
+            ),
+            (
+                "9999",
+                RegistryEntry {
+                    level: 0,
+                    load_model: create_loader!(crate::models::icms_ipi::reg_9999::Reg9999),
+                },
+            ),
         ])
     });
 }
 
-pub fn get_reg_children(sped_type: SpedType) -> HashMap<&'static str, Vec<&'static str>> {
-    let mut children: HashMap<&'static str, Vec<&'static str>> = HashMap::new();
-    let mut parent_stack: Vec<(&'static str, u8)> = Vec::new(); // Stack of (reg_code, level)
+pub fn get_reg_children(sped_type: SpedType) -> HashMap<String, Vec<String>> {
+    let mut children: HashMap<String, Vec<String>> = HashMap::new();
+    let mut parent_stack: Vec<(String, u8)> = Vec::new(); // Stack of (reg_code, level)
 
     let data = if matches!(sped_type, SpedType::Efd) {
         FILE_STRUCTURE.iter()
@@ -1548,16 +2920,16 @@ pub fn get_reg_children(sped_type: SpedType) -> HashMap<&'static str, Vec<&'stat
             }
         }
 
-        if let Some(&(parent_reg, _)) = parent_stack.last() {
+        if let Some((parent_reg, _)) = parent_stack.last() {
             if structure.level == parent_stack.last().unwrap().1 + 1 {
                 children
-                    .entry(parent_reg)
+                    .entry(parent_reg.to_string())
                     .or_default()
-                    .push(reg);
+                    .push(reg.to_string());
             }
         }
 
-        parent_stack.push((reg, structure.level));
+        parent_stack.push((reg.to_string(), structure.level));
     }
 
     children

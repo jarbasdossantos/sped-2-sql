@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_e210::reg_e210::dsl as schema;
-use crate::schemas::reg_e210::reg_e210::table;
+use crate::schemas::reg_e210::dsl as schema;
+use crate::schemas::reg_e210::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_e210::reg_e210::dsl)]
+#[diesel(table_name = crate::schemas::reg_e210::dsl)]
 pub struct RegE210 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -89,7 +88,7 @@ impl Model for RegE210 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -141,24 +140,5 @@ impl fmt::Display for RegE210 {
     }
 }
 
-impl_display_fields!(
-    RegE210,
-    [
-        reg,
-        ind_mov_st,
-        vl_sld_cred_ant_st,
-        vl_devol_st,
-        vl_ressarc_st,
-        vl_out_cred_st,
-        vl_aj_creditos_st,
-        vl_retencao_st,
-        vl_out_deb_st,
-        vl_aj_debitos_st,
-        vl_sld_dev_ant_st,
-        vl_deducoes_st,
-        vl_icms_recol_st,
-        vl_sld_cred_st_transportar,
-        deb_esp_st
-    ]
-);
+impl_display_fields!(RegE210, [reg, ind_mov_st, vl_sld_cred_ant_st, vl_devol_st, vl_ressarc_st, vl_out_cred_st, vl_aj_creditos_st, vl_retencao_st, vl_out_deb_st, vl_aj_debitos_st, vl_sld_dev_ant_st, vl_deducoes_st, vl_icms_recol_st, vl_sld_cred_st_transportar, deb_esp_st]);
 register_model!(RegE210, "e210");

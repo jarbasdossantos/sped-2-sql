@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_i300::efd_i300::dsl as schema;
-use crate::schemas::efd_i300::efd_i300::table;
+use crate::schemas::efd_i300::dsl as schema;
+use crate::schemas::efd_i300::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -20,7 +19,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_i300::efd_i300::dsl)]
+#[diesel(table_name = crate::schemas::efd_i300::dsl)]
 pub struct EfdI300 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -45,10 +44,10 @@ impl Model for EfdI300 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    cod_comp: get_field(&fields, 2),
-        vl_comp: get_field(&fields, 3),
-        cod_cta: get_field(&fields, 4),
-        inf_comp: get_field(&fields, 5),
+            cod_comp: get_field(&fields, 2),
+            vl_comp: get_field(&fields, 3),
+            cod_cta: get_field(&fields, 4),
+            inf_comp: get_field(&fields, 5),
         }
     }
 
@@ -76,10 +75,10 @@ impl Model for EfdI300 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::cod_comp.eq(&self.cod_comp),
-schema::vl_comp.eq(&self.vl_comp),
-schema::cod_cta.eq(&self.cod_cta),
-schema::inf_comp.eq(&self.inf_comp),
+                    schema::cod_comp.eq(&self.cod_comp),
+                    schema::vl_comp.eq(&self.vl_comp),
+                    schema::cod_cta.eq(&self.cod_cta),
+                    schema::inf_comp.eq(&self.inf_comp),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_a100::efd_a100::dsl as schema;
-use crate::schemas::efd_a100::efd_a100::table;
+use crate::schemas::efd_a100::dsl as schema;
+use crate::schemas::efd_a100::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_a100::efd_a100::dsl)]
+#[diesel(table_name = crate::schemas::efd_a100::dsl)]
 pub struct EfdA100 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -101,7 +100,7 @@ impl Model for EfdA100 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -159,30 +158,5 @@ impl fmt::Display for EfdA100 {
     }
 }
 
-impl_display_fields!(
-    EfdA100,
-    [
-        reg,
-        ind_oper,
-        ind_emit,
-        cod_part,
-        cod_sit,
-        ser,
-        sub,
-        num_doc,
-        chv_nfse,
-        dt_doc,
-        dt_exe_serv,
-        vl_doc,
-        ind_pgto,
-        vl_desc,
-        vl_bc_pis,
-        vl_pis,
-        vl_bc_cofins,
-        vl_cofins,
-        vl_pis_ret,
-        vl_cofins_ret,
-        vl_iss
-    ]
-);
+impl_display_fields!(EfdA100, [reg, ind_oper, ind_emit, cod_part, cod_sit, ser, sub, num_doc, chv_nfse, dt_doc, dt_exe_serv, vl_doc, ind_pgto, vl_desc, vl_bc_pis, vl_pis, vl_bc_cofins, vl_cofins, vl_pis_ret, vl_cofins_ret, vl_iss]);
 register_model!(EfdA100, "a100");

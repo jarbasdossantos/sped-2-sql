@@ -1,9 +1,9 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_0175::reg_0175::dsl as schema;
-use crate::schemas::reg_0175::reg_0175::table;
+use crate::models::utils::to_date;
+use crate::schemas::reg_0175::dsl as schema;
+use crate::schemas::reg_0175::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -20,7 +20,7 @@ use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_0175::reg_0175::dsl)]
+#[diesel(table_name = crate::schemas::reg_0175::dsl)]
 pub struct Reg0175 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -44,9 +44,9 @@ impl Model for Reg0175 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-                    dt_alt: get_field(&fields, 2),
-        nr_campo: get_field(&fields, 3),
-        cont_ant: get_field(&fields, 4),
+            dt_alt: to_date(get_field(&fields, 2)),
+            nr_campo: get_field(&fields, 3),
+            cont_ant: get_field(&fields, 4),
         }
     }
 
@@ -74,9 +74,9 @@ impl Model for Reg0175 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-            schema::dt_alt.eq(&self.dt_alt),
-schema::nr_campo.eq(&self.nr_campo),
-schema::cont_ant.eq(&self.cont_ant),
+                    schema::dt_alt.eq(&self.dt_alt),
+                    schema::nr_campo.eq(&self.nr_campo),
+                    schema::cont_ant.eq(&self.cont_ant),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 

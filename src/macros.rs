@@ -9,7 +9,7 @@ macro_rules! impl_display_fields {
                             stringify!($field).to_string(),
                             match &self.$field {
                                 Some(val) => val.to_string(),
-                                None => "None".to_string(),
+                                None => "".to_string(),
                             }
                         ),
                     )*

@@ -1,5 +1,3 @@
-// @generated automatically by generate_efd_models.rs
-
 pub mod efd_0000;
 pub mod efd_0001;
 pub mod efd_0035;
@@ -80,6 +78,10 @@ pub mod efd_c600;
 pub mod efd_c601;
 pub mod efd_c605;
 pub mod efd_c609;
+pub mod efd_c860;
+pub mod efd_c870;
+pub mod efd_c880;
+pub mod efd_c890;
 pub mod efd_c990;
 pub mod efd_d001;
 pub mod efd_d010;

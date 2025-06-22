@@ -20,7 +20,7 @@ pub fn create_model(
     fields: Vec<&str>,
     id: Option<i32>,
     parent_id: Option<i32>,
-    file_id: i32
+    file_id: i32,
 ) -> Option<Box<dyn Model>> {
     let registry = REGISTRY.lock().unwrap();
 
@@ -112,6 +112,10 @@ pub fn register_efd_models() {
     crate::models::efd::efd_c601::register();
     crate::models::efd::efd_c605::register();
     crate::models::efd::efd_c609::register();
+    crate::models::efd::efd_c860::register();
+    crate::models::efd::efd_c870::register();
+    crate::models::efd::efd_c880::register();
+    crate::models::efd::efd_c890::register();
     crate::models::efd::efd_c990::register();
     crate::models::efd::efd_d001::register();
     crate::models::efd::efd_d010::register();
@@ -211,18 +215,26 @@ pub fn register_efd_models() {
 pub fn register_icms_ipi_models() {
     crate::models::icms_ipi::reg_0000::register();
     crate::models::icms_ipi::reg_0001::register();
+    crate::models::icms_ipi::reg_0002::register();
     crate::models::icms_ipi::reg_0005::register();
     crate::models::icms_ipi::reg_0015::register();
     crate::models::icms_ipi::reg_0100::register();
     crate::models::icms_ipi::reg_0150::register();
     crate::models::icms_ipi::reg_0175::register();
     crate::models::icms_ipi::reg_0190::register();
+    crate::models::icms_ipi::reg_0200::register();
+    crate::models::icms_ipi::reg_0205::register();
+    crate::models::icms_ipi::reg_0206::register();
     crate::models::icms_ipi::reg_0210::register();
     crate::models::icms_ipi::reg_0220::register();
     crate::models::icms_ipi::reg_0300::register();
     crate::models::icms_ipi::reg_0305::register();
+    crate::models::icms_ipi::reg_0400::register();
+    crate::models::icms_ipi::reg_0450::register();
     crate::models::icms_ipi::reg_0460::register();
     crate::models::icms_ipi::reg_0500::register();
+    crate::models::icms_ipi::reg_0600::register();
+    crate::models::icms_ipi::reg_0990::register();
     crate::models::icms_ipi::reg_1010::register();
     crate::models::icms_ipi::reg_1100::register();
     crate::models::icms_ipi::reg_1105::register();
@@ -252,7 +264,17 @@ pub fn register_icms_ipi_models() {
     crate::models::icms_ipi::reg_1923::register();
     crate::models::icms_ipi::reg_1925::register();
     crate::models::icms_ipi::reg_1926::register();
+    crate::models::icms_ipi::reg_1990::register();
+    crate::models::icms_ipi::reg_9001::register();
+    crate::models::icms_ipi::reg_9900::register();
+    crate::models::icms_ipi::reg_9990::register();
+    crate::models::icms_ipi::reg_9999::register();
+    crate::models::icms_ipi::reg_c001::register();
+    crate::models::icms_ipi::reg_c100::register();
+    crate::models::icms_ipi::reg_c101::register();
     crate::models::icms_ipi::reg_c105::register();
+    crate::models::icms_ipi::reg_c110::register();
+    crate::models::icms_ipi::reg_c111::register();
     crate::models::icms_ipi::reg_c112::register();
     crate::models::icms_ipi::reg_c113::register();
     crate::models::icms_ipi::reg_c114::register();
@@ -284,6 +306,8 @@ pub fn register_icms_ipi_models() {
     crate::models::icms_ipi::reg_c350::register();
     crate::models::icms_ipi::reg_c370::register();
     crate::models::icms_ipi::reg_c390::register();
+    crate::models::icms_ipi::reg_c400::register();
+    crate::models::icms_ipi::reg_c405::register();
     crate::models::icms_ipi::reg_c410::register();
     crate::models::icms_ipi::reg_c420::register();
     crate::models::icms_ipi::reg_c425::register();
@@ -295,6 +319,7 @@ pub fn register_icms_ipi_models() {
     crate::models::icms_ipi::reg_c500::register();
     crate::models::icms_ipi::reg_c510::register();
     crate::models::icms_ipi::reg_c590::register();
+    crate::models::icms_ipi::reg_c600::register();
     crate::models::icms_ipi::reg_c601::register();
     crate::models::icms_ipi::reg_c610::register();
     crate::models::icms_ipi::reg_c690::register();
@@ -305,7 +330,10 @@ pub fn register_icms_ipi_models() {
     crate::models::icms_ipi::reg_c850::register();
     crate::models::icms_ipi::reg_c860::register();
     crate::models::icms_ipi::reg_c890::register();
+    crate::models::icms_ipi::reg_c990::register();
+    crate::models::icms_ipi::reg_d001::register();
     crate::models::icms_ipi::reg_d100::register();
+    crate::models::icms_ipi::reg_d101::register();
     crate::models::icms_ipi::reg_d110::register();
     crate::models::icms_ipi::reg_d120::register();
     crate::models::icms_ipi::reg_d130::register();
@@ -332,6 +360,7 @@ pub fn register_icms_ipi_models() {
     crate::models::icms_ipi::reg_d410::register();
     crate::models::icms_ipi::reg_d411::register();
     crate::models::icms_ipi::reg_d420::register();
+    crate::models::icms_ipi::reg_d500::register();
     crate::models::icms_ipi::reg_d510::register();
     crate::models::icms_ipi::reg_d530::register();
     crate::models::icms_ipi::reg_d590::register();
@@ -341,6 +370,7 @@ pub fn register_icms_ipi_models() {
     crate::models::icms_ipi::reg_d695::register();
     crate::models::icms_ipi::reg_d696::register();
     crate::models::icms_ipi::reg_d697::register();
+    crate::models::icms_ipi::reg_d990::register();
     crate::models::icms_ipi::reg_e001::register();
     crate::models::icms_ipi::reg_e100::register();
     crate::models::icms_ipi::reg_e110::register();

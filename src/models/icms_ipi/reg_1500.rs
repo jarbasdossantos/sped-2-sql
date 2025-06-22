@@ -1,9 +1,8 @@
-#[allow(clippy::all)]
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::reg_1500::reg_1500::dsl as schema;
-use crate::schemas::reg_1500::reg_1500::table;
+use crate::schemas::reg_1500::dsl as schema;
+use crate::schemas::reg_1500::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -13,14 +12,14 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::reg_1500::reg_1500::dsl)]
+#[diesel(table_name = crate::schemas::reg_1500::dsl)]
 pub struct Reg1500 {
     pub id: i32,
     pub file_id: Option<i32>,
@@ -113,7 +112,7 @@ impl Model for Reg1500 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
             diesel::insert_into(table)
                 .values((
@@ -177,36 +176,5 @@ impl fmt::Display for Reg1500 {
     }
 }
 
-impl_display_fields!(
-    Reg1500,
-    [
-        reg,
-        ind_oper,
-        ind_emit,
-        cod_part,
-        cod_mod,
-        cod_sit,
-        ser,
-        sub,
-        cod_cons,
-        num_doc,
-        dt_doc,
-        dt_e_s,
-        vl_doc,
-        vl_desc,
-        vl_forn,
-        vl_serv_nt,
-        vl_terc,
-        vl_da,
-        vl_bc_icms,
-        vl_icms,
-        vl_bc_icms_st,
-        vl_icms_st,
-        cod_inf,
-        vl_pis,
-        vl_cofis,
-        tp_ligacao,
-        cod_grupo_tensao
-    ]
-);
+impl_display_fields!(Reg1500, [reg, ind_oper, ind_emit, cod_part, cod_mod, cod_sit, ser, sub, cod_cons, num_doc, dt_doc, dt_e_s, vl_doc, vl_desc, vl_forn, vl_serv_nt, vl_terc, vl_da, vl_bc_icms, vl_icms, vl_bc_icms_st, vl_icms_st, cod_inf, vl_pis, vl_cofis, tp_ligacao, cod_grupo_tensao]);
 register_model!(Reg1500, "1500");
