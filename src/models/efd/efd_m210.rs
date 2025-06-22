@@ -28,6 +28,9 @@ pub struct EfdM210 {
     pub cod_cont: Option<String>,
     pub vl_rec_brt: Option<String>,
     pub vl_bc_cont: Option<String>,
+    pub vl_ajus_acres_bc_pis: Option<String>,
+    pub vl_ajus_reduc_bc_pis: Option<String>,
+    pub vl_bc_cont_ajus: Option<String>,
     pub aliq_pis: Option<String>,
     pub quant_bc_pis: Option<String>,
     pub aliq_pis_quant: Option<String>,
@@ -55,15 +58,18 @@ impl Model for EfdM210 {
             cod_cont: get_field(&fields, 2),
             vl_rec_brt: get_field(&fields, 3),
             vl_bc_cont: get_field(&fields, 4),
-            aliq_pis: get_field(&fields, 5),
-            quant_bc_pis: get_field(&fields, 6),
-            aliq_pis_quant: get_field(&fields, 7),
-            vl_cont_apur: get_field(&fields, 8),
-            vl_ajus_acres: get_field(&fields, 9),
-            vl_ajus_reduc: get_field(&fields, 10),
-            vl_cont_difer: get_field(&fields, 11),
-            vl_cont_difer_ant: get_field(&fields, 12),
-            vl_cont_per: get_field(&fields, 13),
+            vl_ajus_acres_bc_pis: get_field(&fields, 5),
+            vl_ajus_reduc_bc_pis: get_field(&fields, 6),
+            vl_bc_cont_ajus: get_field(&fields, 7),
+            aliq_pis: get_field(&fields, 8),
+            quant_bc_pis: get_field(&fields, 9),
+            aliq_pis_quant: get_field(&fields, 10),
+            vl_cont_apur: get_field(&fields, 11),
+            vl_ajus_acres: get_field(&fields, 12),
+            vl_ajus_reduc: get_field(&fields, 13),
+            vl_cont_difer: get_field(&fields, 14),
+            vl_cont_difer_ant: get_field(&fields, 15),
+            vl_cont_per: get_field(&fields, 16),
         }
     }
 
@@ -94,6 +100,9 @@ impl Model for EfdM210 {
                     schema::cod_cont.eq(&self.cod_cont),
                     schema::vl_rec_brt.eq(&self.vl_rec_brt),
                     schema::vl_bc_cont.eq(&self.vl_bc_cont),
+                    schema::vl_ajus_acres_bc_pis.eq(&self.vl_ajus_acres_bc_pis),
+                    schema::vl_ajus_reduc_bc_pis.eq(&self.vl_ajus_reduc_bc_pis),
+                    schema::vl_bc_cont_ajus.eq(&self.vl_bc_cont_ajus),
                     schema::aliq_pis.eq(&self.aliq_pis),
                     schema::quant_bc_pis.eq(&self.quant_bc_pis),
                     schema::aliq_pis_quant.eq(&self.aliq_pis_quant),
@@ -134,5 +143,5 @@ impl fmt::Display for EfdM210 {
     }
 }
 
-impl_display_fields!(EfdM210, [reg, cod_cont, vl_rec_brt, vl_bc_cont, aliq_pis, quant_bc_pis, aliq_pis_quant, vl_cont_apur, vl_ajus_acres, vl_ajus_reduc, vl_cont_difer, vl_cont_difer_ant, vl_cont_per]);
+impl_display_fields!(EfdM210, [reg, cod_cont, vl_rec_brt, vl_bc_cont, vl_ajus_acres_bc_pis, vl_ajus_reduc_bc_pis, vl_bc_cont_ajus, aliq_pis, quant_bc_pis, aliq_pis_quant, vl_cont_apur, vl_ajus_acres, vl_ajus_reduc, vl_cont_difer, vl_cont_difer_ant, vl_cont_per]);
 register_model!(EfdM210, "m210");

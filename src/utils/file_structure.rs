@@ -554,28 +554,28 @@ pub mod efd {
                 "C860",
                 RegistryEntry {
                     level: 3,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c860::EfdC860),
                 },
             ),
             (
                 "C870",
                 RegistryEntry {
                     level: 4,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c870::EfdC870),
                 },
             ),
             (
                 "C880",
                 RegistryEntry {
                     level: 4,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c880::EfdC880),
                 },
             ),
             (
                 "C890",
                 RegistryEntry {
                     level: 4,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c890::EfdC890),
                 },
             ),
             (
@@ -1507,7 +1507,7 @@ pub mod icms_ipi {
             (
                 "0002",
                 RegistryEntry {
-                    level: 1,
+                    level: 2,
                     load_model: create_loader!(crate::models::icms_ipi::reg_0002::Reg0002),
                 },
             ),

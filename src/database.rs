@@ -1,5 +1,7 @@
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::result::Error as DieselError;
+use diesel::RunQueryDsl;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use log::info;
 use once_cell::sync::Lazy;
@@ -31,6 +33,24 @@ pub static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
 pub(crate) async fn migrate() {
     info!("Migrating database");
 
+    let use_memory_env = env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());
+
+    if use_memory_env != "true" {
+        let db_file = env::var("DATABASE_URL").unwrap_or_else(|_| "db.sqlite".to_string());
+
+        if let Ok(metadata) = std::fs::metadata(&db_file) {
+            if metadata.permissions().readonly() {
+                let mut perms = metadata.permissions();
+
+                perms.set_readonly(false);
+
+                std::fs::set_permissions(&db_file, perms)
+                    .expect("Failed to set write permissions on database file");
+                info!("Fixed readonly permissions on database file");
+            }
+        }
+    }
+
     let migrations = MIGRATIONS;
     let mut connection = DB_POOL.get().unwrap();
 
@@ -38,6 +58,7 @@ pub(crate) async fn migrate() {
         .run_pending_migrations(migrations)
         .expect("Failed to run database migrations");
 }
+// ... existing code ...
 
 pub(crate) async fn clean() -> Result<(), anyhow::Error> {
     let use_memory_env = env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());

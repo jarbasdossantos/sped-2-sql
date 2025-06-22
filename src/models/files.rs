@@ -77,7 +77,7 @@ impl FilesModel for File {
             let load = match &structure.load_model {
                 Some(load_fn) => load_fn,
                 None => {
-                    log::warn!("No load function for register {}", current_register);
+                    // log::warn!("No load function for register {current_register}");
                     return Ok(());
                 }
             };
@@ -111,7 +111,7 @@ impl FilesModel for File {
             Ok(())
         }
 
-        let file = Self::get_file(file_data.id, Some(file_data.sped_type)).await?;
+        let file = Self::get_file(file_data.file_id, Some(file_data.sped_type)).await?;
         let children_map = get_reg_children(file_data.sped_type);
 
         if let Some(ref regs) = file_data.registers {
@@ -133,7 +133,7 @@ impl FilesModel for File {
                     fetch_recursive(
                         file.id,
                         code.to_string(),
-                        Some(0), // Assuming Some(0) is the correct initial parent_id for root level
+                        Some(0),
                         &file_data.registers,
                         file_data.sped_type,
                         &mut all_data,

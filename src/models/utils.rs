@@ -1,5 +1,5 @@
 pub(crate) fn get_field(fields: &Vec<&str>, field: usize) -> Option<String> {
-    fields.get(field).map(|s| s.to_string())
+    fields.get(field).and_then(|s| if s.is_empty() { None } else { Some(s.to_string()) })
 }
 
 pub(crate) fn to_date(date: Option<String>) -> Option<String> {
@@ -45,6 +45,13 @@ mod tests {
         assert_eq!(get_field(&fields, 0), Some("field1".to_string()));
         assert_eq!(get_field(&fields, 1), Some("field2".to_string()));
         assert_eq!(get_field(&fields, 2), Some("field3".to_string()));
+    }
+
+    #[test]
+    fn test_get_field_empty_string() {
+        let fields = vec!["", "field2"];
+        assert_eq!(get_field(&fields, 0), None);
+        assert_eq!(get_field(&fields, 1), Some("field2".to_string()));
     }
 
     #[test]

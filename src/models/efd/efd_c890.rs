@@ -1,8 +1,8 @@
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::schemas::efd_9900::dsl as schema;
-use crate::schemas::efd_9900::table;
+use crate::schemas::efd_c890::dsl as schema;
+use crate::schemas::efd_c890::table;
 use crate::{impl_display_fields, register_model};
 use async_trait::async_trait;
 use diesel::dsl::sql;
@@ -12,54 +12,54 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::efd_9900::dsl)]
-pub struct Efd9900 {
+#[diesel(table_name = crate::schemas::efd_c890::dsl)]
+pub struct EfdC890 {
     pub id: i32,
     pub file_id: Option<i32>,
     pub parent_id: Option<i32>,
     pub reg: Option<String>,
-    pub reg_blc: Option<String>,
-    pub qtd_reg_blc: Option<String>,
+    pub num_proc: Option<String>,
+    pub ind_proc: Option<String>,
 }
 
 #[async_trait]
-impl Model for Efd9900 {
+impl Model for EfdC890 {
     fn new(
         fields: Vec<&str>,
         new_id: Option<i32>,
         new_parent_id: Option<i32>,
         new_file_id: i32,
     ) -> Self {
-        Efd9900 {
+        EfdC890 {
             id: new_id.unwrap_or(0),
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-            reg_blc: get_field(&fields, 2),
-            qtd_reg_blc: get_field(&fields, 3),
+            num_proc: get_field(&fields, 2),
+            ind_proc: get_field(&fields, 3),
         }
     }
 
-    async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd9900>, Error> {
+    async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC890>, Error> {
         let mut conn = DB_POOL.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
                 .filter(schema::parent_id.eq(&id))
-                .select(Efd9900::as_select())
+                .select(EfdC890::as_select())
                 .load(&mut conn)?)
         } else {
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
-                .select(Efd9900::as_select())
+                .select(EfdC890::as_select())
                 .load(&mut conn)?)
         }
     }
@@ -71,8 +71,8 @@ impl Model for Efd9900 {
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
-                    schema::reg_blc.eq(&self.reg_blc.clone()),
-                    schema::qtd_reg_blc.eq(&self.qtd_reg_blc),
+                    schema::num_proc.eq(&self.num_proc),
+                    schema::ind_proc.eq(&self.ind_proc),
                 ))
                 .execute(&mut DB_POOL.get().unwrap())?;
 
@@ -90,7 +90,7 @@ impl Model for Efd9900 {
     }
 
     fn get_entity_name(&self) -> String {
-        "Efd9900".to_string()
+        "EfdC890".to_string()
     }
 
     fn get_display_fields(&self) -> Vec<(String, String)> {
@@ -98,11 +98,11 @@ impl Model for Efd9900 {
     }
 }
 
-impl fmt::Display for Efd9900 {
+impl fmt::Display for EfdC890 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.display_format(f)
     }
 }
 
-impl_display_fields!(Efd9900, [reg, reg_blc, qtd_reg_blc]);
-register_model!(Efd9900, "9900");
+impl_display_fields!(EfdC890, [reg, num_proc, ind_proc]);
+register_model!(EfdC890, "c890");

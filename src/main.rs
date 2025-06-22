@@ -1,32 +1,51 @@
+use diesel::{sql_query, Queryable, QueryableByName, RunQueryDsl};
 use sped_to_database::{ExportFile, ImportFilesData, SpedType};
+use sped_to_database::models::icms_ipi;
+use sped_to_database::models::icms_ipi::reg_c100::RegC100;
+use sped_to_database::database::DB_POOL;
+use diesel::sql_types::{Nullable, Text};
+
+#[derive(Debug, Queryable, QueryableByName)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
+struct Teste {
+    #[sql_type = "Nullable<Text>"]
+    invoices_ids: Option<String>,
+}
 
 #[tokio::main]
 async fn main() {
-    sped_to_database::clean().await;
+    let results = sql_query(
+        "SELECT group_concat(reg_c100.id || '') AS invoices_ids FROM reg_c100
+                INNER JOIN efd_c100 ON efd_c100.chv_nfe = reg_c100.chv_nfe")
+        .get_result::<Teste>(&mut DB_POOL.get().unwrap());
 
-    sped_to_database::import_files(sped_to_database::ImportFiles {
-        files: vec![
-            ImportFilesData {
-                file: "/Users/jarbassantos/Customers/Projects/caio-1/PISCOFINS_20210901_20210930_13773225000122_Original_20211116163114_44C0AFE5344FF5317996A62EF3FEB05A0A5B9F69.txt".to_string(),
-                registers: None,
-                sped_type: SpedType::IcmsIpi,
-            }
-        ],
-        progress_tx: None,
-    }).await;
+    println!("{:#?}", results);
 
-    println!("\nImported");
-
-    let files = sped_to_database::export(ExportFile {
-        id: 1,
-        registers: None,
-        sped_type: SpedType::IcmsIpi,
-    })
-    .await;
-
-    for file in files {
-        for model in file {
-            // print!("{}", model);
-        }
-    }
+    // sped_to_database::clean().await;
+    //
+    // sped_to_database::import_files(sped_to_database::ImportFiles {
+    //     files: vec![
+    //         ImportFilesData {
+    //             file: "/Users/jarbassantos/Downloads/PISCOFINS_20200601_20200630_12662352000191_Original_20200812091255_D08544F39B95698618D6E66F9FACB1BDB7768BD0.txt".to_string(),
+    //             registers: None,
+    //             sped_type: SpedType::Efd,
+    //         }
+    //     ],
+    //     progress_tx: None,
+    // }).await;
+    //
+    // println!("\nImported");
+    //
+    // let files = sped_to_database::export(ExportFile {
+    //     id: 1,
+    //     registers: None,
+    //     sped_type: SpedType::IcmsIpi,
+    // })
+    // .await;
+    //
+    // for file in files {
+    //     for model in file {
+    //         // print!("{}", model);
+    //     }
+    // }
 }

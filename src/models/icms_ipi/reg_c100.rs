@@ -9,7 +9,7 @@ use diesel::dsl::sql;
 use diesel::prelude::Queryable;
 use diesel::result::Error;
 use diesel::sql_types::Integer;
-use diesel::RunQueryDsl;
+use diesel::{QueryableByName, RunQueryDsl};
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
 use serde::{Serialize, Deserialize};
@@ -17,7 +17,7 @@ use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable, QueryableByName)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 #[diesel(table_name = crate::schemas::reg_c100::dsl)]
 pub struct RegC100 {

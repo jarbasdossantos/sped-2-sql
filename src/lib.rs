@@ -1,9 +1,9 @@
-mod database;
+pub mod database;
 pub mod macros;
 pub mod models;
-mod schemas;
+pub mod schemas;
+pub mod utils;
 mod sped;
-mod utils;
 
 use crate::models::files::File;
 use crate::models::registry::{register_efd_models, register_icms_ipi_models};
@@ -48,7 +48,7 @@ pub struct ImportFiles {
 #[derive(Debug, Clone)]
 pub struct ExportFile {
     /// File id
-    pub id: i32,
+    pub file_id: i32,
     /// Registers to export
     pub registers: Option<Vec<String>>,
     /// Sped type
@@ -81,7 +81,7 @@ pub async fn export(data: ExportFile) -> Result<Vec<Box<dyn Model>>, Error> {
     Ok(file_data)
 }
 
-pub async fn import_files(mut data: ImportFiles) -> Result<(), Error> {
+pub async fn import(mut data: ImportFiles) -> Result<(), Error> {
     let mut tasks = vec![];
     let semaphore = Arc::new(tokio::sync::Semaphore::new(1));
 
