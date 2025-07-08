@@ -12,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -66,6 +66,8 @@ impl Model for EfdC890 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -74,10 +76,10 @@ impl Model for EfdC890 {
                     schema::num_proc.eq(&self.num_proc),
                     schema::ind_proc.eq(&self.ind_proc),
                 ))
-                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
+                .get_result::<i32>(&mut conn)?
         })
     }
 

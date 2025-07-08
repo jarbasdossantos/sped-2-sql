@@ -25,6 +25,7 @@ pub struct Reg9900 {
     pub file_id: Option<i32>,
     pub parent_id: Option<i32>,
     pub reg: Option<String>,
+    pub reg_blc: Option<String>,
     pub qtd_reg_blc: Option<String>,
 }
 
@@ -41,7 +42,8 @@ impl Model for Reg9900 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-            qtd_reg_blc: get_field(&fields, 2),
+            reg_blc: get_field(&fields, 2),
+            qtd_reg_blc: get_field(&fields, 3),
         }
     }
 
@@ -64,17 +66,20 @@ impl Model for Reg9900 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
                     schema::parent_id.eq(&self.parent_id),
                     schema::reg.eq(&self.reg.clone()),
+                    schema::reg_blc.eq(&self.reg_blc),
                     schema::qtd_reg_blc.eq(&self.qtd_reg_blc),
                 ))
-                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
+                .get_result::<i32>(&mut conn)?
         })
     }
 
@@ -101,5 +106,5 @@ impl fmt::Display for Reg9900 {
     }
 }
 
-impl_display_fields!(Reg9900, [reg, qtd_reg_blc]);
+impl_display_fields!(Reg9900, [reg, reg_blc, qtd_reg_blc]);
 register_model!(Reg9900, "9900");

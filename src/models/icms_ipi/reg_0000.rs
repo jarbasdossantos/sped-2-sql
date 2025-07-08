@@ -1,7 +1,6 @@
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::models::utils::to_date;
 use crate::schemas::reg_0000::dsl as schema;
 use crate::schemas::reg_0000::table;
 use crate::{impl_display_fields, register_model};
@@ -13,7 +12,7 @@ use diesel::sql_types::Integer;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
@@ -57,8 +56,8 @@ impl Model for Reg0000 {
             reg: fields.get(1).map(|s| s.to_string()),
             cod_ver: get_field(&fields, 2),
             cod_fin: get_field(&fields, 3),
-            dt_ini: to_date(get_field(&fields, 4)),
-            dt_fin: to_date(get_field(&fields, 5)),
+            dt_ini: get_field(&fields, 4),
+            dt_fin: get_field(&fields, 5),
             nome: get_field(&fields, 6),
             cnpj: get_field(&fields, 7),
             cpf: get_field(&fields, 8),
@@ -75,14 +74,24 @@ impl Model for Reg0000 {
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Reg0000>, Error> {
         let mut conn = DB_POOL.lock().await.get().unwrap();
 
-        Ok(table
-            .filter(schema::file_id.eq(&file_id))
-            .select(Reg0000::as_select())
-            .load(&mut conn)?)
+        if let Some(id) = parent_id {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .filter(schema::parent_id.eq(&id))
+                .select(Reg0000::as_select())
+                .load(&mut conn)?)
+        } else {
+            Ok(table
+                .filter(schema::file_id.eq(&file_id))
+                .select(Reg0000::as_select())
+                .load(&mut conn)?)
+        }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -103,10 +112,10 @@ impl Model for Reg0000 {
                     schema::ind_perfil.eq(&self.ind_perfil),
                     schema::ind_ativ.eq(&self.ind_ativ),
                 ))
-                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
+                .get_result::<i32>(&mut conn)?
         })
     }
 
@@ -133,11 +142,5 @@ impl fmt::Display for Reg0000 {
     }
 }
 
-impl_display_fields!(
-    Reg0000,
-    [
-        reg, cod_ver, cod_fin, dt_ini, dt_fin, nome, cnpj, cpf, uf, ie, cod_mun, im, suframa,
-        ind_perfil, ind_ativ
-    ]
-);
+impl_display_fields!(Reg0000, [reg, cod_ver, cod_fin, dt_ini, dt_fin, nome, cnpj, cpf, uf, ie, cod_mun, im, suframa, ind_perfil, ind_ativ]);
 register_model!(Reg0000, "0000");
