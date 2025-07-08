@@ -705,6 +705,31 @@ CREATE TABLE efd_c170
     cod_cta           VARCHAR        DEFAULT NULL
 );
 
+CREATE TABLE efd_c175
+(
+    id                INTEGER PRIMARY KEY NOT NULL,
+    file_id           INTEGER,
+    parent_id         INTEGER        DEFAULT NULL,
+    reg               TEXT           DEFAULT NULL,
+    cfop              INTEGER        DEFAULT NULL,
+    vl_oper           DECIMAL(21, 2) DEFAULT NULL,
+    vl_desc           DECIMAL(21, 2) DEFAULT NULL,
+    cst_pis           VARCHAR        DEFAULT NULL,
+    vl_bc_pis         DECIMAL(21, 2) DEFAULT NULL,
+    aliq_pis          DECIMAL(12, 4) DEFAULT NULL,
+    quant_bc_pis      DECIMAL(22, 3) DEFAULT NULL,
+    aliq_pis_quant    DECIMAL(23, 4) DEFAULT NULL,
+    vl_pis            DECIMAL(21, 2) DEFAULT NULL,
+    cst_cofins        VARCHAR        DEFAULT NULL,
+    vl_bc_cofins      DECIMAL(21, 2) DEFAULT NULL,
+    aliq_cofins       DECIMAL(12, 4) DEFAULT NULL,
+    quant_bc_cofins   DECIMAL(22, 3) DEFAULT NULL,
+    aliq_cofins_quant DECIMAL(23, 4) DEFAULT NULL,
+    vl_cofins         DECIMAL(21, 2) DEFAULT NULL,
+    cod_cta           VARCHAR        DEFAULT NULL,
+    info_compl        VARCHAR        DEFAULT NULL
+);
+
 CREATE TABLE efd_c180
 (
     id          INTEGER PRIMARY KEY NOT NULL,
@@ -1072,7 +1097,8 @@ CREATE TABLE efd_c500
     vl_icms   DECIMAL(21, 2) DEFAULT NULL,
     cod_inf   VARCHAR        DEFAULT NULL,
     vl_pis    DECIMAL(21, 2) DEFAULT NULL,
-    vl_cofins DECIMAL(21, 2) DEFAULT NULL
+    vl_cofins DECIMAL(21, 2) DEFAULT NULL,
+    chv_doce  TEXT           DEFAULT NULL
 );
 
 CREATE TABLE efd_c501
