@@ -6,3 +6,7 @@ template.json
 .DS_Store
 nohup.out
 *.sqlite
+.cargo
+.vscode
+.idea
+main.rs
