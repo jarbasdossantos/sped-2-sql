@@ -81,6 +81,7 @@ pub fn register_efd_models() {
     crate::models::efd::efd_c111::register();
     crate::models::efd::efd_c120::register();
     crate::models::efd::efd_c170::register();
+    crate::models::efd::efd_c175::register();
     crate::models::efd::efd_c180::register();
     crate::models::efd::efd_c181::register();
     crate::models::efd::efd_c185::register();

@@ -38,6 +38,7 @@ pub struct EfdC500 {
     pub cod_inf: Option<String>,
     pub vl_pis: Option<String>,
     pub vl_cofins: Option<String>,
+    pub chv_doce: Option<String>,
 }
 
 #[async_trait]
@@ -66,11 +67,12 @@ impl Model for EfdC500 {
             cod_inf: get_field(&fields, 12),
             vl_pis: get_field(&fields, 13),
             vl_cofins: get_field(&fields, 14),
+            chv_doce: get_field(&fields, 15),
         }
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC500>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -106,11 +108,12 @@ impl Model for EfdC500 {
                     schema::cod_inf.eq(&self.cod_inf),
                     schema::vl_pis.eq(&self.vl_pis),
                     schema::vl_cofins.eq(&self.vl_cofins),
+                    schema::chv_doce.eq(&self.chv_doce),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
         })
     }
 
@@ -137,5 +140,5 @@ impl fmt::Display for EfdC500 {
     }
 }
 
-impl_display_fields!(EfdC500, [reg, cod_part, cod_mod, cod_sit, ser, sub, num_doc, dt_doc, dt_e_s, vl_doc, vl_icms, cod_inf, vl_pis, vl_cofins]);
+impl_display_fields!(EfdC500, [reg, cod_part, cod_mod, cod_sit, ser, sub, num_doc, dt_doc, dt_e_s, vl_doc, vl_icms, cod_inf, vl_pis, vl_cofins, chv_doce]);
 register_model!(EfdC500, "c500");

@@ -62,7 +62,7 @@ impl Model for Reg1110 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Reg1110>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -80,6 +80,7 @@ impl Model for Reg1110 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -95,10 +96,10 @@ impl Model for Reg1110 {
                     schema::qtd.eq(&self.qtd),
                     schema::unid.eq(&self.unid),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut conn)
         })
     }
 

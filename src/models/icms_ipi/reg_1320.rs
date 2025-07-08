@@ -64,7 +64,7 @@ impl Model for Reg1320 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Reg1320>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -98,10 +98,10 @@ impl Model for Reg1320 {
                     schema::vol_aferi.eq(&self.vol_aferi),
                     schema::vol_vendas.eq(&self.vol_vendas),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
         })
     }
 

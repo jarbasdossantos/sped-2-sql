@@ -52,7 +52,7 @@ impl Model for EfdP110 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdP110>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -80,10 +80,10 @@ impl Model for EfdP110 {
                     schema::det_valor.eq(&self.det_valor),
                     schema::inf_compl.eq(&self.inf_compl),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
         })
     }
 

@@ -54,7 +54,7 @@ impl Model for Efd0111 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Efd0111>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -72,6 +72,7 @@ impl Model for Efd0111 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -83,10 +84,10 @@ impl Model for Efd0111 {
                     schema::rec_bru_cum.eq(&self.rec_bru_cum),
                     schema::rec_bru_total.eq(&self.rec_bru_total),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut conn)
         })
     }
 

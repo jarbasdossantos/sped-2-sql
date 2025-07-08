@@ -302,7 +302,7 @@ pub mod efd {
                 "C175",
                 RegistryEntry {
                     level: 4,
-                    load_model: None,
+                    load_model: create_loader!(crate::models::efd::efd_c175::EfdC175),
                 },
             ),
             (

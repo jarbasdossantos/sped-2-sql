@@ -70,7 +70,7 @@ impl Model for EfdC880 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC880>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -107,10 +107,10 @@ impl Model for EfdC880 {
                     schema::vl_cofins.eq(&self.vl_cofins),
                     schema::cod_cta.eq(&self.cod_cta),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
         })
     }
 

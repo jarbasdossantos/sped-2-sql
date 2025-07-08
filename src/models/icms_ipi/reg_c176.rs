@@ -60,7 +60,7 @@ impl Model for RegC176 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<RegC176>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -92,10 +92,10 @@ impl Model for RegC176 {
                     schema::vl_unit_ult_e.eq(&self.vl_unit_ult_e),
                     schema::vl_unit_bc_st.eq(&self.vl_unit_bc_st),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
         })
     }
 

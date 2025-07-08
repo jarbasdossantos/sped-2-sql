@@ -58,7 +58,7 @@ impl Model for RegG130 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<RegG130>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(id) = parent_id {
             Ok(table
@@ -89,10 +89,10 @@ impl Model for RegG130 {
                     schema::chv_nfe_cte.eq(&self.chv_nfe_cte),
                     schema::dt_doc.eq(&self.dt_doc),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
         })
     }
 

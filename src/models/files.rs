@@ -24,7 +24,7 @@ pub struct File {
 #[async_trait]
 impl FilesModel for File {
     async fn get_file(file_id: i32, sped_type: Option<SpedType>) -> Result<File, anyhow::Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         if let Some(sped) = sped_type {
             let sped = match sped {

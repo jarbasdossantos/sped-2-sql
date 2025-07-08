@@ -24,6 +24,27 @@ pub trait Model: Debug + Display + Send + Sync {
         &'a self,
     ) -> Pin<Box<dyn Future<Output=std::result::Result<i32, Error>> + Send + 'a>>;
 
+    async fn save_with_retry(&self) -> Result<i32, Error> {
+        let mut attempts = 0;
+        let max_attempts = 5;
+        let delay_ms = 50;
+
+        loop {
+            match self.save().await {
+                Ok(id) => return Ok(id),
+                Err(e) => {
+                    if e.to_string().contains("database is locked") && attempts < max_attempts - 1 {
+                        attempts += 1;
+                        tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
+                        continue;
+                    } else {
+                        return Err(e);
+                    }
+                }
+            }
+        }
+    }
+
     fn get_id(&self) -> Option<i32>;
     fn get_file_id(&self) -> Option<i32>;
     fn get_entity_name(&self) -> String;

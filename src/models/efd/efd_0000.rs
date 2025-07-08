@@ -70,7 +70,7 @@ impl Model for Efd0000 {
     }
 
     async fn get(file_id: i32, _parent_id: Option<i32>) -> Result<Vec<Efd0000>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         Ok(table
             .filter(schema::file_id.eq(&file_id))
@@ -80,6 +80,8 @@ impl Model for Efd0000 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -99,10 +101,10 @@ impl Model for Efd0000 {
                     schema::ind_nat_pj.eq(&self.ind_nat_pj),
                     schema::ind_ativ.eq(&self.ind_ativ),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut conn)?;
 
-            sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+            Ok(sql::<Integer>("SELECT last_insert_rowid()")
+                 .get_result::<i32>(&mut conn)?)
         })
     }
 

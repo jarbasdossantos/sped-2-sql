@@ -73,7 +73,7 @@ impl Model for Reg0000 {
     }
 
     async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<Reg0000>, Error> {
-        let mut conn = DB_POOL.get().unwrap();
+        let mut conn = DB_POOL.lock().await.get().unwrap();
 
         Ok(table
             .filter(schema::file_id.eq(&file_id))
@@ -103,10 +103,10 @@ impl Model for Reg0000 {
                     schema::ind_perfil.eq(&self.ind_perfil),
                     schema::ind_ativ.eq(&self.ind_ativ),
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
         })
     }
 
