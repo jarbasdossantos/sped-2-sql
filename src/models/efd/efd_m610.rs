@@ -92,6 +92,8 @@ impl Model for EfdM610 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -113,10 +115,10 @@ impl Model for EfdM610 {
                     schema::vl_cont_difer_ant.eq(&self.vl_cont_difer_ant),
                     schema::vl_cont_per.eq(&self.vl_cont_per),
                 ))
-                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
+                .get_result::<i32>(&mut conn)?
         })
     }
 
@@ -143,5 +145,5 @@ impl fmt::Display for EfdM610 {
     }
 }
 
-impl_display_fields!(EfdM610, [reg, cod_cont, vl_rec_brt, vl_bc_cont, vl_ajus_acres_bc_cofins, vl_ajus_reduc_bc_cofins,vl_bc_cont_ajus, aliq_cofins, quant_bc_cofins, aliq_cofins_quant, vl_cont_apur, vl_ajus_acres, vl_ajus_reduc, vl_cont_difer, vl_cont_difer_ant, vl_cont_per]);
+impl_display_fields!(EfdM610, [reg, cod_cont, vl_rec_brt, vl_bc_cont, vl_ajus_acres_bc_cofins, vl_ajus_reduc_bc_cofins, vl_bc_cont_ajus, aliq_cofins, quant_bc_cofins, aliq_cofins_quant, vl_cont_apur, vl_ajus_acres, vl_ajus_reduc, vl_cont_difer, vl_cont_difer_ant, vl_cont_per]);
 register_model!(EfdM610, "m610");

@@ -88,7 +88,7 @@ impl Model for Reg0100 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
-            let mut connection = DB_POOL.lock().await.get().unwrap();
+            let mut conn = DB_POOL.lock().await.get().unwrap();
 
             diesel::insert_into(table)
                 .values((
@@ -109,10 +109,10 @@ impl Model for Reg0100 {
                     schema::email.eq(&self.email),
                     schema::cod_mun.eq(&self.cod_mun),
                 ))
-                .execute(&mut connection)?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut connection)
+                .get_result::<i32>(&mut conn)?
         })
     }
 

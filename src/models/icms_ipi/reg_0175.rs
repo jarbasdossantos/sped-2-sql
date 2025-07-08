@@ -1,7 +1,6 @@
 use crate::database::DB_POOL;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
-use crate::models::utils::to_date;
 use crate::schemas::reg_0175::dsl as schema;
 use crate::schemas::reg_0175::table;
 use crate::{impl_display_fields, register_model};
@@ -44,7 +43,7 @@ impl Model for Reg0175 {
             file_id: Some(new_file_id),
             parent_id: new_parent_id,
             reg: fields.get(1).map(|s| s.to_string()),
-            dt_alt: to_date(get_field(&fields, 2)),
+            dt_alt: get_field(&fields, 2),
             nr_campo: get_field(&fields, 3),
             cont_ant: get_field(&fields, 4),
         }
@@ -69,6 +68,8 @@ impl Model for Reg0175 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -78,10 +79,10 @@ impl Model for Reg0175 {
                     schema::nr_campo.eq(&self.nr_campo),
                     schema::cont_ant.eq(&self.cont_ant),
                 ))
-                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
+                .get_result::<i32>(&mut conn)?
         })
     }
 

@@ -68,6 +68,8 @@ impl Model for EfdM605 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -77,10 +79,10 @@ impl Model for EfdM605 {
                     schema::cod_rec.eq(&self.cod_rec),
                     schema::vl_debito.eq(&self.vl_debito),
                 ))
-                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
+                .get_result::<i32>(&mut conn)?
         })
     }
 

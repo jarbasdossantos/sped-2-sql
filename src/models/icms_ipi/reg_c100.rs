@@ -9,7 +9,7 @@ use diesel::dsl::sql;
 use diesel::prelude::Queryable;
 use diesel::result::Error;
 use diesel::sql_types::Integer;
-use diesel::{QueryableByName, RunQueryDsl};
+use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
 use serde::{Serialize, Deserialize};
@@ -17,7 +17,7 @@ use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable, QueryableByName)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 #[diesel(table_name = crate::schemas::reg_c100::dsl)]
 pub struct RegC100 {
@@ -118,6 +118,8 @@ impl Model for RegC100 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -152,10 +154,10 @@ impl Model for RegC100 {
                     schema::vl_pis_st.eq(&self.vl_pis_st),
                     schema::vl_cofins_st.eq(&self.vl_cofins_st),
                 ))
-                .execute(&mut DB_POOL.lock().await.get().unwrap())?;
+                .execute(&mut conn)?;
 
             sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.lock().await.get().unwrap())
+                .get_result::<i32>(&mut conn)?
         })
     }
 
