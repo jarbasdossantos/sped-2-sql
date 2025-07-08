@@ -25,7 +25,7 @@ pub async fn handle_line(
     ) {
         let model: Box<dyn Model> = factory;
 
-        match model.save().await {
+        match model.save_with_retry().await {
             Ok(result) => Ok(Some(result)),
             Err(error) => Err(error),
         }

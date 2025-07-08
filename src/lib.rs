@@ -2,8 +2,8 @@ pub mod database;
 pub mod macros;
 pub mod models;
 pub mod schemas;
-pub mod utils;
 mod sped;
+pub mod utils;
 
 use crate::models::files::File;
 use crate::models::registry::{register_efd_models, register_icms_ipi_models};
@@ -32,11 +32,15 @@ pub enum SpedType {
     IcmsIpi,
 }
 
+#[derive(Debug)]
 pub struct ImportFilesData {
+    /// A numeric identifier for the file
+    pub id: i32,
     /// File path
     pub file: String,
     /// Registers to import
     pub registers: Option<Vec<String>>,
+    /// Sped type (Efd, IcmsIpi)
     pub sped_type: SpedType,
 }
 
@@ -65,8 +69,10 @@ pub enum Status {
 
 #[derive(Debug, Clone)]
 pub struct Progress {
+    pub id: i32,
     pub file_path: String,
     pub status: Status,
+    pub finished_all_files: bool,
 }
 
 pub async fn export(data: ExportFile) -> Result<Vec<Box<dyn Model>>, Error> {
@@ -85,15 +91,12 @@ pub async fn import(mut data: ImportFiles) -> Result<(), Error> {
     let mut tasks = vec![];
     let semaphore = Arc::new(tokio::sync::Semaphore::new(1));
 
+    let mut index = 1;
+    let total_files = data.files.len();
+
     for file_data in data.files {
         let file_path = std::path::Path::new(&file_data.file);
-
-        send_status(
-            &mut data.progress_tx,
-            file_data.file.clone(),
-            Status::Processing,
-        )
-        .await;
+        let finished = index == total_files;
 
         let extension = file_path
             .extension()
@@ -114,10 +117,12 @@ pub async fn import(mut data: ImportFiles) -> Result<(), Error> {
 
                 send_status(
                     &mut data.progress_tx,
+                    file_data.id,
                     file_data.file.clone(),
                     Status::Skipped {
                         reason: error_message.to_string(),
                     },
+                    &finished,
                 )
                 .await;
 
@@ -131,10 +136,12 @@ pub async fn import(mut data: ImportFiles) -> Result<(), Error> {
 
             send_status(
                 &mut data.progress_tx,
+                file_data.id,
                 file_data.file.clone(),
                 Status::Skipped {
                     reason: error_message.to_string(),
                 },
+                &finished,
             )
             .await;
 
@@ -144,16 +151,26 @@ pub async fn import(mut data: ImportFiles) -> Result<(), Error> {
         let file_clone = file_data.file.clone();
         let semaphore_clone = semaphore.clone();
         let task_file_path = file_clone.clone();
+        let finished_clone = finished;
         let mut task_progress_tx = data.progress_tx.clone();
 
         let task = task::spawn(async move {
             let _permit = semaphore_clone.acquire().await;
 
+            send_status(
+                &mut task_progress_tx,
+                file_data.id,
+                file_data.file.clone(),
+                Status::Processing,
+                &false,
+            )
+            .await;
+
             info!("Importing file: {file_clone}");
 
             if let Err(err) = do_import(
                 file_clone,
-                file_data.registers,
+                file_data.registers.clone(),
                 file_id,
                 file_data.sped_type,
             )
@@ -163,10 +180,12 @@ pub async fn import(mut data: ImportFiles) -> Result<(), Error> {
 
                 send_status(
                     &mut task_progress_tx,
+                    file_data.id,
                     task_file_path,
                     Status::ProcessingFailed {
                         error: error_message.to_string(),
                     },
+                    &finished_clone,
                 )
                 .await;
 
@@ -174,14 +193,18 @@ pub async fn import(mut data: ImportFiles) -> Result<(), Error> {
             } else {
                 send_status(
                     &mut task_progress_tx,
-                    file_data.file.clone(),
+                    file_data.id,
+                    task_file_path,
                     Status::ProcessingSuccessful,
+                    &finished_clone,
                 )
                 .await;
             }
         });
 
         tasks.push(task);
+
+        index += 1;
     }
 
     join_all(tasks).await;
@@ -288,21 +311,38 @@ async fn create_file_entry(name: String, sped_type: SpedType) -> Result<i32, Err
         SpedType::IcmsIpi => "icms_ipi",
     };
 
+    let mut connection = DB_POOL
+        .lock()
+        .await
+        .get()
+        .map_err(|e| Error::msg(format!("Failed to get DB connection: {e}")))?;
+
     diesel::insert_into(table)
         .values((schema::name.eq(&name), schema::sped_type.eq(&sped)))
-        .execute(&mut DB_POOL.get().unwrap())?;
+        .execute(&mut connection)?;
 
-    Ok(sql::<Integer>("SELECT last_insert_rowid()")
-        .get_result::<i32>(&mut DB_POOL.get().unwrap())?)
+    Ok(sql::<Integer>("SELECT last_insert_rowid()").get_result::<i32>(&mut connection)?)
+    // TODO: Fix this, it's not returning the correct ID
 }
 
 pub async fn clean() -> Result<(), anyhow::Error> {
     database::clean().await
 }
 
-pub async fn send_status(tx: &mut Option<Sender<Progress>>, file_path: String, status: Status) {
+pub async fn send_status(
+    tx: &mut Option<Sender<Progress>>,
+    id: i32,
+    file_path: String,
+    status: Status,
+    finished_all_files: &bool,
+) {
     if let Some(tx) = tx {
-        let event = Progress { file_path, status };
+        let event = Progress {
+            id,
+            file_path,
+            status,
+            finished_all_files: *finished_all_files,
+        };
 
         tx.send(event).await.expect("Failed to send status message");
     } else {

@@ -1,17 +1,17 @@
-use diesel::prelude::*;
+use diesel::{prelude::*, sql_query};
 use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::result::Error as DieselError;
-use diesel::RunQueryDsl;
+use diesel::sqlite::SqliteConnection;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use log::info;
 use once_cell::sync::Lazy;
 use std::env;
+use tokio::sync::Mutex;
 
 pub type DbPool = Pool<ConnectionManager<SqliteConnection>>;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/migrations");
 
-pub static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
+pub static DB_POOL: Lazy<Mutex<DbPool>> = Lazy::new(|| {
     let use_memory_env = env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());
     let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "db.sqlite".to_string());
     let use_memory = use_memory_env.eq_ignore_ascii_case("true");
@@ -24,10 +24,10 @@ pub static DB_POOL: Lazy<DbPool> = Lazy::new(|| {
 
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);
 
-    Pool::builder()
+    Mutex::new(Pool::builder()
         .max_size(20)
         .build(manager)
-        .expect("Failed to create database pool")
+        .expect("Failed to create database pool"))
 });
 
 pub(crate) async fn migrate() {
@@ -51,30 +51,39 @@ pub(crate) async fn migrate() {
         }
     }
 
-    let migrations = MIGRATIONS;
-    let mut connection = DB_POOL.get().unwrap();
+    let mut connection = DB_POOL.lock().await.get().unwrap();
+
+    sql_query("PRAGMA busy_timeout = 6000;")
+        .execute(&mut connection)
+        .expect("Failed to set busy timeout");
 
     connection
-        .run_pending_migrations(migrations)
+        .revert_all_migrations(MIGRATIONS)
+        .expect("Failed to rollback migrations");
+
+    connection
+        .run_pending_migrations(MIGRATIONS)
         .expect("Failed to run database migrations");
+
+    info!("Database migrations applied");
 }
-// ... existing code ...
 
 pub(crate) async fn clean() -> Result<(), anyhow::Error> {
     let use_memory_env = env::var("USE_MEMORY_DB").unwrap_or_else(|_| "false".to_string());
 
-    if use_memory_env == "true" {
-        migrate().await;
-
-        return Ok(());
-    }
-
     info!("Cleaning database");
 
-    let db_file = std::env::var("DATABASE_URL").unwrap_or("db.sqlite".to_string());
+    if use_memory_env != "true" {
+        let db_file = std::env::var("DATABASE_URL").unwrap_or("db.sqlite".to_string());
 
-    let _ = std::fs::remove_file(db_file.clone());
-    std::fs::File::create(db_file)?;
+        std::fs::File::create(&db_file)?;
+
+        let mut perms = std::fs::metadata(&db_file)?.permissions();
+
+        perms.set_readonly(false);
+
+        std::fs::set_permissions(&db_file, perms)?;
+    }
 
     migrate().await;
 
