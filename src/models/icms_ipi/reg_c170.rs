@@ -180,8 +180,8 @@ impl Model for RegC170 {
                 ))
                 .execute(&mut conn)?;
 
-            sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut conn)?
+            Ok(sql::<Integer>("SELECT last_insert_rowid()")
+                .get_result::<i32>(&mut conn)?)
         })
     }
 

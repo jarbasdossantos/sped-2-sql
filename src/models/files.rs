@@ -104,7 +104,7 @@ impl FilesModel for File {
                             all_data_accumulator,
                             children_map,
                         ))
-                        .await?;
+                            .await?;
                     }
                 }
             }
@@ -125,7 +125,7 @@ impl FilesModel for File {
                     &mut all_data,
                     &children_map,
                 )
-                .await?;
+                    .await?;
             }
         } else {
             for (code, reg_info) in FILE_STRUCTURE.iter() {
@@ -139,7 +139,7 @@ impl FilesModel for File {
                         &mut all_data,
                         &children_map,
                     )
-                    .await?;
+                        .await?;
                 }
             }
         }
