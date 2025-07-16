@@ -1,6 +1,7 @@
-use diesel::{prelude::*, sql_query};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::sqlite::SqliteConnection;
+use diesel::RunQueryDsl;
+use diesel::{prelude::*, sql_query};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use log::info;
 use once_cell::sync::Lazy;
@@ -17,17 +18,21 @@ pub static DB_POOL: Lazy<Mutex<DbPool>> = Lazy::new(|| {
     let use_memory = use_memory_env.eq_ignore_ascii_case("true");
 
     let database_url = if use_memory {
-        ":memory:".to_string()
+        "file:memdb1?mode=memory&cache=shared".to_string()
     } else {
         database_url.to_string()
     };
 
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);
 
-    Mutex::new(Pool::builder()
-        .max_size(20)
-        .build(manager)
-        .expect("Failed to create database pool"))
+    let pool_size = 20;
+
+    Mutex::new(
+        Pool::builder()
+            .max_size(pool_size)
+            .build(manager)
+            .expect("Failed to create database pool"),
+    )
 });
 
 pub(crate) async fn migrate() {
@@ -56,6 +61,14 @@ pub(crate) async fn migrate() {
     sql_query("PRAGMA busy_timeout = 6000;")
         .execute(&mut connection)
         .expect("Failed to set busy timeout");
+
+    let use_memory = use_memory_env.eq_ignore_ascii_case("true");
+
+    if use_memory {
+        sql_query("PRAGMA journal_mode = MEMORY;")
+            .execute(&mut connection)
+            .expect("Failed to set journal mode");
+    }
 
     connection
         .revert_all_migrations(MIGRATIONS)
