@@ -16,7 +16,7 @@ pub trait Model: Debug + Display + Send + Sync {
     where
         Self: Sized;
 
-    async fn get(id: i32, parent: Option<i32>) -> Result<Vec<Self>, Error>
+    fn get(file_id: i32, parent_id: Option<i32>, conn: &mut diesel::sqlite::SqliteConnection) -> Result<Vec<Self>, Error>
     where
         Self: Sized;
 
@@ -75,7 +75,7 @@ pub trait Model: Debug + Display + Send + Sync {
 #[async_trait]
 pub trait FilesModel: Send + Sync {
     async fn get_file(file_id: i32, sped_type: Option<SpedType>) -> Result<File, anyhow::Error>;
-    async fn get_file_data(file: ExportFile) -> Result<Vec<Box<dyn Model>>, anyhow::Error>;
+    async fn stream_file_data(file: ExportFile) -> Result<tokio::sync::mpsc::Receiver<Box<dyn Model>>, anyhow::Error>;
 }
 
 pub(crate) trait ModelFactory: Debug {

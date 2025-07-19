@@ -51,24 +51,13 @@ macro_rules! register_model {
 #[macro_export]
 macro_rules! create_loader {
     ($model:ty) => {
-        Some(Box::new(move |file_id, parent_id| {
-            Box::pin(async move {
-                let result = <$model>::get(file_id, parent_id).await?;
-                Ok(result
-                    .into_iter()
-                    .map(|m| Box::new(m) as Box<dyn Model + Send>)
-                    .collect::<Vec<_>>())
-            })
-                as Pin<
-                    Box<
-                        dyn std::future::Future<
-                                Output = Result<
-                                    Vec<Box<dyn Model + Send>>,
-                                    Box<dyn std::error::Error + Send + Sync>,
-                                >,
-                            > + Send,
-                    >,
-                >
+        Some(Box::new(move |file_id, parent_id, conn: &mut _| {
+            let result = <$model>::get(file_id, parent_id, conn)?;
+
+            Ok(result
+                .into_iter()
+                .map(|m| Box::new(m) as Box<dyn Model>)
+                .collect::<Vec<_>>())
         }) as LoadModelFn)
     };
 }

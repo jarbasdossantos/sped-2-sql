@@ -4,19 +4,14 @@ use std::{collections::HashMap, pin::Pin};
 use crate::SpedType;
 
 type LoadModelFn = Box<
-    dyn Fn(
+    dyn for<'a> Fn(
         i32,
         Option<i32>,
-    ) -> Pin<
-        Box<
-            dyn std::future::Future<
-                Output=Result<
-                    Vec<Box<dyn Model + Send>>,
-                    Box<dyn std::error::Error + Send + Sync>,
-                >,
-            > + Send,
-        >,
-    >,
+        &'a mut diesel::sqlite::SqliteConnection,
+    ) -> Result<
+        Vec<Box<dyn Model>>,
+        anyhow::Error
+    > + Send + Sync,
 >;
 
 pub struct RegistryEntry {

@@ -16,6 +16,7 @@ use serde::{Serialize, Deserialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
+use diesel::sqlite::SqliteConnection;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -47,20 +48,18 @@ impl Model for EfdC110 {
         }
     }
 
-    async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<EfdC110>, Error> {
-        let mut conn = DB_POOL.lock().await.get().unwrap();
-
+    fn get(file_id: i32, parent_id: Option<i32>, conn: &mut SqliteConnection) -> Result<Vec<EfdC110>, Error> {
         if let Some(id) = parent_id {
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
                 .filter(schema::parent_id.eq(&id))
                 .select(EfdC110::as_select())
-                .load(&mut conn)?)
+                .load(conn)?)
         } else {
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
                 .select(EfdC110::as_select())
-                .load(&mut conn)?)
+                .load(conn)?)
         }
     }
 
