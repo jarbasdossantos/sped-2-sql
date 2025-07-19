@@ -75,14 +75,14 @@ pub struct Progress {
     pub finished_all_files: bool,
 }
 
-pub async fn export(data: ExportFile) -> Result<Vec<Box<dyn Model>>, Error> {
+pub async fn export(data: ExportFile) -> Result<tokio::sync::mpsc::Receiver<Box<dyn Model>>, Error> {
     if matches!(data.sped_type, SpedType::Efd) {
         register_efd_models();
     } else {
         register_icms_ipi_models();
     };
 
-    let file_data = File::get_file_data(data).await?;
+    let file_data = File::stream_file_data(data).await?;
 
     Ok(file_data)
 }
@@ -322,7 +322,6 @@ async fn create_file_entry(name: String, sped_type: SpedType) -> Result<i32, Err
         .execute(&mut connection)?;
 
     Ok(sql::<Integer>("SELECT last_insert_rowid()").get_result::<i32>(&mut connection)?)
-    // TODO: Fix this, it's not returning the correct ID
 }
 
 pub async fn clean() -> Result<(), anyhow::Error> {
