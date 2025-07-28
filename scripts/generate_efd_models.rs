@@ -5,14 +5,14 @@ use std::path::Path;
 
 static REG_MODELS_PREFIX: &str = "reg_";
 static EFD_MODELS_PREFIX: &str = "efd_";
-static MODELS_FOLDER: &str = "src/models/";
+static MODELS_FOLDER: &str = "./src/models/";
 static REG_MODEL_PREFIX: &str = "Reg";
 static EFD_MODEL_PREFIX: &str = "Efd";
 
 fn main() -> std::io::Result<()> {
     // Ler o conteúdo do arquivo schemas.rs
     let mut schemas_content = String::new();
-    fs::File::open("src/schemas.rs")
+    fs::File::open("./src/schemas.rs")
         .expect("Failed to open schemas.rs file")
         .read_to_string(&mut schemas_content)
         .expect("Failed to read schemas.rs file");
@@ -86,7 +86,7 @@ fn main() -> std::io::Result<()> {
 fn generate_model(schema: &str, schema_prefix: &str) -> std::io::Result<()> {
     // Ler o conteúdo do arquivo schemas.rs
     let mut schemas_content = String::new();
-    fs::File::open("src/schemas.rs")
+    fs::File::open("./src/schemas.rs")
         .expect("Failed to open schemas.rs file")
         .read_to_string(&mut schemas_content)
         .expect("Failed to read schemas.rs file");
@@ -167,6 +167,7 @@ use serde::{{Serialize, Deserialize}};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
+use diesel::sqlite::SqliteConnection;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -196,25 +197,25 @@ impl Model for {1} {{
         }}
     }}
 
-    async fn get(file_id: i32, parent_id: Option<i32>) -> Result<Vec<{1}>, Error> {{
-        let mut conn = DB_POOL.get().unwrap();
-
+    fn get(file_id: i32, parent_id: Option<i32>, conn: &mut SqliteConnection) -> Result<Vec<{1}>, Error> {{
         if let Some(id) = parent_id {{
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
                 .filter(schema::parent_id.eq(&id))
                 .select({1}::as_select())
-                .load(&mut conn)?)
+                .load(conn)?)
         }} else {{
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
                 .select({1}::as_select())
-                .load(&mut conn)?)
+                .load(conn)?)
         }}
     }}
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {{
         Box::pin(async move {{
+            let mut conn = DB_POOL.lock().await.get().unwrap();
+
             diesel::insert_into(table)
                 .values((
                     schema::file_id.eq(&self.file_id),
@@ -222,10 +223,10 @@ impl Model for {1} {{
                     schema::reg.eq(&self.reg.clone()),
             {4}
                 ))
-                .execute(&mut DB_POOL.get().unwrap())?;
+                .execute(&mut conn)?;
 
-            sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut DB_POOL.get().unwrap())
+            Ok(sql::<Integer>("SELECT last_insert_rowid()")
+                .get_result::<i32>(&mut conn)?)
         }})
     }}
 
@@ -294,10 +295,10 @@ fn extract_fields_from_schema(schema_content: &str, schema_name: &str) -> Vec<St
         // Se estamos no schema alvo e a linha contém uma definição de campo
         if in_target_schema
             && trimmed.contains("->")
-            && (!trimmed.starts_with("id")
-            && !trimmed.starts_with("file_id")
-            && !trimmed.starts_with("parent_id")
-            && !trimmed.starts_with("reg"))
+            && (!trimmed.starts_with("id ")
+                && !trimmed.starts_with("file_id ")
+                && !trimmed.starts_with("parent_id ")
+                && !trimmed.starts_with("reg "))
         {
             if let Some(field) = trimmed.split_whitespace().next() {
                 fields.push(field.to_string());
