@@ -1,6 +1,6 @@
 #[allow(clippy::all)]
 use super::traits::Model;
-use crate::database::DB_POOL;
+use crate::database::get_pool;
 use crate::models::traits::FilesModel;
 use crate::schemas::files::dsl as schema;
 use crate::utils::file_structure::{efd::FILE_STRUCTURE, get_reg_children};
@@ -26,7 +26,7 @@ pub struct File {
 #[async_trait]
 impl FilesModel for File {
     async fn get_file(file_id: i32, sped_type: Option<SpedType>) -> Result<File, anyhow::Error> {
-        let mut conn = DB_POOL.lock().await.get().unwrap();
+        let mut conn = get_pool().lock().await.get()?;
 
         if let Some(sped) = sped_type {
             let sped = match sped {
@@ -58,7 +58,7 @@ impl FilesModel for File {
         let registers = file_data.registers.clone();
         let sped_type = file_data.sped_type;
 
-        let mut conn = DB_POOL.lock().await.get()?;
+        let mut conn = get_pool().lock().await.get()?;
 
         tokio::task::spawn_blocking(move || {
             fn fetch_recursive_stream(

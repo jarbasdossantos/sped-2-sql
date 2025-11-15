@@ -1,4 +1,4 @@
-use crate::database::DB_POOL;
+use crate::database::get_pool;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
 use crate::schemas::efd_0000::dsl as schema;
@@ -9,14 +9,14 @@ use diesel::dsl::sql;
 use diesel::prelude::Queryable;
 use diesel::result::Error;
 use diesel::sql_types::Integer;
+use diesel::sqlite::SqliteConnection;
 use diesel::RunQueryDsl;
 use diesel::{ExpressionMethods, Selectable};
 use diesel::{QueryDsl, SelectableHelper};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
-use diesel::sqlite::SqliteConnection;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -70,7 +70,11 @@ impl Model for Efd0000 {
         }
     }
 
-    fn get(file_id: i32, parent_id: Option<i32>, conn: &mut SqliteConnection) -> Result<Vec<Efd0000>, Error> {
+    fn get(
+        file_id: i32,
+        parent_id: Option<i32>,
+        conn: &mut SqliteConnection,
+    ) -> Result<Vec<Efd0000>, Error> {
         if let Some(id) = parent_id {
             Ok(table
                 .filter(schema::file_id.eq(&file_id))
@@ -85,9 +89,9 @@ impl Model for Efd0000 {
         }
     }
 
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
+    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output = Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
-            let mut conn = DB_POOL.lock().await.get().unwrap();
+            let mut conn = get_pool().lock().await.get().unwrap();
 
             diesel::insert_into(table)
                 .values((
@@ -110,8 +114,7 @@ impl Model for Efd0000 {
                 ))
                 .execute(&mut conn)?;
 
-            Ok(sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut conn)?)
+            Ok(sql::<Integer>("SELECT last_insert_rowid()").get_result::<i32>(&mut conn)?)
         })
     }
 
@@ -138,5 +141,23 @@ impl fmt::Display for Efd0000 {
     }
 }
 
-impl_display_fields!(Efd0000, [reg, cod_ver, tipo_escrit, ind_sit_esp, num_rec_anterior, dt_ini, dt_fin, nome, cnpj, uf, cod_mun, suframa, ind_nat_pj, ind_ativ]);
+impl_display_fields!(
+    Efd0000,
+    [
+        reg,
+        cod_ver,
+        tipo_escrit,
+        ind_sit_esp,
+        num_rec_anterior,
+        dt_ini,
+        dt_fin,
+        nome,
+        cnpj,
+        uf,
+        cod_mun,
+        suframa,
+        ind_nat_pj,
+        ind_ativ
+    ]
+);
 register_model!(Efd0000, "0000");

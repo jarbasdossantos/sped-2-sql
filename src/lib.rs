@@ -5,6 +5,7 @@ pub mod schemas;
 mod sped;
 pub mod utils;
 
+use crate::database::get_pool;
 use crate::models::files::File;
 use crate::models::registry::{register_efd_models, register_icms_ipi_models};
 use crate::models::traits::FilesModel;
@@ -75,7 +76,9 @@ pub struct Progress {
     pub finished_all_files: bool,
 }
 
-pub async fn export(data: ExportFile) -> Result<tokio::sync::mpsc::Receiver<Box<dyn Model>>, Error> {
+pub async fn export(
+    data: ExportFile,
+) -> Result<tokio::sync::mpsc::Receiver<Box<dyn Model>>, Error> {
     if matches!(data.sped_type, SpedType::Efd) {
         register_efd_models();
     } else {
@@ -311,21 +314,17 @@ async fn create_file_entry(name: String, sped_type: SpedType) -> Result<i32, Err
         SpedType::IcmsIpi => "icms_ipi",
     };
 
-    let mut connection = DB_POOL
+    let mut connection = get_pool()
         .lock()
         .await
         .get()
-        .map_err(|e| Error::msg(format!("Failed to get DB connection: {e}")))?;
+        .expect("Failed to get DB connection");
 
     diesel::insert_into(table)
         .values((schema::name.eq(&name), schema::sped_type.eq(&sped)))
         .execute(&mut connection)?;
 
     Ok(sql::<Integer>("SELECT last_insert_rowid()").get_result::<i32>(&mut connection)?)
-}
-
-pub async fn clean() -> Result<(), anyhow::Error> {
-    database::clean().await
 }
 
 pub async fn send_status(

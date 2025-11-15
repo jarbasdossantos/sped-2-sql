@@ -1,4 +1,4 @@
-use crate::database::DB_POOL;
+use crate::database::get_pool;
 use crate::models::traits::Model;
 use crate::models::utils::get_field;
 use crate::schemas::efd_d200::dsl as schema;
@@ -81,7 +81,7 @@ impl Model for EfdD200 {
 
     fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {
         Box::pin(async move {
-            let mut conn = DB_POOL.lock().await.get().unwrap();
+            let mut conn = get_pool().lock().await.get().unwrap();
 
             diesel::insert_into(table)
                 .values((
