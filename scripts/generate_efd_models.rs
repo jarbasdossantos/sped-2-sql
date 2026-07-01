@@ -115,32 +115,7 @@ fn generate_model(schema: &str, schema_prefix: &str) -> std::io::Result<()> {
         schema.to_lowercase()
     );
 
-    if Path::new(&file_path).exists() {
-        return Ok(());
-    }
-
-    let struct_fields = fields
-        .iter()
-        .map(|f| format!("    pub {f}: Option<String>,"))
-        .collect::<Vec<_>>()
-        .join("\n");
-
-    let mut i = 1;
-
-    let new_fields = fields
-        .iter()
-        .map(|f| {
-            i += 1;
-            format!("        {f}: get_field(&fields, {i}),")
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-
-    let save_fields = fields
-        .iter()
-        .map(|f| format!("schema::{f}.eq(&self.{f}),"))
-        .collect::<Vec<_>>()
-        .join("\n");
+    // Sempre regenera para refletir a macro atual
 
     let display_fields = fields
         .iter()
@@ -148,122 +123,24 @@ fn generate_model(schema: &str, schema_prefix: &str) -> std::io::Result<()> {
         .collect::<Vec<_>>()
         .join(", ");
 
-    let content = format!(
-        r#"use crate::database::DB_POOL;
-use crate::models::traits::Model;
-use crate::models::utils::get_field;
-use crate::schemas::{6}{0}::dsl as schema;
-use crate::schemas::{6}{0}::table;
-use crate::{{impl_display_fields, register_model}};
-use async_trait::async_trait;
-use diesel::dsl::sql;
-use diesel::prelude::Queryable;
-use diesel::result::Error;
-use diesel::sql_types::Integer;
-use diesel::RunQueryDsl;
-use diesel::{{ExpressionMethods, Selectable}};
-use diesel::{{QueryDsl, SelectableHelper}};
-use serde::{{Serialize, Deserialize}};
-use std::fmt;
-use std::future::Future;
-use std::pin::Pin;
-use diesel::sqlite::SqliteConnection;
+    let schema_full = format!("{}{}", schema_prefix, schema.to_lowercase());
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Selectable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[diesel(table_name = crate::schemas::{6}{0}::dsl)]
-pub struct {1} {{
-    pub id: i32,
-    pub file_id: Option<i32>,
-    pub parent_id: Option<i32>,
-    pub reg: Option<String>,
-{2}
-}}
-
-#[async_trait]
-impl Model for {1} {{
-    fn new(
-        fields: Vec<&str>,
-        new_id: Option<i32>,
-        new_parent_id: Option<i32>,
-        new_file_id: i32,
-    ) -> Self {{
-        {1} {{
-            id: new_id.unwrap_or(0),
-            file_id: Some(new_file_id),
-            parent_id: new_parent_id,
-            reg: fields.get(1).map(|s| s.to_string()),
-            {3}
-        }}
-    }}
-
-    fn get(file_id: i32, parent_id: Option<i32>, conn: &mut SqliteConnection) -> Result<Vec<{1}>, Error> {{
-        if let Some(id) = parent_id {{
-            Ok(table
-                .filter(schema::file_id.eq(&file_id))
-                .filter(schema::parent_id.eq(&id))
-                .select({1}::as_select())
-                .load(conn)?)
-        }} else {{
-            Ok(table
-                .filter(schema::file_id.eq(&file_id))
-                .select({1}::as_select())
-                .load(conn)?)
-        }}
-    }}
-
-    fn save<'a>(&'a self) -> Pin<Box<dyn Future<Output=Result<i32, Error>> + Send + 'a>> {{
-        Box::pin(async move {{
-            let mut conn = DB_POOL.lock().await.get().unwrap();
-
-            diesel::insert_into(table)
-                .values((
-                    schema::file_id.eq(&self.file_id),
-                    schema::parent_id.eq(&self.parent_id),
-                    schema::reg.eq(&self.reg.clone()),
-            {4}
-                ))
-                .execute(&mut conn)?;
-
-            Ok(sql::<Integer>("SELECT last_insert_rowid()")
-                .get_result::<i32>(&mut conn)?)
-        }})
-    }}
-
-    fn get_id(&self) -> Option<i32> {{
-        Some(self.id)
-    }}
-
-    fn get_file_id(&self) -> Option<i32> {{
-        self.file_id
-    }}
-
-    fn get_entity_name(&self) -> String {{
-        "{1}".to_string()
-    }}
-
-    fn get_display_fields(&self) -> Vec<(String, String)> {{
-        self.generate_display_fields()
-    }}
-}}
-
-impl fmt::Display for {1} {{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {{
-        self.display_format(f)
-    }}
-}}
-
-impl_display_fields!({1}, [reg, {5}]);
-register_model!({1}, "{0}");
-"#,
-        schema.to_lowercase(),
-        model_name,
-        struct_fields,
-        new_fields,
-        save_fields,
-        display_fields,
-        schema_prefix
-    );
+    let content = if fields.is_empty() {
+        format!(
+            "sped_model!({model_name}, \"{reg_lower}\", {schema_full}, []);\n",
+            model_name = model_name,
+            reg_lower = schema.to_lowercase(),
+            schema_full = schema_full,
+        )
+    } else {
+        format!(
+            "sped_model!({model_name}, \"{reg_lower}\", {schema_full}, [{fields}]);\n",
+            model_name = model_name,
+            reg_lower = schema.to_lowercase(),
+            schema_full = schema_full,
+            fields = display_fields,
+        )
+    };
 
     fs::write(&file_path, content)?;
     println!("Modelo gerado: {file_path}");
@@ -321,7 +198,7 @@ fn update_mod_file(schema_files: &Vec<String>, model_prefix: &str) {
     for schema in schema_files {
         mod_file_content.push_str(&format!(
             "pub mod {}{};\n",
-            REG_MODELS_PREFIX,
+            model_prefix,
             schema.to_lowercase()
         ));
     }
