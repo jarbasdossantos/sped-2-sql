@@ -1,9 +1,15 @@
 pub mod database;
+#[macro_use]
 pub mod macros;
 pub mod models;
 pub mod schemas;
 mod sped;
 pub mod utils;
+
+pub mod domain;
+pub mod ports;
+pub mod adapters;
+pub mod application;
 
 use crate::database::get_pool;
 use crate::models::files::File;
